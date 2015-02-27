@@ -5,8 +5,17 @@ import java.io.File;
 import java.io.IOException;
 
 public class JarSystemFileView
-        extends FileSystemView {
+        extends FileSystemView
+{
+    @Override
+    public boolean isRoot(File f) {
+        return super.isRoot(f);
+    }
 
+    @Override
+    public Boolean isTraversable(File f) {
+        return super.isTraversable(f);
+    }
 
     @Override
     public File createNewFolder(File containingDir) throws IOException {
