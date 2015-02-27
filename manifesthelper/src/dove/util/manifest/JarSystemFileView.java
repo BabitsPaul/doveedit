@@ -4,9 +4,6 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by Babits on 27/02/2015.
- */
 public class JarSystemFileView
         extends FileSystemView {
 
