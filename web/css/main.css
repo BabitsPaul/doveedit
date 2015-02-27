@@ -1,0 +1,13 @@
+p.menubar
+{
+    color:black;
+    font-size:16px;
+    height:30px;
+    border:5px groove;
+    border-color:black;
+}
+
+body.defaultbody
+{
+    background-image:url('../resources/icon.png');
+}

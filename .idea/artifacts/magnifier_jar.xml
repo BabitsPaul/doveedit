@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="magnifier:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/magnifier_jar</output-path>
+    <root id="archive" name="magnifier.jar">
+      <element id="module-output" name="magnifier" />
+    </root>
+  </artifact>
+</component>

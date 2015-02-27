@@ -1,0 +1,30 @@
+<project name="magnifiercmd" default="jar" basedir="../../">
+    <property name="build" value="//build"/>
+    <property name="jar" value="${basedir}/magnifiercmd.jar"/>
+    <property name="src" value="//src"/>
+    <property name="magnifierjar" value="${basedir}/util/magnifier.jar"/>
+
+    <target name="build" depends="precompile">
+        <javac srcdir="${build}" destdir="${build}"/>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar basedir="${build}" destfile="${jar}">
+            <manifest>
+                <attribute name="Implementation-Version" value="1.0"/>
+                <attribute name="Implementation-Title" value="MagnifierCommand"/>
+                <attribute name="Class-Path" value="${magnifierjar}"/>
+            </manifest>
+        </jar>
+
+        <antcall target="cleanup"/>
+    </target>
+
+    <target name="cleanup">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="precompile">
+        <mkdir dir="${build}"/>
+    </target>
+</project>

@@ -1,0 +1,26 @@
+<project name="keyredirect" basedir="../..//" default="jar">
+    <property name="build" value="//build"/>
+    <property name="jar" value="${basedir}/keyredirect.jar"/>
+    <property name="src" value="//src"/>
+
+    <target name="precompile">
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="build" depends="precompile">
+        <javac srcdir="${src}" destdir="${build}"/>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar basedir="${build}" destfile="${jar}">
+            <manifest>
+            </manifest>
+        </jar>
+
+        <antcall target="postcompile"/>
+    </target>
+
+    <target name="postcompile">
+        <delete dir="${build}"/>
+    </target>
+</project>

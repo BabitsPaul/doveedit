@@ -1,0 +1,28 @@
+<project name="magnifier" basedir="../" default="jar">
+    <property name="sourcedir" value="${basedir}/src"/>
+    <property name="builddir" value="${basedir}/build/magnifier"/>
+    <property name="jarfile" value="${basedir}/util/magnifier.jar"/>
+
+    <target name="precompile">
+        <mkdir dir="${builddir}"/>
+    </target>
+
+    <target name="javac">
+        <javac srcdir="${sourcedir}" destdir="${builddir}"/>
+    </target>
+
+    <target name="jar">
+        <jar destfile="${jarfile}" basedir="${sourcedir}">
+            <manifest>
+                <attribute name="Implementation-Version" value="1.0"/>
+                <attribute name="Implementation-Name" value="Magnifier"/>
+            </manifest>
+        </jar>
+
+        <antcall target="postcompile"/>
+    </target>
+
+    <target name="postcompile">
+        <delete dir="${builddir}"/>
+    </target>
+</project>

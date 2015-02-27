@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/util/bitop/bitop.iml" filepath="$PROJECT_DIR$/util/bitop/bitop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/clipboard/clipboard.iml" filepath="$PROJECT_DIR$/clipboard/clipboard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cmd/cmd.iml" filepath="$PROJECT_DIR$/cmd/cmd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codec/codeclib/codeclib.iml" filepath="$PROJECT_DIR$/codec/codeclib/codeclib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/collections/collections.iml" filepath="$PROJECT_DIR$/util/collections/collections.iml" />
+      <module fileurl="file://$PROJECT_DIR$/commands/color/color.iml" filepath="$PROJECT_DIR$/commands/color/color.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/concurrent/concurrent.iml" filepath="$PROJECT_DIR$/util/concurrent/concurrent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/config/config.iml" filepath="$PROJECT_DIR$/config/config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dove/dove.iml" filepath="$PROJECT_DIR$/dove/dove.iml" />
+      <module fileurl="file://$PROJECT_DIR$/doveedit.iml" filepath="$PROJECT_DIR$/doveedit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codec/gif/gif.iml" filepath="$PROJECT_DIR$/codec/gif/gif.iml" />
+      <module fileurl="file://$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" filepath="$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lang/lang.iml" filepath="$PROJECT_DIR$/lang/lang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/done/util/magnifier/magnifier.iml" filepath="$PROJECT_DIR$/done/util/magnifier/magnifier.iml" />
+      <module fileurl="file://$PROJECT_DIR$/done/commands/magnifiercmd/magnifiercmd.iml" filepath="$PROJECT_DIR$/done/commands/magnifiercmd/magnifiercmd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/manifesthelper/manifesthelper.iml" filepath="$PROJECT_DIR$/manifesthelper/manifesthelper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/math/math.iml" filepath="$PROJECT_DIR$/util/math/math.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codec/md5/md5.iml" filepath="$PROJECT_DIR$/codec/md5/md5.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/misclib/misclib.iml" filepath="$PROJECT_DIR$/util/misclib/misclib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/net/net.iml" filepath="$PROJECT_DIR$/net/net.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/treelib/treelib.iml" filepath="$PROJECT_DIR$/util/treelib/treelib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/undo/undo.iml" filepath="$PROJECT_DIR$/undo/undo.iml" />
+    </modules>
+  </component>
+</project>

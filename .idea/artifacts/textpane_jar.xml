@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="textpane:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/textpane_jar</output-path>
+    <properties id="ant-postprocessing">
+      <options enabled="true" />
+    </properties>
+    <root id="root">
+      <element id="archive" name="textpane.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/done/util/magnifier/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="magnifier" />
+        <element id="module-output" name="magnifiercmd" />
+        <element id="module-output" name="cmd" />
+        <element id="module-output" name="dove" />
+        <element id="module-output" name="doveedit" />
+      </element>
+    </root>
+  </artifact>
+</component>
