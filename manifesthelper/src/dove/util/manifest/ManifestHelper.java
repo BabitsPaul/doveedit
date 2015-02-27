@@ -282,6 +282,10 @@ public class ManifestHelper {
         }
     }
 
+    //////////////////////////////////////////////////////////////////////
+    // manifest helpermethods
+    //////////////////////////////////////////////////////////////////////
+
     /**
      * selects a manifestfile
      * <p>
@@ -486,6 +490,8 @@ public class ManifestHelper {
 
                 dialog.setVisible(false);
                 dialog.dispose();
+
+                manifestEdited = true;
             });
             mainAttributes.add(add, BorderLayout.SOUTH);
         }
@@ -573,6 +579,8 @@ public class ManifestHelper {
 
                 dialog.setVisible(false);
                 dialog.dispose();
+
+                manifestEdited = true;
             });
             fileAttributes.add(add);
         }
@@ -613,7 +621,10 @@ public class ManifestHelper {
             vars.remove(selected);
             frame.remove(selected);
 
+            frame.revalidate();
             frame.repaint();
+
+            manifestEdited = true;
         });
         dialog.add(remove);
 
