@@ -548,7 +548,11 @@ public class ManifestHelper {
                             return;
 
                         fileName.setText(((JarEntry) entrySelection.getSelectedItem()).getName());
+
+                        fileDialog.setVisible(false);
+                        fileDialog.dispose();
                     });
+                    fileDialog.add(selectFile);
 
                     fileDialog.setVisible(true);
                 }
@@ -664,9 +668,12 @@ public class ManifestHelper {
         if (jarEmbedded) {
             JarFile jar = null;
             JarOutputStream jos = null;
-            File njar = new File("temp.jar");
+            File njar = new File("temp.jar").getAbsoluteFile();
 
             try {
+                if (!njar.createNewFile())
+                    throw new IOException("Failed to create tempfile");
+
                 jar = new JarFile(manifest);
 
                 jos = new JarOutputStream(new FileOutputStream(njar), mf);
@@ -693,13 +700,22 @@ public class ManifestHelper {
                     jos.closeEntry();
                 }
 
+                //close jar
                 jar.close();
+                jar = null;
+
+                //close jaroutputstream
+                jos.flush();
+                jos.close();
+                jos = null;
+
                 if (!manifest.delete())
                     throw new IOException("Failed to delete old jar");
 
-                njar = new File("temp.jar");
                 if (!njar.renameTo(manifest))
                     throw new IOException("Failed to replace jar");
+
+                manifestEdited = false;
             }
             catch (IOException e) {
                 JOptionPane.showMessageDialog(frame, "failed to commit changes - cause: " + e.getMessage());
@@ -734,6 +750,8 @@ public class ManifestHelper {
                 mf.write(fos);
                 fos.flush();
                 fos.close();
+
+                manifestEdited = false;
             }
             catch (IOException e) {
                 JOptionPane.showMessageDialog(frame, "Failed to save manifestfile to: " +
