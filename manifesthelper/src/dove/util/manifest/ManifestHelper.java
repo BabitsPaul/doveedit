@@ -478,10 +478,16 @@ public class ManifestHelper {
 
                 ManifestAttribute attribute = new ManifestAttribute(name.getText(), value.getText(), true);
 
-                frame.add(attribute);
+                attributePanel.add(attribute);
                 vars.add(attribute);
+
+                frame.revalidate();
+                frame.repaint();
+
+                dialog.setVisible(false);
+                dialog.dispose();
             });
-            attributePanel.add(add, BorderLayout.SOUTH);
+            mainAttributes.add(add, BorderLayout.SOUTH);
         }
 
         /////////////////////////////////////////////////////////////////////
@@ -505,28 +511,38 @@ public class ManifestHelper {
             searchFile.addActionListener(e ->
             {
                 if (jarEmbedded) {
-                    JFileChooser jfc = new JFileChooser(manifest.getName() + "!/");
-                    jfc.showOpenDialog(dialog);
+                    final JComboBox<JarEntry> entrySelection = new JComboBox<>();
 
                     try {
                         JarFile jar = new JarFile(manifest);
 
-                        ArrayList<JarEntry> entries = new ArrayList<JarEntry>();
+                        ArrayList<JarEntry> entries = new ArrayList<>();
                         Enumeration<JarEntry> entrieEnum = jar.entries();
 
                         while (entrieEnum.hasMoreElements())
                             entries.add(entrieEnum.nextElement());
 
+                        entrySelection.setModel(new DefaultComboBoxModel<>(entries.toArray(new JarEntry[entries.size()])));
                     }
                     catch (IOException ex) {
                         JOptionPane.showMessageDialog(dialog, "Failed to load files from jar");
+                        return;
                     }
 
                     JDialog fileDialog = new JDialog(dialog, "Choose File", true);
 
                     fileDialog.getContentPane().setLayout(new BoxLayout(fileDialog.getContentPane(), BoxLayout.Y_AXIS));
 
-                    JComboBox<File> fileJcb = new JComboBox<File>();
+                    fileDialog.add(entrySelection);
+
+                    JButton selectFile = new JButton("Select File");
+                    selectFile.addActionListener(ex ->
+                    {
+                        if (entrySelection.getSelectedItem() == null)
+                            return;
+
+                        fileName.setText(((JarEntry) entrySelection.getSelectedItem()).getName());
+                    });
 
                     fileDialog.setVisible(true);
                 }
@@ -549,7 +565,11 @@ public class ManifestHelper {
                 if (fileName.getText().length() == 0 || attribute.getText().length() == 0)
                     return;
 
-                frame.add(new FileAttribute(fileName.getText(), attribute.getText()));
+                FileAttribute fattribute = new FileAttribute(fileName.getText(), attribute.getText());
+                attributePanel.add(fattribute);
+                vars.add(fattribute);
+                frame.revalidate();
+                frame.repaint();
 
                 dialog.setVisible(false);
                 dialog.dispose();
@@ -641,7 +661,13 @@ public class ManifestHelper {
                 jos = new JarOutputStream(new FileOutputStream(njar), mf);
                 Enumeration<JarEntry> entries = jar.entries();
                 while (entries.hasMoreElements()) {
-                    jos.putNextEntry(entries.nextElement());
+                    JarEntry entry = entries.nextElement();
+
+                    //ignore manifestfile (replace with new manifest)
+                    if (entry.getName().endsWith(".MF"))
+                        continue;
+
+                    jos.putNextEntry(entry);
                     jos.flush();
                     jos.closeEntry();
                 }
@@ -655,7 +681,7 @@ public class ManifestHelper {
                     throw new IOException("Failed to replace jar");
             }
             catch (IOException e) {
-                JOptionPane.showMessageDialog(null, null);
+                JOptionPane.showMessageDialog(frame, "failed to commit changes - cause: " + e.getMessage());
             }
             finally {
                 if (jar != null)
