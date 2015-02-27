@@ -678,7 +678,17 @@ public class ManifestHelper {
                     if (entry.getName().endsWith(".MF"))
                         continue;
 
-                    jos.putNextEntry(entry);
+                    InputStream is = jar.getInputStream(entry);
+
+                    //jos.putNextEntry(entry);
+                    //create a new entry to avoid ZipException: invalid entry compressed size
+                    jos.putNextEntry(new JarEntry(entry.getName()));
+                    byte[] buffer = new byte[1048];
+                    int bytesRead;
+                    while ((bytesRead = is.read(buffer)) != -1) {
+                        jos.write(buffer, 0, bytesRead);
+                    }
+                    is.close();
                     jos.flush();
                     jos.closeEntry();
                 }
