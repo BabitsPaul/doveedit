@@ -865,7 +865,8 @@ public class ManifestHelper {
 
         public void updateManifest(Manifest manifest)
                 throws IOException {
-            manifest.read(new ByteArrayInputStream((name + "\n" + value).getBytes()));
+            manifest.read(new ByteArrayInputStream(name.getBytes()));
+            manifest.read(new ByteArrayInputStream(value.getText().getBytes()));
         }
     }
 }
