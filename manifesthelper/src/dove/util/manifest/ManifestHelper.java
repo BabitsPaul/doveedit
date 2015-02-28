@@ -12,10 +12,10 @@ import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.*;
+import java.util.stream.Stream;
 
 public class ManifestHelper {
     /**
@@ -93,10 +93,11 @@ public class ManifestHelper {
      * the table containing all attributes
      */
     private ArrayList<ManifestAttribute> vars;
+
     /**
      * the panel containing the attributes
      */
-    private JPanel                       attributePanel;
+    private JPanel attributePanel;
 
     /**
      * creates a new manifesthelper and initializes
@@ -407,10 +408,24 @@ public class ManifestHelper {
         attributePanel.removeAll();
 
         mf.getMainAttributes().entrySet().forEach(e ->
-                attributePanel.add(new ManifestAttribute(e.getKey().toString(), e.getValue().toString(), true)));
+        {
+            ManifestAttribute attribute = new MainAttribute(e.getKey().toString(), e.getValue().toString());
 
+            attributePanel.add(attribute);
+            vars.add(attribute);
+        });
         mf.getEntries().entrySet().forEach(e ->
-                attributePanel.add(new ManifestAttribute(e.getKey(), e.getValue().toString(), false)));
+        {
+            String file = e.getKey();
+
+            FileAttribute fileAttribute = new FileAttribute(file);
+
+            for (Map.Entry entry : e.getValue().entrySet())
+                fileAttribute.addAttribute(entry.getKey().toString(), entry.getValue().toString());
+
+            attributePanel.add(fileAttribute);
+            vars.add(fileAttribute);
+        });
 
         frame.revalidate();
         frame.repaint();
@@ -480,7 +495,16 @@ public class ManifestHelper {
                 if (name.getText().length() == 0 || value.getText().length() == 0)
                     return;
 
-                ManifestAttribute attribute = new ManifestAttribute(name.getText(), value.getText(), true);
+                if (vars.stream().filter(a ->
+                        a instanceof MainAttribute && ((MainAttribute) a).name.equals(name.getText())).count() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "Attribute " + name.getText() + "already exists");
+
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                    return;
+                }
+
+                MainAttribute attribute = new MainAttribute(name.getText(), value.getText());
 
                 attributePanel.add(attribute);
                 vars.add(attribute);
@@ -567,7 +591,7 @@ public class ManifestHelper {
             });
             file.add(searchFile);
 
-            JTextField attribute = new JTextField();
+            JTextArea attribute = new JTextArea();
             fileAttributes.add(attribute);
 
             JButton add = new JButton("Add Attribute");
@@ -575,7 +599,16 @@ public class ManifestHelper {
                 if (fileName.getText().length() == 0 || attribute.getText().length() == 0)
                     return;
 
-                FileAttribute fattribute = new FileAttribute(fileName.getText(), attribute.getText());
+                Stream<ManifestAttribute> searchMatching = vars.stream().filter(a ->
+                        (a instanceof FileAttribute && ((FileAttribute) a).file.equals(fileName.getText())));
+                if (searchMatching.count() != 0) {
+                    JOptionPane.showMessageDialog(dialog, "FileAttribute already exists");
+
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                }
+
+                FileAttribute fattribute = new FileAttribute(fileName.getText());
                 attributePanel.add(fattribute);
                 vars.add(fattribute);
                 frame.revalidate();
@@ -610,7 +643,7 @@ public class ManifestHelper {
         remove.addActionListener(e -> {
             ManifestAttribute selected = (ManifestAttribute) attribute.getSelectedItem();
 
-            if (selected.isMainAttribute()) {
+            if (selected instanceof MainAttribute) {
                 int continue_ = JOptionPane.showOptionDialog(dialog, "Remove Mainattribute?", "", JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE, null,
                         new String[]{"Remove", "Abort"}, "Abort");
@@ -661,7 +694,7 @@ public class ManifestHelper {
                 a.updateManifest(mf);
             }
             catch (IOException e) {
-                JOptionPane.showMessageDialog(frame, "Failed to save attribute " + a.name + " cause: " + e.getMessage());
+                JOptionPane.showMessageDialog(frame, "Failed to save attribute " + a.toString() + " cause: " + e.getMessage());
             }
         });
 
@@ -767,22 +800,30 @@ public class ManifestHelper {
     /**
      * helperclass for manifestattributes
      */
-    private class ManifestAttribute
+    private abstract class ManifestAttribute
             extends JPanel {
+        /**
+         * insert the data related to this attribute into the manifest
+         *
+         * @param manifest the manifest to update
+         * @throws IOException internal exception
+         * @see java.util.jar.Manifest
+         */
+        public abstract void updateManifest(Manifest manifest)
+                throws IOException;
+    }
+
+    private class MainAttribute
+            extends ManifestAttribute {
         /**
          * name of the manifestattribute
          */
-        protected String name;
+        private String name;
 
         /**
          * textfield containing the value of the manifestattribute
          */
-        protected JTextField value;
-
-        /**
-         * true, if this attribute is a mainattribute
-         */
-        protected boolean mainAttribute;
+        private JTextField value;
 
         /**
          * creates a new manifestattribute
@@ -791,10 +832,8 @@ public class ManifestHelper {
          * @param name the name of the attribute
          * @param val  the value of the attribute
          */
-        public ManifestAttribute(String name, String val, boolean isMainAttribute) {
-            if (isMainAttribute)
-                setBackground(Color.orange);
-            mainAttribute = isMainAttribute;
+        public MainAttribute(String name, String val) {
+            setBackground(Color.orange);
 
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -841,16 +880,7 @@ public class ManifestHelper {
             if (value.getText().length() == 0)
                 return;
 
-            if (mainAttribute) {
-                manifest.getMainAttributes().putValue(name, value.getText());
-            }
-            else {
-                manifest.read(new ByteArrayInputStream((name + ": " + value.getText()).getBytes()));
-            }
-        }
-
-        public boolean isMainAttribute() {
-            return mainAttribute;
+            manifest.getMainAttributes().putValue(name, value.getText());
         }
     }
 
@@ -859,14 +889,72 @@ public class ManifestHelper {
      */
     private class FileAttribute
             extends ManifestAttribute {
-        public FileAttribute(String file, String value) {
-            super("Name: " + file, value, false);
+        private String file;
+
+        private HashMap<String, String> attribMap;
+
+        public FileAttribute(String file) {
+            this.file = file;
+
+            attribMap = new HashMap<>();
+
+            setLayout(new BorderLayout());
+
+            ////////////////////////////////////////////////////////////////////
+            // filePanel
+            ////////////////////////////////////////////////////////////////////
+
+            JPanel filePanel = new JPanel();
+            filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.X_AXIS));
+
+            filePanel.add(new JLabel("File: "));
+
+            JTextField nameField = new JTextField();
+            filePanel.add(nameField);
+            nameField.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    setFile(nameField.getText());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    setFile(nameField.getText());
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    setFile(nameField.getText());
+                }
+            });
+
+            add(filePanel, BorderLayout.NORTH);
+
+            //////////////////////////////////////////////////////////////////////
+            // attributpanel
+            //////////////////////////////////////////////////////////////////////
+
+            //TODO create editable jtable
+        }
+
+        private void setFile(String nfile) {
+            this.file = nfile;
+        }
+
+        public void addAttribute(String name, String value) {
+            attribMap.put(name, value);
         }
 
         public void updateManifest(Manifest manifest)
                 throws IOException {
-            manifest.read(new ByteArrayInputStream(name.getBytes()));
-            manifest.read(new ByteArrayInputStream(value.getText().getBytes()));
+            Attributes attributes = new Attributes();
+
+            for (Map.Entry<String, String> entry : attribMap.entrySet()) {
+                Attributes.Name name = new Attributes.Name(entry.getKey());
+                attributes.put(name, entry.getValue());
+            }
+
+            manifest.getEntries().put(file, attributes);
         }
     }
 }
