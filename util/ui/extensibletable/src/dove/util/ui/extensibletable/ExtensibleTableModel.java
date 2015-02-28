@@ -414,7 +414,7 @@ public class ExtensibleTableModel
      * @param name        the name of the new column
      * @param clazz       the type of the new column
      */
-    public void addColumn(int afterColumn, String name, Class<?> clazz) {
+    public void addColumn(int afterColumn, String name, Class<?> clazz, Object[] nCol, boolean editable) {
         Object[][] tempData = new Object[rows][cols + 1];
         boolean[][] tempEditable = new boolean[rows][cols + 1];
 
@@ -433,8 +433,8 @@ public class ExtensibleTableModel
 
         //initialize the empty column with new data
         for (int i = 0; i < rows; i++) {
-            tempData[i][afterColumn] = null;
-            tempEditable[i][afterColumn] = true;
+            tempData[i][afterColumn] = nCol[i];
+            tempEditable[i][afterColumn] = editable;
         }
 
         table = tempData;
@@ -443,10 +443,13 @@ public class ExtensibleTableModel
         Class<?>[] clazzTemp = new Class[cols + 1];
         String[] nameTemp = new String[cols + 1];
 
-        for (int i = 0; i < afterColumn; i++) {
-            nameTemp[i] = columnNames[i];
-            clazzTemp[i] = columnClasses[i];
-        }
+        System.arraycopy(columnClasses, 0, clazzTemp, 0, afterColumn);
+        System.arraycopy(columnClasses, afterColumn + 1, clazzTemp, afterColumn, cols - afterColumn - 1);
+        clazzTemp[afterColumn] = clazz;
+
+        System.arraycopy(columnNames, 0, nameTemp, 0, afterColumn);
+        System.arraycopy(columnNames, afterColumn + 1, nameTemp, afterColumn, cols - afterColumn - 1);
+        nameTemp[afterColumn] = name;
 
         columnNames = nameTemp;
         columnClasses = clazzTemp;
@@ -527,7 +530,6 @@ public class ExtensibleTableModel
 
             tableTemp[afterRow][i] = nRow[i];
         }
-
 
         table = tableTemp;
         cellEditable = editableTemp;
