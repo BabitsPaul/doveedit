@@ -1,7 +1,15 @@
 package dove.util.ui.extensibletable;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.Arrays;
 
+/**
+ * represents an extensible tablemodel
+ * <p>
+ * this tablemodel provides (in addition to
+ * the default methods) methods for
+ * removing/adding columns/rows
+ */
 public class ExtensibleTableModel
         extends AbstractTableModel {
     /**
@@ -206,11 +214,16 @@ public class ExtensibleTableModel
      */
     @Override
     public void setValueAt(Object aValue, int row, int col) {
+        if (!cellEditable[row][col])
+            throw new IllegalStateException("Cell " + row + "/" + col + " is not editable");
+
         if (aValue != null && !columnClasses[col].isInstance(aValue))
             throw new ClassCastException("Invalid value - required: " + columnClasses[col].getCanonicalName() +
                     "given: " + aValue.getClass().getCanonicalName());
 
         table[row][col] = aValue;
+
+        fireTableCellUpdated(row, col);
     }
 
     ///////////////////////////////////////////////////////
@@ -226,6 +239,18 @@ public class ExtensibleTableModel
     @Override
     public String getColumnName(int column) {
         return columnNames[column];
+    }
+
+    /**
+     * sets the name of the specified column
+     *
+     * @param col  the column to change
+     * @param name the new name of the column
+     */
+    public void setColumnName(int col, String name) {
+        columnNames[col] = name;
+
+        fireTableStructureChanged();
     }
 
     /**
@@ -268,6 +293,8 @@ public class ExtensibleTableModel
      */
     public void makeCellEditable(int rowIndex, int columnIndex, boolean editable) {
         cellEditable[rowIndex][columnIndex] = editable;
+
+        fireTableStructureChanged();
     }
 
     ////////////////////////////////////////////////////////////
@@ -299,6 +326,8 @@ public class ExtensibleTableModel
         for (int i = 0; i < rows; i++)
             if (!clazz.isInstance(table[col][rows]))
                 throw new ClassCastException("Entry at " + i + "/" + col + " is no instance of given class");
+
+        fireTableStructureChanged();
     }
 
     ////////////////////////////////////////////////////////////
@@ -314,18 +343,133 @@ public class ExtensibleTableModel
      * @param clazz       the type of the new column
      */
     public void addColumn(int afterColumn, String name, Class<?> clazz) {
+        Object[][] tempData = new Object[rows][cols + 1];
+        boolean[][] tempEditable = new boolean[rows][cols + 1];
 
+        //move data to new tables and leave the specified column empty
+        for (int i = 0; i < afterColumn; i++)
+            for (int j = 0; j < rows; j++) {
+                tempData[i][j] = table[i][j];
+                tempEditable[i][j] = cellEditable[i][j];
+            }
+
+        for (int i = afterColumn + 1; i < cols + 1; i++)
+            for (int j = 0; j < rows; j++) {
+                tempData[j][i] = table[j][i - 1];
+                tempEditable[j][i] = cellEditable[j][i];
+            }
+
+        //initialize the empty column with new data
+        for (int i = 0; i < rows; i++) {
+            tempData[i][afterColumn] = null;
+            tempEditable[i][afterColumn] = true;
+        }
+
+        table = tempData;
+        cellEditable = tempEditable;
+
+        Class<?>[] clazzTemp = new Class[cols + 1];
+        String[] nameTemp = new String[cols + 1];
+
+        for (int i = 0; i < afterColumn; i++) {
+            nameTemp[i] = columnNames[i];
+            clazzTemp[i] = columnClasses[i];
+        }
+
+        columnNames = nameTemp;
+        columnClasses = clazzTemp;
+
+        cols += 1;
+
+        fireTableStructureChanged();
     }
 
+    /**
+     * removes the specified column and reduces the
+     * arraysize to the new size
+     *
+     * @param col the column to remove
+     */
     public void removeColumn(int col) {
+        Object[][] tempTable = new Object[rows][cols - 1];
+        boolean[][] tempEditable = new boolean[rows][cols - 1];
 
+        for (int i = 0; i < rows; i++) {
+            System.arraycopy(table[i], 0, tempTable[i], 0, col);
+            System.arraycopy(table[i], col + 1, tempTable[i], col, cols - col - 1);
+
+            System.arraycopy(cellEditable[i], 0, tempEditable[i], 0, col);
+            System.arraycopy(cellEditable[i], col + 1, tempEditable[i], col, cols - col - 1);
+        }
+
+        table = tempTable;
+        cellEditable = tempEditable;
+
+        Class<?>[] clazzTemp = new Class[cols - 1];
+        String[] nameTemp = new String[cols - 1];
+
+        System.arraycopy(columnClasses, 0, clazzTemp, 0, col);
+        System.arraycopy(columnClasses, col + 1, clazzTemp, col, cols - col - 1);
+
+        System.arraycopy(columnNames, 0, nameTemp, 0, col);
+        System.arraycopy(columnNames, col + 1, nameTemp, col, cols - col - 1);
+
+        columnClasses = clazzTemp;
+        columnNames = nameTemp;
+
+        cols -= 1;
+
+        fireTableStructureChanged();
     }
 
+    /**
+     * adds the specified row to the table
+     * and makes all new cells editable
+     * and fills them with null
+     *
+     * @param afterRow insert new row after this row
+     */
     public void addRow(int afterRow) {
+        Object[][] tableTemp = new Object[rows + 1][cols];
+        boolean[][] editableTemp = new boolean[rows + 1][cols];
 
+        for (int i = 0; i < afterRow; i++) {
+            tableTemp[i] = table[i];
+            editableTemp[i] = cellEditable[i];
+        }
+
+        for (int i = afterRow + 1; i < rows + 1; i++) {
+            tableTemp[i] = table[i - 1];
+            editableTemp[i] = cellEditable[i - 1];
+        }
+
+        tableTemp[afterRow] = new Object[cols];
+        cellEditable[afterRow] = new boolean[cols];
+
+        Arrays.fill(cellEditable[afterRow], true);
+        Arrays.fill(tableTemp[afterRow], null);
+
+        table = tableTemp;
+        cellEditable = editableTemp;
+
+        rows += 1;
+
+        fireTableStructureChanged();
     }
 
     public void removeRow(int row) {
+        Object[][] tableTemp = new Object[rows - 1][cols];
+        boolean[][] editableTemp = new boolean[rows - 1][cols];
 
+        System.arraycopy(table, 0, tableTemp, 0, row);
+        System.arraycopy(table, row + 1, tableTemp, row, rows - row - 1);
+
+        System.arraycopy(cellEditable, 0, editableTemp, 0, row);
+        System.arraycopy(cellEditable, row + 1, editableTemp, row, rows - row - 1);
+
+        table = tableTemp;
+        cellEditable = editableTemp;
+
+        fireTableStructureChanged();
     }
 }
