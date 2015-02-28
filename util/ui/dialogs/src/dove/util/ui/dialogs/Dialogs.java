@@ -1,4 +1,4 @@
-package dove.util.ui;
+package dove.util.ui.dialogs;
 
 import dove.util.misc.ValHelper;
 

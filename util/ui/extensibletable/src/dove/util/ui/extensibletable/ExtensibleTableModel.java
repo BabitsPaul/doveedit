@@ -226,6 +226,40 @@ public class ExtensibleTableModel
         fireTableCellUpdated(row, col);
     }
 
+    /**
+     * inserts the given data
+     * starting at the specified row and column
+     * into the table
+     *
+     * @param nData data to insert
+     * @param atRow startingrow
+     * @param atCol startingcolumn
+     */
+    public void insertData(Object[][] nData, int atRow, int atCol) {
+        int totalRowLengthIns = atRow + nData.length;
+        int maxRowLengthIns = rows - atRow;
+
+        int totalColLengthIns = atCol + nData[0].length;
+        int maxColLengthIns = cols - atCol;
+
+        int insertRowCount;
+        int insertColCount;
+
+        if (totalRowLengthIns > rows)
+            insertRowCount = maxRowLengthIns;
+        else
+            insertRowCount = nData.length;
+
+        if (totalColLengthIns > cols)
+            insertColCount = maxColLengthIns;
+        else
+            insertColCount = nData[0].length;
+
+        for (int i = 0; i < insertRowCount; i++)
+            for (int j = 0; j < insertColCount; j++)
+                setValueAt(nData[i][j], i + atRow, j + atCol);
+    }
+
     ///////////////////////////////////////////////////////
     // names
     ///////////////////////////////////////////////////////
@@ -291,8 +325,46 @@ public class ExtensibleTableModel
      * @param columnIndex the index of the cell to make editable
      * @param editable    the new editability of the cell
      */
-    public void makeCellEditable(int rowIndex, int columnIndex, boolean editable) {
+    public void setCellEditable(int rowIndex, int columnIndex, boolean editable) {
         cellEditable[rowIndex][columnIndex] = editable;
+
+        fireTableStructureChanged();
+    }
+
+    /**
+     * makes the specified column un-/editable
+     *
+     * @param col      the column to make editable
+     * @param editable new editability of the row
+     */
+    public void setColumnEditable(int col, boolean editable) {
+        for (int i = 0; i < rows; i++)
+            cellEditable[i][col] = editable;
+
+        fireTableStructureChanged();
+    }
+
+    /**
+     * updates the editability of the specified table
+     *
+     * @param row      the row to update
+     * @param editable the new editability of the row
+     */
+    public void setRowEditable(int row, boolean editable) {
+        for (int i = 0; i < cols; i++)
+            cellEditable[row][i] = editable;
+
+        fireTableStructureChanged();
+    }
+
+    /**
+     * makes the complete table un-/editable
+     *
+     * @param editable the new editability of the table
+     */
+    public void setAllEditable(boolean editable) {
+        for (int i = 0; i < rows; i++)
+            Arrays.fill(cellEditable[i], editable);
 
         fireTableStructureChanged();
     }
@@ -428,8 +500,9 @@ public class ExtensibleTableModel
      * and fills them with null
      *
      * @param afterRow insert new row after this row
+     * @param nRow the values to insert in the new row
      */
-    public void addRow(int afterRow) {
+    public void addRow(int afterRow, Object[] nRow, boolean[] editability) {
         Object[][] tableTemp = new Object[rows + 1][cols];
         boolean[][] editableTemp = new boolean[rows + 1][cols];
 
@@ -444,10 +517,17 @@ public class ExtensibleTableModel
         }
 
         tableTemp[afterRow] = new Object[cols];
-        cellEditable[afterRow] = new boolean[cols];
 
-        Arrays.fill(cellEditable[afterRow], true);
-        Arrays.fill(tableTemp[afterRow], null);
+        System.arraycopy(editability, 0, editableTemp[afterRow], 0, cols);
+
+        for (int i = 0; i < cols; i++) {
+            if (!columnClasses[i].isInstance(nRow[i]))
+                throw new ClassCastException("Invalid class - required: " + columnClasses[i].getCanonicalName() +
+                        "actual argument: " + nRow[i].getClass().getCanonicalName());
+
+            tableTemp[afterRow][i] = nRow[i];
+        }
+
 
         table = tableTemp;
         cellEditable = editableTemp;
@@ -457,6 +537,11 @@ public class ExtensibleTableModel
         fireTableStructureChanged();
     }
 
+    /**
+     * removes the specified row
+     *
+     * @param row the row to remove
+     */
     public void removeRow(int row) {
         Object[][] tableTemp = new Object[rows - 1][cols];
         boolean[][] editableTemp = new boolean[rows - 1][cols];

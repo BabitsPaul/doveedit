@@ -1,7 +1,6 @@
 package dove.util.ui.extensibletable;
 
-/**
- * Created by Babits on 28/02/2015.
- */
+@FunctionalInterface
 public interface TableSelectionListener {
+    public void cellSelected(TableSelectionEvent e);
 }

@@ -1,4 +1,4 @@
-package dove.util.ui;
+package dove.util.ui.misc;
 
 import java.awt.*;
 import java.util.ArrayList;

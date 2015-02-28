@@ -1,5 +1,7 @@
 package dove.util.manifest;
 
+import dove.util.ui.extensibletable.JExtensibleTable;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -934,7 +936,18 @@ public class ManifestHelper {
             // attributpanel
             //////////////////////////////////////////////////////////////////////
 
-            //TODO create editable jtable
+            Object[][] data = new Object[][]{
+                    {
+                            "Hello", "World"
+                    }
+            };
+
+            String[] header = new String[]{
+                    "A", "B"
+            };
+
+            JExtensibleTable table = new JExtensibleTable(data, header);
+            add(table, BorderLayout.CENTER);
         }
 
         private void setFile(String nfile) {
