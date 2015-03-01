@@ -1,6 +1,5 @@
 package dove.util.ui.extensibletable;
 
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.util.ArrayList;

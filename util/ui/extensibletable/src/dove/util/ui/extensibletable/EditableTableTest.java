@@ -1,6 +1,7 @@
 package dove.util.ui.extensibletable;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class EditableTableTest {
     public static void main(String[] args) {
@@ -21,7 +22,9 @@ public class EditableTableTest {
         JTable table = new JTable(data, header);
 
         JFrame frame = new JFrame("Test");
-        frame.add(table);
+        frame.setLayout(new BorderLayout());
+        frame.add(table, BorderLayout.CENTER);
+        frame.add(table.getTableHeader(), BorderLayout.NORTH);
         frame.setSize(300, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
