@@ -21,7 +21,8 @@ public class CommandLineModel {
     }
 
     public void doCommand(String cmd) {
-
+        //${val/cmd]} replace with result of reading val
+        // / executing command
     }
 
     public Object get(String key) {

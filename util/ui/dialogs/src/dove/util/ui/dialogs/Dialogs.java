@@ -1,6 +1,7 @@
 package dove.util.ui.dialogs;
 
 import dove.util.misc.ValHelper;
+import dove.util.ui.misc.FocusCycle;
 
 import javax.swing.*;
 import java.awt.*;

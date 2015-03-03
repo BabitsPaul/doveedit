@@ -19,14 +19,14 @@ public class EditableTableTest {
                 "a", "b", "c"
         };
 
-        JTable table = new JTable(data, header);
+        JTable table = new JExtensibleTable(data, header);
 
         JFrame frame = new JFrame("Test");
         frame.setLayout(new BorderLayout());
         frame.add(table, BorderLayout.CENTER);
         frame.add(table.getTableHeader(), BorderLayout.NORTH);
         frame.setSize(300, 300);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 }

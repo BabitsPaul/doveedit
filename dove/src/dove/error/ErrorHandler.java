@@ -1,7 +1,7 @@
 package dove.error;
 
 import dove.document.DocumentContext;
-import dove.util.ui.Dialogs;
+import dove.util.ui.dialogs.Dialogs;
 
 import java.awt.*;
 

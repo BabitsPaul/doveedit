@@ -16,6 +16,7 @@
       <module fileurl="file://$PROJECT_DIR$/doveedit.iml" filepath="$PROJECT_DIR$/doveedit.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" filepath="$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/gif/gif.iml" filepath="$PROJECT_DIR$/codec/gif/gif.iml" />
+      <module fileurl="file://$PROJECT_DIR$/installer/installer.iml" filepath="$PROJECT_DIR$/installer/installer.iml" />
       <module fileurl="file://$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" filepath="$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" />
       <module fileurl="file://$PROJECT_DIR$/lang/lang.iml" filepath="$PROJECT_DIR$/lang/lang.iml" />
       <module fileurl="file://$PROJECT_DIR$/done/util/magnifier/magnifier.iml" filepath="$PROJECT_DIR$/done/util/magnifier/magnifier.iml" />
@@ -28,6 +29,7 @@
       <module fileurl="file://$PROJECT_DIR$/net/net.iml" filepath="$PROJECT_DIR$/net/net.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/progress/progress.iml" filepath="$PROJECT_DIR$/util/ui/progress/progress.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/select/select.iml" filepath="$PROJECT_DIR$/util/ui/select/select.iml" />
+      <module fileurl="file://$PROJECT_DIR$/code/sha1/sha1.iml" filepath="$PROJECT_DIR$/code/sha1/sha1.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/treelib/treelib.iml" filepath="$PROJECT_DIR$/util/treelib/treelib.iml" />
       <module fileurl="file://$PROJECT_DIR$/undo/undo.iml" filepath="$PROJECT_DIR$/undo/undo.iml" />
     </modules>

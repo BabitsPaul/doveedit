@@ -5,6 +5,8 @@ import dove.util.ui.extensibletable.JExtensibleTable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -45,6 +47,75 @@ public class ManifestHelper {
                             "Trusted-Only",
                             "Trusted-Library"
                     };
+
+    /**
+     * the gridbagconstants for the
+     * titellabel of the fileattribute component
+     */
+    private static final GridBagConstraints titleConstraints = new GridBagConstraints();
+
+    /**
+     * the gridbagconstants for the
+     * namelabel of the fileattribute component
+     */
+    private static final GridBagConstraints nameLabelConstraints = new GridBagConstraints();
+
+    /**
+     * the gridbagconstants for the
+     * valuelabel of the fileattribute component
+     */
+    private static final GridBagConstraints valueLabelConstraints = new GridBagConstraints();
+
+    /**
+     * the gridbagconstants for the
+     * valuefield of the fileattribute component
+     */
+    private static final GridBagConstraints valueFieldConstraints = new GridBagConstraints();
+
+    /**
+     * the gridbagconstants for the
+     * namefield of the fileattribute component
+     */
+    private static final GridBagConstraints nameFieldConstraints = new GridBagConstraints();
+
+    /**
+     * initialize gridbagconstants for the fileattributes
+     */
+    static {
+        titleConstraints.gridx = 0;
+        titleConstraints.gridy = 0;
+        titleConstraints.gridwidth = 2;
+        titleConstraints.gridheight = 1;
+        titleConstraints.insets = new Insets(5, 5, 5, 5);
+        titleConstraints.anchor = GridBagConstraints.LINE_START;
+
+        nameLabelConstraints.gridx = 0;
+        nameLabelConstraints.gridy = 1;
+        titleConstraints.gridwidth = 1;
+        titleConstraints.gridheight = 1;
+        titleConstraints.insets = new Insets(5, 5, 5, 5);
+        titleConstraints.anchor = GridBagConstraints.CENTER;
+
+        valueLabelConstraints.gridx = 0;
+        valueLabelConstraints.gridy = 2;
+        valueLabelConstraints.gridwidth = 1;
+        valueLabelConstraints.gridheight = 1;
+        valueLabelConstraints.insets = new Insets(5 , 5 , 5 , 5);
+        valueLabelConstraints.anchor = GridBagConstraints.CENTER;
+
+        nameFieldConstraints.gridx = 1;
+        nameFieldConstraints.gridy = 1;
+        nameFieldConstraints.gridwidth = 1;
+        nameFieldConstraints.gridheight =  1;
+        nameFieldConstraints.anchor = GridBagConstraints.CENTER;
+
+        valueFieldConstraints.gridx = 1;
+        valueFieldConstraints.gridy = 2;
+        valueFieldConstraints.gridwidth = 1;
+        valueFieldConstraints.gridheight = 1;
+        valueFieldConstraints.anchor = GridBagConstraints.CENTER;
+    }
+
     /**
      * called when the user selects "Open" in the menu
      */
@@ -501,6 +572,10 @@ public class ManifestHelper {
                         a instanceof MainAttribute && ((MainAttribute) a).name.equals(name.getText())).count() != 0) {
                     JOptionPane.showMessageDialog(dialog, "Attribute " + name.getText() + "already exists");
 
+                    ManifestAttribute attribute = new MainAttribute(name.getText(), value.getText());
+                    vars.add(attribute);
+                    attributePanel.add(attribute);
+
                     dialog.setVisible(false);
                     dialog.dispose();
                     return;
@@ -610,7 +685,22 @@ public class ManifestHelper {
                     dialog.dispose();
                 }
 
+
                 FileAttribute fattribute = new FileAttribute(fileName.getText());
+
+                if (attribute.getText().length() != 0) {
+                    String[] lines = attribute.getText().split("\n");
+
+                    for (int i = 0; i < lines.length; i++) {
+                        String[] nameAttrSplit = lines[i].split(": ", 2);
+
+                        if (nameAttrSplit.length != 2)
+                            continue;
+
+                        fattribute.addAttribute(nameAttrSplit[0], nameAttrSplit[1]);
+                    }
+                }
+
                 attributePanel.add(fattribute);
                 vars.add(fattribute);
                 frame.revalidate();
@@ -660,6 +750,9 @@ public class ManifestHelper {
             vars.remove(selected);
             frame.remove(selected);
 
+            dialog.setVisible(false);
+            dialog.dispose();
+
             frame.revalidate();
             frame.repaint();
 
@@ -691,14 +784,7 @@ public class ManifestHelper {
             return;
 
         vars.forEach(a ->
-        {
-            try {
-                a.updateManifest(mf);
-            }
-            catch (IOException e) {
-                JOptionPane.showMessageDialog(frame, "Failed to save attribute " + a.toString() + " cause: " + e.getMessage());
-            }
-        });
+                a.updateManifest(mf));
 
         if (jarEmbedded) {
             JarFile jar = null;
@@ -808,11 +894,9 @@ public class ManifestHelper {
          * insert the data related to this attribute into the manifest
          *
          * @param manifest the manifest to update
-         * @throws IOException internal exception
          * @see java.util.jar.Manifest
          */
-        public abstract void updateManifest(Manifest manifest)
-                throws IOException;
+        public abstract void updateManifest(Manifest manifest);
     }
 
     private class MainAttribute
@@ -866,6 +950,11 @@ public class ManifestHelper {
             vars.add(this);
         }
 
+        /**
+         * creates a stringrepresentation of this object
+         *
+         * @return toString of this object
+         */
         @Override
         public String toString() {
             return name + ": " + value.getText();
@@ -875,10 +964,8 @@ public class ManifestHelper {
          * writes this attribute to the manifest
          *
          * @param manifest the manifest to update
-         * @throws IOException internal exception
          */
-        public void updateManifest(Manifest manifest)
-                throws IOException {
+        public void updateManifest(Manifest manifest) {
             if (value.getText().length() == 0)
                 return;
 
@@ -887,14 +974,32 @@ public class ManifestHelper {
     }
 
     /**
-     * helperclass for packageattribute
+     * helperclass for package-/fileattributes
      */
     private class FileAttribute
-            extends ManifestAttribute {
+            extends ManifestAttribute
+            implements TableModelListener {
+        /**
+         * the file this package-/fileattribute
+         * describes
+         */
         private String file;
 
+        /**
+         * the attributes related to the file
+         */
         private HashMap<String, String> attribMap;
 
+        /**
+         * the table of this attribute
+         */
+        private JExtensibleTable table;
+
+        /**
+         * creates a new attribute for the specified file
+         *
+         * @param file the file to describe
+         */
         public FileAttribute(String file) {
             this.file = file;
 
@@ -912,6 +1017,7 @@ public class ManifestHelper {
             filePanel.add(new JLabel("File: "));
 
             JTextField nameField = new JTextField();
+            nameField.setText(file);
             filePanel.add(nameField);
             nameField.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
@@ -936,30 +1042,124 @@ public class ManifestHelper {
             // attributpanel
             //////////////////////////////////////////////////////////////////////
 
-            Object[][] data = new Object[][]{
-                    {
-                            "Hello", "World"
-                    }
-            };
+            String[] header = new String[]{"Name", "Value"};
 
-            String[] header = new String[]{
-                    "A", "B"
-            };
+            Object[][] attributes = new Object[attribMap.size()][2];
 
-            JExtensibleTable table = new JExtensibleTable(data, header);
-            add(table, BorderLayout.CENTER);
+            int count = 0;
+            for (Map.Entry<String, String> entry : attribMap.entrySet()) {
+                attributes[count][0] = entry.getKey();
+                attributes[count][1] = entry.getValue();
+
+                count++;
+            }
+
+            table = new JExtensibleTable(attributes, header);
+            table.getModel().addRow(0, new String[]{"No entries available", ""}, new boolean[]{false, false});
+
+            JPanel attributePanel = new JPanel();
+            attributePanel.setLayout(new BorderLayout());
+
+            attributePanel.add(table, BorderLayout.CENTER);
+            attributePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+
+            add(attributePanel, BorderLayout.CENTER);
+
+            ///////////////////////////////////////////////////////////////////////
+            // popupmenu
+            ///////////////////////////////////////////////////////////////////////
+
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            JMenuItem addAttribute = new JMenuItem("Add Attribute");
+            addAttribute.addActionListener(e ->
+            {
+                JPanel attrPanel = new JPanel();
+                attrPanel.setLayout(new GridBagLayout());
+
+                JTextField attrName = new JTextField();
+                JTextField attrVal = new JTextField();
+
+                attrPanel.add(new JLabel("Add Attribute"), titleConstraints);
+                attrPanel.add(new JLabel("Name: "), nameLabelConstraints);
+                attrPanel.add(new JLabel("Value: "), valueLabelConstraints);
+                attrPanel.add(attrName, nameFieldConstraints);
+                attrPanel.add(attrVal, valueFieldConstraints);
+
+                if (JOptionPane.showOptionDialog(frame, attrPanel, "Enter a new Attribute", JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE, null, new String[]{"Add", "Cancel"}, "Add") == 0) {
+                    String[] nRow = new String[]{attrName.getText(), attrVal.getText()};
+                    table.getModel().addRow(-1, nRow, new boolean[]{false, true});
+                    attribMap.put(attrName.getText(), attrVal.getText());
+
+                    revalidate();
+                    repaint();
+                }
+            });
+            popupMenu.add(addAttribute);
+
+            JMenuItem removeAttribute = new JMenuItem("Remove Attribute");
+            removeAttribute.addActionListener(e ->
+            {
+                JPanel removePanel = new JPanel();
+                removePanel.setLayout(new BoxLayout(removePanel, BoxLayout.Y_AXIS));
+
+                JComboBox<String> jcb = new JComboBox<>(attribMap.keySet().toArray(new String[attribMap.size()]));
+                removePanel.add(jcb);
+
+                JButton removeBtn = new JButton("Remove selected attribute");
+                removeBtn.addActionListener(e1 -> {
+                    //noinspection SuspiciousMethodCalls
+                    attribMap.remove(jcb.getSelectedItem());
+
+                    Object[][] data = table.getModel().getData();
+                    int index = 0;
+                    for (; index < data.length; index++)
+                        if (data[index][0].equals(jcb.getSelectedItem()))
+                            break;
+                    table.getModel().removeRow(index);
+
+                    revalidate();
+                    repaint();
+                });
+                removePanel.add(removeBtn);
+            });
+            popupMenu.add(removeAttribute);
+
+            table.setComponentPopupMenu(popupMenu);
         }
 
+        /**
+         * updates the filename
+         *
+         * @param nfile the new filename
+         */
         private void setFile(String nfile) {
             this.file = nfile;
         }
 
+        /**
+         * adds/updates a new attribute to this fileattribute
+         *
+         * @param name  the name of the attribute
+         * @param value the value of the attribute
+         */
         public void addAttribute(String name, String value) {
             attribMap.put(name, value);
         }
 
-        public void updateManifest(Manifest manifest)
-                throws IOException {
+
+        @Override
+        public String toString() {
+            return "Name: " + file;
+        }
+
+        /**
+         * adds the attributes to the manifest
+         *
+         * @param manifest the manifest to update
+         */
+        public void updateManifest(Manifest manifest) {
             Attributes attributes = new Attributes();
 
             for (Map.Entry<String, String> entry : attribMap.entrySet()) {
@@ -968,6 +1168,25 @@ public class ManifestHelper {
             }
 
             manifest.getEntries().put(file, attributes);
+        }
+
+        /**
+         * listen for updates/inserts of the table
+         * and commit them to the attributeMap
+         *
+         * @param e a tablemodelevent
+         */
+        @Override
+        public void tableChanged(TableModelEvent e) {
+            if (e.getType() == TableModelEvent.INSERT ||
+                    e.getType() == TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+
+                String name = (String) table.getModel().getData()[row][0];
+                String value = (String) table.getModel().getData()[row][1];
+
+                attribMap.put(name, value);
+            }
         }
     }
 }

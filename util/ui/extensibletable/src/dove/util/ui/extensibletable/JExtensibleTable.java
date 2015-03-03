@@ -15,12 +15,12 @@ public class JExtensibleTable
     }
 
     public JExtensibleTable(Object[][] data, String[] name) {
-        super();
+        super(new ExtensibleTableModel(name, null, null, data.length, (data.length == 0 ? 0 : data[0].length)));
 
         initAttributes();
 
         ExtensibleTableModel model =
-                new ExtensibleTableModel(name, null, null, data.length, data[0].length);
+                new ExtensibleTableModel(name, null, null, data.length, (data.length == 0 ? 0 : data[0].length));
         model.insertData(data, 0, 0);
         setModel(model);
     }
@@ -29,13 +29,16 @@ public class JExtensibleTable
         tableSelectionListeners = new ArrayList<>();
 
         setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        getTableHeader().setDefaultRenderer(new EditableHeaderCellRenderer());
     }
 
     ///////////////////////////////////////////////////////////
     // ExtensibleTableModel
     ///////////////////////////////////////////////////////////
 
-    public ExtensibleTableModel getTableModel() {
+    @Override
+    public ExtensibleTableModel getModel() {
         return (ExtensibleTableModel) super.getModel();
     }
 

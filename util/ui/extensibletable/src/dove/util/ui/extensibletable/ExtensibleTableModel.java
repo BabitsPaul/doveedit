@@ -214,6 +214,19 @@ public class ExtensibleTableModel
      */
     @Override
     public void setValueAt(Object aValue, int row, int col) {
+        setValueAt(aValue, row, col, true);
+    }
+
+    /**
+     * checks the type of aValue and inserts it in
+     * the table, if the type matches the columnType
+     *
+     * @param aValue    the value to insert
+     * @param row       the row to insert data
+     * @param col       the column to insert data
+     * @param fireEvent if true, a tablecellupdateevent will be fired after setting the value
+     */
+    private void setValueAt(Object aValue, int row, int col, boolean fireEvent) {
         if (!cellEditable[row][col])
             throw new IllegalStateException("Cell " + row + "/" + col + " is not editable");
 
@@ -223,7 +236,8 @@ public class ExtensibleTableModel
 
         table[row][col] = aValue;
 
-        fireTableCellUpdated(row, col);
+        if (fireEvent)
+            fireTableCellUpdated(row, col);
     }
 
     /**
@@ -236,6 +250,9 @@ public class ExtensibleTableModel
      * @param atCol startingcolumn
      */
     public void insertData(Object[][] nData, int atRow, int atCol) {
+        if (nData.length == 0)
+            return;
+
         int totalRowLengthIns = atRow + nData.length;
         int maxRowLengthIns = rows - atRow;
 
@@ -257,7 +274,16 @@ public class ExtensibleTableModel
 
         for (int i = 0; i < insertRowCount; i++)
             for (int j = 0; j < insertColCount; j++)
-                setValueAt(nData[i][j], i + atRow, j + atCol);
+                setValueAt(nData[i][j], i + atRow, j + atCol, false);
+    }
+
+    /**
+     * getter for the data contained in this table
+     *
+     * @return the data in this table
+     */
+    public Object[][] getData() {
+        return table;
     }
 
     ///////////////////////////////////////////////////////
@@ -502,10 +528,23 @@ public class ExtensibleTableModel
      * and makes all new cells editable
      * and fills them with null
      *
+     * if afterrow is -1, the row will automatically be inserted
+     * at the end of the row
+     *
+     * if editability == null, the row will be editable by default
+     *
      * @param afterRow insert new row after this row
      * @param nRow the values to insert in the new row
      */
     public void addRow(int afterRow, Object[] nRow, boolean[] editability) {
+        if (afterRow == -1)
+            afterRow = rows;
+
+        if (editability == null) {
+            editability = new boolean[cols];
+            Arrays.fill(editability, true);
+        }
+
         Object[][] tableTemp = new Object[rows + 1][cols];
         boolean[][] editableTemp = new boolean[rows + 1][cols];
 
