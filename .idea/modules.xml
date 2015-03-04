@@ -30,7 +30,7 @@
       <module fileurl="file://$PROJECT_DIR$/net/net.iml" filepath="$PROJECT_DIR$/net/net.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/progress/progress.iml" filepath="$PROJECT_DIR$/util/ui/progress/progress.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/select/select.iml" filepath="$PROJECT_DIR$/util/ui/select/select.iml" />
-      <module fileurl="file://$PROJECT_DIR$/code/sha1/sha1.iml" filepath="$PROJECT_DIR$/code/sha1/sha1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codec/sha1/sha1.iml" filepath="$PROJECT_DIR$/codec/sha1/sha1.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/treelib/treelib.iml" filepath="$PROJECT_DIR$/util/treelib/treelib.iml" />
       <module fileurl="file://$PROJECT_DIR$/undo/undo.iml" filepath="$PROJECT_DIR$/undo/undo.iml" />
     </modules>
