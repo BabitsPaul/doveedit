@@ -79,6 +79,8 @@ public class CharBuffer {
         for (int x = 0; x < insertWidth; x++)
             for (int y = 0; y < insertHeight; y++)
                 buffer[y + offsetY][x + offsetX] = data[y][x];
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_UPDATED));
     }
 
 
