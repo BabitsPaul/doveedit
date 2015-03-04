@@ -7,8 +7,5 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="dove" exported="" />
-    <orderEntry type="module" module-name="treelib" />
-    <orderEntry type="module" module-name="keyredirect" />
   </component>
 </module>

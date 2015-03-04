@@ -1,4 +1,4 @@
-package dove.cmd;
+package dove.cmd.model;
 
 import dove.cmd.loader.CommandLoader;
 import dove.util.misc.StringHelper;

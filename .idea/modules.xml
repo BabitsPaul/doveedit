@@ -14,6 +14,7 @@
       <module fileurl="file://$PROJECT_DIR$/util/ui/dialogs/dialogs.iml" filepath="$PROJECT_DIR$/util/ui/dialogs/dialogs.iml" />
       <module fileurl="file://$PROJECT_DIR$/dove/dove.iml" filepath="$PROJECT_DIR$/dove/dove.iml" />
       <module fileurl="file://$PROJECT_DIR$/doveedit.iml" filepath="$PROJECT_DIR$/doveedit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dovelf/dovelf.iml" filepath="$PROJECT_DIR$/dovelf/dovelf.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" filepath="$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/gif/gif.iml" filepath="$PROJECT_DIR$/codec/gif/gif.iml" />
       <module fileurl="file://$PROJECT_DIR$/installer/installer.iml" filepath="$PROJECT_DIR$/installer/installer.iml" />

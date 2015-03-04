@@ -433,25 +433,26 @@ public class ExtensibleTableModel
     ////////////////////////////////////////////////////////////
 
     /**
-     * adds a new column after the  specified column
+     * adds a new column at the specified position
      * with the specified attributes
+     * all columns with index >= col will be given a higher index
      *
-     * @param afterColumn the column to insert after
+     * @param col the column to insert at
      * @param name        the name of the new column
      * @param clazz       the type of the new column
      */
-    public void addColumn(int afterColumn, String name, Class<?> clazz, Object[] nCol, boolean editable) {
+    public void addColumn(int col, String name, Class<?> clazz, Object[] nCol, boolean editable) {
         Object[][] tempData = new Object[rows][cols + 1];
         boolean[][] tempEditable = new boolean[rows][cols + 1];
 
         //move data to new tables and leave the specified column empty
-        for (int i = 0; i < afterColumn; i++)
+        for (int i = 0; i < col; i++)
             for (int j = 0; j < rows; j++) {
                 tempData[i][j] = table[i][j];
                 tempEditable[i][j] = cellEditable[i][j];
             }
 
-        for (int i = afterColumn + 1; i < cols + 1; i++)
+        for (int i = col + 1; i < cols + 1; i++)
             for (int j = 0; j < rows; j++) {
                 tempData[j][i] = table[j][i - 1];
                 tempEditable[j][i] = cellEditable[j][i];
@@ -459,8 +460,8 @@ public class ExtensibleTableModel
 
         //initialize the empty column with new data
         for (int i = 0; i < rows; i++) {
-            tempData[i][afterColumn] = nCol[i];
-            tempEditable[i][afterColumn] = editable;
+            tempData[i][col] = nCol[i];
+            tempEditable[i][col] = editable;
         }
 
         table = tempData;
@@ -469,13 +470,13 @@ public class ExtensibleTableModel
         Class<?>[] clazzTemp = new Class[cols + 1];
         String[] nameTemp = new String[cols + 1];
 
-        System.arraycopy(columnClasses, 0, clazzTemp, 0, afterColumn);
-        System.arraycopy(columnClasses, afterColumn + 1, clazzTemp, afterColumn, cols - afterColumn - 1);
-        clazzTemp[afterColumn] = clazz;
+        System.arraycopy(columnClasses, 0, clazzTemp, 0, col);
+        System.arraycopy(columnClasses, col + 1, clazzTemp, col, cols - col - 1);
+        clazzTemp[col] = clazz;
 
-        System.arraycopy(columnNames, 0, nameTemp, 0, afterColumn);
-        System.arraycopy(columnNames, afterColumn + 1, nameTemp, afterColumn, cols - afterColumn - 1);
-        nameTemp[afterColumn] = name;
+        System.arraycopy(columnNames, 0, nameTemp, 0, col);
+        System.arraycopy(columnNames, col + 1, nameTemp, col, cols - col - 1);
+        nameTemp[col] = name;
 
         columnNames = nameTemp;
         columnClasses = clazzTemp;
@@ -525,20 +526,26 @@ public class ExtensibleTableModel
 
     /**
      * adds the specified row to the table
+     * all rows with rowindex >= row will be pushed one row down
      * and makes all new cells editable
      * and fills them with null
+     *
+     * missing data will be filled up with null
      *
      * if afterrow is -1, the row will automatically be inserted
      * at the end of the row
      *
      * if editability == null, the row will be editable by default
      *
-     * @param afterRow insert new row after this row
+     * @param row insert the new row at this position
      * @param nRow the values to insert in the new row
      */
-    public void addRow(int afterRow, Object[] nRow, boolean[] editability) {
-        if (afterRow == -1)
-            afterRow = rows;
+    public void addRow(int row, Object[] nRow, boolean[] editability) {
+        if (row == -1)
+            row = rows;
+
+        if (row > rows + 1)
+            throw new ArrayIndexOutOfBoundsException("afterrow must be > -1 and < rows + 1");
 
         if (editability == null) {
             editability = new boolean[cols];
@@ -548,26 +555,27 @@ public class ExtensibleTableModel
         Object[][] tableTemp = new Object[rows + 1][cols];
         boolean[][] editableTemp = new boolean[rows + 1][cols];
 
-        for (int i = 0; i < afterRow; i++) {
+        for (int i = 0; i < row; i++) {
             tableTemp[i] = table[i];
             editableTemp[i] = cellEditable[i];
         }
 
-        for (int i = afterRow + 1; i < rows + 1; i++) {
+        for (int i = row + 1; i < rows + 1; i++) {
             tableTemp[i] = table[i - 1];
             editableTemp[i] = cellEditable[i - 1];
         }
 
-        tableTemp[afterRow] = new Object[cols];
+        if (nRow.length < cols)
+            nRow = Arrays.copyOf(nRow, cols);
 
-        System.arraycopy(editability, 0, editableTemp[afterRow], 0, cols);
+        tableTemp[row] = nRow;
 
         for (int i = 0; i < cols; i++) {
-            if (!columnClasses[i].isInstance(nRow[i]))
+            if (nRow[i] != null && !columnClasses[i].isInstance(tableTemp[row][i]))
                 throw new ClassCastException("Invalid class - required: " + columnClasses[i].getCanonicalName() +
                         "actual argument: " + nRow[i].getClass().getCanonicalName());
 
-            tableTemp[afterRow][i] = nRow[i];
+            tableTemp[row][i] = nRow[i];
         }
 
         table = tableTemp;
