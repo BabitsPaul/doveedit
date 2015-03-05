@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.interpreter;
 
 public abstract class CommandArg {
     public abstract String commandArg();

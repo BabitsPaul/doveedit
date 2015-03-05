@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.interpreter;
 
 public interface Command {
     public String getCommandName();

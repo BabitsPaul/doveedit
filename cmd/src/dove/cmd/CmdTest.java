@@ -1,7 +1,5 @@
 package dove.cmd;
 
-import dove.cmd.ui.CommandLineUI;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;

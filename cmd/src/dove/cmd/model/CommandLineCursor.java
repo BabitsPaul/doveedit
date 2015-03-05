@@ -1,4 +1,4 @@
-package dove.cmd.ui;
+package dove.cmd.model;
 
 import java.util.ArrayList;
 
@@ -43,7 +43,7 @@ public class CommandLineCursor
     private ArrayList<CommandLineUIListener> listeners;
 
     /**
-     * true, if this cursor should be showed in the ui
+     * true, if this cursor should be showed in the model
      */
     private boolean isVisible;
 

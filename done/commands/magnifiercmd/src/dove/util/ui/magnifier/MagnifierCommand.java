@@ -1,8 +1,8 @@
 package dove.util.ui.magnifier;
 
-import dove.cmd.model.Command;
-import dove.cmd.model.CommandArg;
-import dove.cmd.model.CommandLineModel;
+import dove.cmd.interpreter.Command;
+import dove.cmd.interpreter.CommandArg;
+import dove.cmd.interpreter.CommandLineModel;
 
 public class MagnifierCommand
         implements Command {

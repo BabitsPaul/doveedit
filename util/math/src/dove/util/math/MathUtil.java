@@ -49,7 +49,7 @@ public class MathUtil {
 
     /**
      * this is a utilityclass providing
-     * a model for a multidimensional cube
+     * a interpreter for a multidimensional cube
      */
     private static class MultiCube {
         public Corner[] corners;

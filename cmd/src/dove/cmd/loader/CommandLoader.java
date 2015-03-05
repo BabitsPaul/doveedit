@@ -1,7 +1,7 @@
 package dove.cmd.loader;
 
 import dove.GlobalFlags;
-import dove.cmd.model.Command;
+import dove.cmd.interpreter.Command;
 
 import java.io.File;
 import java.io.FileInputStream;

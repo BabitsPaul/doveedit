@@ -1,4 +1,4 @@
-package dove.cmd.ui;
+package dove.cmd.model;
 
 import java.awt.event.KeyListener;
 

@@ -2809,7 +2809,7 @@ public class Tree<T>
 
         /**
          * adds a new listener to the tree
-         * if any changes to the model happen (insert/remove)
+         * if any changes to the interpreter happen (insert/remove)
          * the listener will be updated
          *
          * @param updater the new listener
@@ -2830,7 +2830,7 @@ public class Tree<T>
         }
 
         /**
-         * notifys every listener, that the model
+         * notifys every listener, that the interpreter
          * has been modified (node inserted/removed)
          *
          * @param type the type of changed performed

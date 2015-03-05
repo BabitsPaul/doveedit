@@ -1,9 +1,9 @@
 package dove.cmd.command.color;
 
-import dove.cmd.model.Command;
-import dove.cmd.model.CommandArg;
-import dove.cmd.model.CommandLineModel;
-import dove.cmd.model.CommandLineVar;
+import dove.cmd.interpreter.Command;
+import dove.cmd.interpreter.CommandArg;
+import dove.cmd.interpreter.CommandLineModel;
+import dove.cmd.interpreter.CommandLineVar;
 
 import java.awt.*;
 

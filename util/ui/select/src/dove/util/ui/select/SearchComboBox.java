@@ -38,9 +38,9 @@ public class SearchComboBox<T>
     protected int scrollTextLeft = 0;
 
     //////////////////////////////////////////////////////////////////////
-    // ui block
+    // model block
     //
-    // provides methods to setup and handle the ui
+    // provides methods to setup and handle the model
     // related to this class
     //////////////////////////////////////////////////////////////////////
     protected FontMetrics          fontMetrics;
@@ -164,7 +164,7 @@ public class SearchComboBox<T>
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    // model
+    // interpreter
     /////////////////////////////////////////////////////////////////////////////
 
     protected void recreatePopup() {

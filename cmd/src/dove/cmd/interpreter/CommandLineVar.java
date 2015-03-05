@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.interpreter;
 
 import dove.util.concurrent.access.ThreadSafeVar;
 

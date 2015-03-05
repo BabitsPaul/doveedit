@@ -18,7 +18,7 @@ public class ExtensibleTableModel
     private int rows;
 
     /**
-     * the number of columns in the model
+     * the number of columns in the interpreter
      */
     private int cols;
 

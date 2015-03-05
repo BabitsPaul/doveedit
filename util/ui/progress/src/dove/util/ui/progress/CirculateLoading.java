@@ -13,7 +13,7 @@ public class CirculateLoading
         implements Runnable {
     /**
      * the user speed this speed can be defined by
-     * the user here (@see dove.util.ui.progress.CirculateLoading$Speed)
+     * the user here (@see dove.util.model.progress.CirculateLoading$Speed)
      */
     public static int     user    = 500;
     /**
@@ -24,7 +24,7 @@ public class CirculateLoading
     public        boolean runLoad = true;
     /**
      * the speed at which the dots are
-     * moving (@see dove.util.ui.progress.CirculateLoading$Speed)
+     * moving (@see dove.util.model.progress.CirculateLoading$Speed)
      */
     public SPEED   speed;
     /**

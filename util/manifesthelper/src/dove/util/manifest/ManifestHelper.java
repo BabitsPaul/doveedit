@@ -278,7 +278,7 @@ public class ManifestHelper {
     //////////////////////////////////////////////////////////////////
 
     /**
-     * creates the ui
+     * creates the model
      */
     public void createUI() {
         //create menubar
@@ -338,7 +338,7 @@ public class ManifestHelper {
     }
 
     /**
-     * closes the ui and exits the program
+     * closes the model and exits the program
      */
     public void closeUI() {
         boolean quit = !manifestEdited;
@@ -454,7 +454,7 @@ public class ManifestHelper {
     /**
      * called when the manifest is being unloaded
      * sets all flags, disables the buttons and
-     * removes all attributes from the ui and the
+     * removes all attributes from the model and the
      * manifest
      */
     public void noManifestAvailable() {
@@ -472,7 +472,7 @@ public class ManifestHelper {
     ////////////////////////////////////////////////////////////////////
 
     /**
-     * shows the manifest on the ui
+     * shows the manifest on the model
      */
     public void showManifest() {
         if (!manifestLoaded)
@@ -508,7 +508,7 @@ public class ManifestHelper {
      * adds an attribute to the manifest
      */
     public void addAttribute() {
-        //dialog containing ui
+        //dialog containing model
         JDialog dialog = new JDialog(frame, "Add attribute", true);
 
         //mainPanel contains all elements
