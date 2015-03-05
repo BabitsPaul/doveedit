@@ -1,5 +1,5 @@
 package dove.cmd.ui;
 
-public interface CommandLineListener {
+public interface CommandLineUIListener {
     public void commandLineChanged(CommandLineEvent e);
 }

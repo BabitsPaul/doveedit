@@ -1,6 +1,8 @@
 package dove.cmd.ui;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * represents the screenbuffer
@@ -9,15 +11,17 @@ import java.util.ArrayList;
  * currently available for display on the screen
  */
 public class CharBuffer {
-    private static final int BUFFER_UPDATED = 0;
+    public static final int BUFFER_UPDATED = 0;
+
+    public static final int BUFFER_CLIPPED = 1;
 
     private int width;
 
     private int height;
 
-    private int clipX;
+    private int clipOffsetX;
 
-    private int clipY;
+    private int clipOffsetY;
 
     private int clipWidth;
 
@@ -25,21 +29,34 @@ public class CharBuffer {
 
     private boolean clipped;
 
-    private ArrayList<CommandLineListener> listeners;
+    private ArrayList<CommandLineUIListener> listeners;
 
-    /**
-     * array of lines
-     */
+    private CommandLineCursor cursor;
+
     private char[][] buffer;
 
-    public CharBuffer(int width, int height) {
+    private Color[][] colors;
+
+    public CharBuffer(int width, int height, CommandLineCursor cursor, Color defaultColor) {
         this.buffer = new char[height][width];
+        this.colors = new Color[height][width];
 
         this.width = width;
         this.height = height;
 
+        this.cursor = cursor;
+
         listeners = new ArrayList<>();
+
+        for (Color[] colors : this.colors)
+            Arrays.fill(colors, defaultColor);
+
+        addCommandLineListener(cursor);
     }
+
+    /////////////////////////////////////////////////////////////
+    // size
+    /////////////////////////////////////////////////////////////
 
     public int getWidth() {
         if (clipped)
@@ -55,6 +72,10 @@ public class CharBuffer {
             return height;
     }
 
+    //////////////////////////////////////////////////////////
+    // write/read
+    //////////////////////////////////////////////////////////
+
     /**
      * inserts data at the specified position (clipping!!!)
      *
@@ -66,8 +87,8 @@ public class CharBuffer {
         if (data.length == 0)
             return;
 
-        int offsetX = (clipped ? col - clipX : col);
-        int offsetY = (clipped ? line - clipY : line);
+        int offsetX = (clipped ? col - clipOffsetX : col);
+        int offsetY = (clipped ? line - clipOffsetY : line);
 
         int insertWidth = (data.length == 0 ? 0 : data[0].length);
         int insertHeight = data.length;
@@ -83,25 +104,149 @@ public class CharBuffer {
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_UPDATED));
     }
 
+    /**
+     * returns the content of the buffer or
+     * if clipping is active, the currently available part of the buffer
+     * warning: content of the result of this
+     * method shouldn't be manipulated, since it might,
+     * or might not have impact on  the actual
+     * buffer data (dependend upon whether clipping is active or not)
+     *
+     * @return an array containing the currently active
+     */
+    public char[][] getContent() {
+        if (!clipped)
+            return buffer;
 
+        char[][] clippedArea = new char[clipHeight][clipWidth];
+
+        for (int i = 0; i < clipWidth; i++)
+            for (int j = 0; j < clipHeight; j++)
+                clippedArea[j][i] = buffer[j + clipOffsetY][i + clipOffsetX];
+
+        return clippedArea;
+    }
+
+    public void put(char c) {
+        if (clipped) {
+            int absoluteX = cursor.getX() + clipOffsetX;
+            int absoluteY = cursor.getY() + clipOffsetY;
+
+            buffer[absoluteY][absoluteX] = c;
+        }
+        else
+            buffer[cursor.getY()][cursor.getX()] = c;
+
+        cursor.moveCursorRight();
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_UPDATED));
+    }
+
+    public char get(int x, int y) {
+        if (clipped) {
+            int absoluteX = x - clipOffsetX;
+            int absoluteY = y - clipOffsetY;
+
+            if (absoluteX < 0 || absoluteX >= clipWidth ||
+                    absoluteY < 0 || absoluteY >= clipHeight)
+                throw new ArrayIndexOutOfBoundsException("size: (" + clipWidth + "/" + clipHeight +
+                        ") requested: (" + x + "/" + y + ")");
+
+            return buffer[absoluteY][absoluteX];
+        }
+        else
+            return buffer[y][x];
+    }
+
+    /////////////////////////////////////////////////////////////
+    // color
+    /////////////////////////////////////////////////////////////
+
+    public Color getColor(int x, int y) {
+        if (clipped) {
+            int absoluteX = x - clipOffsetX;
+            int absoluteY = y - clipOffsetY;
+
+            if (absoluteX < 0 || absoluteX >= clipWidth ||
+                    absoluteY < 0 || absoluteY >= clipHeight)
+                throw new ArrayIndexOutOfBoundsException("size: (" + clipWidth + "/" + clipHeight +
+                        ") requested: (" + x + "/" + y + ")");
+
+            return colors[x][y];
+        }
+        else
+            return colors[x][y];
+    }
+
+    public Color[][] getColors() {
+        if (clipped) {
+            Color[][] colorTemp = new Color[clipWidth][clipHeight];
+            for (int line = 0; line < clipHeight; line++)
+                for (int col = 0; col < clipWidth; col++)
+                    colorTemp[line][col] = colors[line + clipOffsetX][col + clipOffsetY];
+
+            return null;
+        }
+        else
+            return colors;
+    }
+
+    public void putColor(Color c) {
+
+    }
+
+    /////////////////////////////////////////////////////////////
+    // clipping
+    /////////////////////////////////////////////////////////////
+
+    /**
+     * sets the cliparea to the specified area
+     * this will restrict access/writing to this area
+     * and recalculates all coordinates for methods
+     * absolute address in the buffer = clipOffsetX + accessaddress
+     * (same for y)
+     *
+     * @param x      the xoffset of the clipped area
+     * @param y      the yoffset of the clipped area
+     * @param width  the width of the clipped area
+     * @param height the height of the clipped area
+     */
     public void clipBuffer(int x, int y, int width, int height) {
         clipped = true;
 
-        clipX = x;
-        clipY = y;
+        clipOffsetX = x;
+        clipOffsetY = y;
         clipWidth = width;
         clipHeight = height;
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_CLIPPED));
     }
 
+    /**
+     * disables the cliping
+     *
+     * access to the buffer will be reset to
+     * normal addressing (no offsets or restricted width)
+     */
     public void reverseClip() {
         clipped = false;
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_CLIPPED));
     }
 
-    public void addListener(CommandLineListener l) {
+    public boolean isClipped() {
+        return clipped;
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // commandlineevent
+    ///////////////////////////////////////////////////////////////
+
+    public void addCommandLineListener(CommandLineUIListener l) {
         listeners.add(l);
     }
 
-    public void removeListener(CommandLineListener l) {
+    public void removeListener(CommandLineUIListener l) {
         listeners.remove(l);
     }
 

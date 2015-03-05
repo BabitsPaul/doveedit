@@ -9,17 +9,17 @@ public abstract class AbstractCommandLayer
         extends KeyRedirect {
     public static final char NO_CHAR = '\u0000';
 
-    private ArrayList<CommandLineListener> listeners = new ArrayList<>();
+    private ArrayList<CommandLineUIListener> listeners = new ArrayList<>();
 
     public AbstractCommandLayer(KeyListener redirectEvents) {
         redirectTo(redirectEvents);
     }
 
-    public void addListener(CommandLineListener l) {
+    public void addListener(CommandLineUIListener l) {
         listeners.add(l);
     }
 
-    public void removeListener(CommandLineListener l) {
+    public void removeListener(CommandLineUIListener l) {
         listeners.remove(l);
     }
 
@@ -28,6 +28,4 @@ public abstract class AbstractCommandLayer
     }
 
     public abstract void enableLayer();
-
-    public abstract void disable();
 }

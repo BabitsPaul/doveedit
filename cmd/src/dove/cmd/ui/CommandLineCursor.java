@@ -5,7 +5,8 @@ import java.util.ArrayList;
 /**
  * models the commandlinecursor
  */
-public class CommandLineCursor {
+public class CommandLineCursor
+        implements CommandLineUIListener {
     /**
      * eventconstant for moving the cursor
      */
@@ -39,7 +40,7 @@ public class CommandLineCursor {
     /**
      * a list of listeners of this cursor
      */
-    private ArrayList<CommandLineListener> listeners;
+    private ArrayList<CommandLineUIListener> listeners;
 
     /**
      * true, if this cursor should be showed in the ui
@@ -179,18 +180,41 @@ public class CommandLineCursor {
     }
 
     /////////////////////////////////////////////////////
-    // event listening
+    // commandlineevent
     /////////////////////////////////////////////////////
 
-    public void addCommandLineListener(CommandLineListener l) {
+    public void addCommandLineListener(CommandLineUIListener l) {
         listeners.add(l);
     }
 
-    public void removeCommandLineListener(CommandLineListener l) {
+    public void removeCommandLineListener(CommandLineUIListener l) {
         listeners.remove(l);
     }
 
     protected void fireCommandLineEvent(CommandLineEvent e) {
         listeners.forEach(l -> l.commandLineChanged(e));
+    }
+
+    ///////////////////////////////////////////////////////
+    // event listening
+    ///////////////////////////////////////////////////////
+
+    @Override
+    public void commandLineChanged(CommandLineEvent e) {
+        /*
+        updates the cursor to match the new buffersize
+        the cursor will be moved to the right upper corner of
+        the screen
+        updated values: screenWidth, screenHeight, x , y
+         */
+        if (e.getSourceType() == CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE && e.getModifier() == CharBuffer.BUFFER_CLIPPED) {
+            CharBuffer srcBuffer = ((CharBuffer) e.getSource());
+
+            screenWidth = srcBuffer.getWidth();
+            screenHeight = srcBuffer.getHeight();
+
+            x = 0;
+            y = 0;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package dove.cmd.ui;
 
 import java.awt.event.KeyListener;
-import java.util.Arrays;
 
 /**
  * provides an interface for ascii-art / consolegames
@@ -13,6 +12,10 @@ import java.util.Arrays;
  */
 public class CharLayer
         extends AbstractCommandLayer {
+    public static final int LAYER_EDITED = 0;
+
+    public static final int LAYER_ENABLED = 1;
+
     /**
      * the buffer with all displayed characters
      * <p>
@@ -78,17 +81,11 @@ public class CharLayer
      * @param y line onscreen
      */
     public void clear(int x, int y) {
-        buffer[y][x] = NO_CHAR;
+        cursor.setX(x);
+        cursor.setY(y);
+        buffer.put(NO_CHAR);
 
-        fireCommandLayerEvent(new CommandLineEvent(this));
-    }
-
-    /**
-     * clears the complete buffer
-     */
-    public void clearAll() {
-        for (char[] line : buffer)
-            Arrays.fill(line, NO_CHAR);
+        fireCommandLayerEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CHAR_LAYER_TYPE, LAYER_EDITED));
     }
 
     /**
@@ -99,15 +96,7 @@ public class CharLayer
      * @param c the character to insert
      */
     public void put(char c) {
-        buffer[cursorY][cursorX] = c;
-
-        cursorX++;
-        if ((cursorX % width) == 0) {
-            cursorX = 0;
-            cursorY++;
-
-            cursorY %= height;
-        }
+        buffer.put(c);
     }
 
     @Override
