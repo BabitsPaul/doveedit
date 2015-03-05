@@ -3,6 +3,7 @@ package dove.cmd;
 import dove.cmd.model.AbstractCommandLayer;
 import dove.cmd.model.CharBuffer;
 import dove.cmd.model.CommandLineCursor;
+import dove.cmd.model.TextLayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +13,7 @@ import java.awt.event.HierarchyListener;
 public class CommandLineUI
         extends JPanel
         implements HierarchyListener {
+
     /**
      * the console font
      */
@@ -20,12 +22,10 @@ public class CommandLineUI
     private CharBuffer           buffer;
     private UI_MODE              mode;
     private AbstractCommandLayer activeLayer;
-
     private int charWidth;
     private int charHeight;
-
     public CommandLineUI() {
-
+        activeLayer = new TextLayer();
     }
 
     @Override
@@ -36,7 +36,15 @@ public class CommandLineUI
 
         Color[][] colors = this.buffer.getColors();
 
+        int lineHeight = charHeight + 2;
 
+        for (int line = 0; line < buffer.length; line++)
+            for (int col = 0; col < buffer[i].length; col++) {
+                if (buffer[line][col] == AbstractCommandLayer.NO_CHAR)
+                    continue;
+
+                g.drawChars(new char[]{buffer[line][col]}, 0, 1, col * charWidth + 3, line * lineHeight);
+            }
     }
 
     public AbstractCommandLayer getActiveLayer() {
