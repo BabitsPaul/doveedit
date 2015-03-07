@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AntConfiguration">
-    <buildFile url="file://$PROJECT_DIR$/done/commands/magnifiercmd/magnifiercmd.xml" />
-    <buildFile url="file://$PROJECT_DIR$/done/util/magnifier/magnifier.xml" />
-    <buildFile url="file://$PROJECT_DIR$/done/util/keyredirect/keyredirect.xml" />
+    <buildFile url="file://$PROJECT_DIR$/commands/magnifiercmd/magnifiercmd.xml" />
+    <buildFile url="file://$PROJECT_DIR$/util/ui/magnifier/magnifier.xml" />
+    <buildFile url="file://$PROJECT_DIR$/util/keyredirect/keyredirect.xml" />
   </component>
 </project>

@@ -1,4 +1,4 @@
-<project name="magnifier" basedir="../" default="jar">
+<project name="magnifier" basedir="../..//" default="jar">
     <property name="sourcedir" value="${basedir}/src"/>
     <property name="builddir" value="${basedir}/build/magnifier"/>
     <property name="jarfile" value="${basedir}/util/magnifier.jar"/>

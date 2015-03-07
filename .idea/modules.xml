@@ -18,10 +18,10 @@
       <module fileurl="file://$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" filepath="$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/gif/gif.iml" filepath="$PROJECT_DIR$/codec/gif/gif.iml" />
       <module fileurl="file://$PROJECT_DIR$/installer/installer.iml" filepath="$PROJECT_DIR$/installer/installer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" filepath="$PROJECT_DIR$/done/util/keyredirect/keyredirect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/keyredirect/keyredirect.iml" filepath="$PROJECT_DIR$/util/keyredirect/keyredirect.iml" />
       <module fileurl="file://$PROJECT_DIR$/lang/lang.iml" filepath="$PROJECT_DIR$/lang/lang.iml" />
-      <module fileurl="file://$PROJECT_DIR$/done/util/magnifier/magnifier.iml" filepath="$PROJECT_DIR$/done/util/magnifier/magnifier.iml" />
-      <module fileurl="file://$PROJECT_DIR$/done/commands/magnifiercmd/magnifiercmd.iml" filepath="$PROJECT_DIR$/done/commands/magnifiercmd/magnifiercmd.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/ui/magnifier/magnifier.iml" filepath="$PROJECT_DIR$/util/ui/magnifier/magnifier.iml" />
+      <module fileurl="file://$PROJECT_DIR$/commands/magnifiercmd/magnifiercmd.iml" filepath="$PROJECT_DIR$/commands/magnifiercmd/magnifiercmd.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/manifesthelper/manifesthelper.iml" filepath="$PROJECT_DIR$/util/manifesthelper/manifesthelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/math/math.iml" filepath="$PROJECT_DIR$/util/math/math.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/md5/md5.iml" filepath="$PROJECT_DIR$/codec/md5/md5.iml" />

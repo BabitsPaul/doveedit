@@ -7,7 +7,7 @@
     <root id="root">
       <element id="archive" name="textpane.jar">
         <element id="directory" name="META-INF">
-          <element id="file-copy" path="$PROJECT_DIR$/done/util/magnifier/META-INF/MANIFEST.MF" />
+          <element id="file-copy" path="$PROJECT_DIR$/util/ui/magnifier/META-INF/MANIFEST.MF" />
         </element>
         <element id="module-output" name="magnifier" />
         <element id="module-output" name="magnifiercmd" />

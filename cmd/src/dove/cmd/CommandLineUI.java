@@ -18,6 +18,14 @@ public class CommandLineUI
      * the console font
      */
     private static final Font COMMAND_FONT = new Font("Monospaced", Font.PLAIN, 12);
+
+    private static final int PAINT_OFFSET_TOP    = 3;
+    private static final int PAINT_OFFSET_LEFT   = 3;
+    private static final int PAINT_OFFSET_RIGHT  = 3;
+    private static final int PAINT_OFFSET_BOTTOM = 3;
+
+    private static final int LINE_SPACE = 2;
+
     private CommandLineCursor    cursor;
     private CharBuffer           buffer;
     private UI_MODE              mode;
@@ -32,24 +40,46 @@ public class CommandLineUI
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        g.setColor(getBackground());
+        g.fillRect(0, 0, getWidth(), getHeight());
+
         char[][] buffer = this.buffer.getContent();
 
         Color[][] colors = this.buffer.getColors();
 
-        int lineHeight = charHeight + 2;
+        int lineHeight = charHeight + LINE_SPACE;
 
         for (int line = 0; line < buffer.length; line++)
-            for (int col = 0; col < buffer[i].length; col++) {
+            for (int col = 0; col < buffer[line].length; col++) {
                 if (buffer[line][col] == AbstractCommandLayer.NO_CHAR)
                     continue;
 
-                g.drawChars(new char[]{buffer[line][col]}, 0, 1, col * charWidth + 3, line * lineHeight);
+                g.setColor(colors[line][col]);
+                g.drawChars(new char[]{buffer[line][col]}, 0, 1,
+                        col * charWidth + PAINT_OFFSET_LEFT, (line + 1) * lineHeight + PAINT_OFFSET_TOP);
             }
+
+        int cursorX = cursor.getX();
+        int cursorY = cursor.getY();
+        Color cursorBackground = colors[cursorY][cursorX];
+        Color cursorForeground = getBackground();
+        char[] cursorContent = new char[]{buffer[cursorY][cursorX]};
+
+        g.setColor(cursorBackground);
+        g.fillRect(cursorX * charWidth + PAINT_OFFSET_LEFT, cursorY * lineHeight + PAINT_OFFSET_TOP,
+                charWidth, charHeight);
+        g.setColor(cursorForeground);
+        g.drawChars(cursorContent, 0, 1,
+                cursorX * charWidth + PAINT_OFFSET_LEFT, (cursorY + 1) * lineHeight + PAINT_OFFSET_TOP);
     }
 
     public AbstractCommandLayer getActiveLayer() {
         return activeLayer;
     }
+
+    //////////////////////////////////////////////////////////
+    // hierachylistener
+    //////////////////////////////////////////////////////////
 
     /**
      * update uirelated values
@@ -63,10 +93,6 @@ public class CommandLineUI
             charHeight = getGraphics().getFontMetrics().getHeight();
         }
     }
-
-    //////////////////////////////////////////////////////////
-    // hierachylistener
-    //////////////////////////////////////////////////////////
 
     public enum UI_MODE {
         SINGLE_SIGN_MODE,
