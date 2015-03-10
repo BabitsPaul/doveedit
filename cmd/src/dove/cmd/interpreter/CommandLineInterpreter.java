@@ -5,14 +5,14 @@ import dove.util.misc.StringHelper;
 import dove.util.treelib.StringMap;
 import dove.util.treelib.TreeMap;
 
-public class CommandLineModel {
+public class CommandLineInterpreter {
     private StringMap<CommandLineVar> vars;
 
     private StringMap<Command> commands;
 
     private CommandLoader loader;
 
-    public CommandLineModel() {
+    public CommandLineInterpreter() {
         loader = new CommandLoader();
         loader.loadCommands();
 

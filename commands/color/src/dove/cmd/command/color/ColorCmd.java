@@ -2,7 +2,7 @@ package dove.cmd.command.color;
 
 import dove.cmd.interpreter.Command;
 import dove.cmd.interpreter.CommandArg;
-import dove.cmd.interpreter.CommandLineModel;
+import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.interpreter.CommandLineVar;
 
 import java.awt.*;
@@ -69,7 +69,7 @@ public class ColorCmd
                     }
 
                     @Override
-                    public Object performCommand(Object[] args, CommandLineModel model) {
+                    public Object performCommand(Object[] args, CommandLineInterpreter model) {
                         Object o = parseColor(args);
 
                         if (o instanceof String)
@@ -129,7 +129,7 @@ public class ColorCmd
     }
 
     @Override
-    public void firstSetup(CommandLineModel model) {
+    public void firstSetup(CommandLineInterpreter model) {
         CommandLineVar f = new CommandLineVar(Color.white);
         f.makeTypesafe(true, Color.class);
 

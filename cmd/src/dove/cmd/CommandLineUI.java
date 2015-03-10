@@ -1,5 +1,6 @@
 package dove.cmd;
 
+import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.model.AbstractCommandLayer;
 import dove.cmd.model.CharBuffer;
 import dove.cmd.model.CommandLineCursor;
@@ -32,8 +33,11 @@ public class CommandLineUI
     private AbstractCommandLayer activeLayer;
     private int charWidth;
     private int charHeight;
+
+    private CommandLineInterpreter interpreter;
+
     public CommandLineUI() {
-        activeLayer = new TextLayer();
+        activeLayer = new TextLayer(cursor, buffer);
     }
 
     @Override

@@ -2,7 +2,7 @@ package dove.util.ui.magnifier;
 
 import dove.cmd.interpreter.Command;
 import dove.cmd.interpreter.CommandArg;
-import dove.cmd.interpreter.CommandLineModel;
+import dove.cmd.interpreter.CommandLineInterpreter;
 
 public class MagnifierCommand
         implements Command {
@@ -38,7 +38,7 @@ public class MagnifierCommand
                         }
 
                         @Override
-                        public Object performCommand(Object[] args, CommandLineModel model) {
+                        public Object performCommand(Object[] args, CommandLineInterpreter model) {
                             int width = (Integer) args[0];
                             int height = (Integer) args[1];
 
@@ -69,7 +69,7 @@ public class MagnifierCommand
                         }
 
                         @Override
-                        public Object performCommand(Object[] args, CommandLineModel model) {
+                        public Object performCommand(Object[] args, CommandLineInterpreter model) {
                             Double rate = (Double) args[0];
 
                             Magnifier magnifier = (Magnifier) model.get(MAGNIFIER_FRAME);
@@ -95,7 +95,7 @@ public class MagnifierCommand
                         }
 
                         @Override
-                        public Object performCommand(Object[] args, CommandLineModel model) {
+                        public Object performCommand(Object[] args, CommandLineInterpreter model) {
                             Magnifier magnifier = (Magnifier) model.get(MAGNIFIER_FRAME);
 
                             if (!magnifier.isVisible())
@@ -119,7 +119,7 @@ public class MagnifierCommand
                         }
 
                         @Override
-                        public Object performCommand(Object[] args, CommandLineModel model) {
+                        public Object performCommand(Object[] args, CommandLineInterpreter model) {
                             Magnifier magnifier = (Magnifier) model.get(MAGNIFIER_FRAME);
 
                             if (magnifier.isVisible())
@@ -153,7 +153,7 @@ public class MagnifierCommand
     }
 
     @Override
-    public void firstSetup(CommandLineModel model) {
+    public void firstSetup(CommandLineInterpreter model) {
         model.put("magnifier.width", 100);
         model.put("magnifier.height", 100);
         model.put("magnifier.rate", 2.0);

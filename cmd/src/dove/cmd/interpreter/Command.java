@@ -7,7 +7,7 @@ public interface Command {
 
     public String getLongDescription();
 
-    public default void execute(CommandArg[] arg, Object[][] args, CommandLineModel model) {
+    public default void execute(CommandArg[] arg, Object[][] args, CommandLineInterpreter model) {
         for (int i = 0; i < arg.length; i++) {
             CommandArg arg1 = arg[i];
             Object[] args1 = args[i];
@@ -18,5 +18,5 @@ public interface Command {
 
     public CommandArg[] listArgs();
 
-    public void firstSetup(CommandLineModel model);
+    public void firstSetup(CommandLineInterpreter model);
 }

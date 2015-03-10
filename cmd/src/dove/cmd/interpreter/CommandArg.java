@@ -5,5 +5,5 @@ public abstract class CommandArg {
 
     public abstract Class[][] listArgTypes();
 
-    public abstract Object performCommand(Object[] args, CommandLineModel model);
+    public abstract Object performCommand(Object[] args, CommandLineInterpreter model);
 }

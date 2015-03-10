@@ -51,6 +51,10 @@ public class TextLayer
             implements KeyListener {
         @Override
         public void keyTyped(KeyEvent e) {
+            char c = e.getKeyChar();
+
+            if (c != '\n' && c != '\r' && c != '\r')
+                buffer.put(c);
         }
 
         @Override
