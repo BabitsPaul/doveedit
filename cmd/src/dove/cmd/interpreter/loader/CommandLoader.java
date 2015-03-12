@@ -1,4 +1,4 @@
-package dove.cmd.loader;
+package dove.cmd.interpreter.loader;
 
 import dove.GlobalFlags;
 import dove.cmd.interpreter.Command;

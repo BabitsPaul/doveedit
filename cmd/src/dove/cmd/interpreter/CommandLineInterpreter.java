@@ -1,6 +1,6 @@
 package dove.cmd.interpreter;
 
-import dove.cmd.loader.CommandLoader;
+import dove.cmd.interpreter.loader.CommandLoader;
 import dove.util.misc.StringHelper;
 import dove.util.treelib.StringMap;
 import dove.util.treelib.TreeMap;

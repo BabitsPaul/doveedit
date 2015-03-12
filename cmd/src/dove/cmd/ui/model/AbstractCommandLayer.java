@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.ui.model;
 
 import dove.util.keyredirect.KeyRedirect;
 
@@ -11,8 +11,22 @@ public abstract class AbstractCommandLayer
 
     private ArrayList<CommandLineUIListener> listeners = new ArrayList<>();
 
-    public AbstractCommandLayer(KeyListener redirectEvents) {
+    private CommandLineCursor cursor;
+
+    private CharBuffer buffer;
+
+    public AbstractCommandLayer(KeyListener redirectEvents, CommandLineCursor cursor, CharBuffer buffer) {
         redirectTo(redirectEvents);
+        this.cursor = cursor;
+        this.buffer = buffer;
+    }
+
+    public CommandLineCursor getCursor() {
+        return cursor;
+    }
+
+    public CharBuffer getBuffer() {
+        return buffer;
     }
 
     public void addListener(CommandLineUIListener l) {

@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.ui.model;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -12,7 +12,7 @@ public class TextLayer
     private CommandLineCursor cursor;
 
     public TextLayer(CommandLineCursor cursor, CharBuffer buffer) {
-        super(null);
+        super(null, cursor, buffer);
 
         //set the keyredirect to redirect event to this instance
         redirectTo(new KeyHelper());
@@ -36,7 +36,8 @@ public class TextLayer
     }
 
     public void write(String text) {
-
+        for (char c : text.toCharArray())
+            buffer.put(c);
     }
 
     public void writeln(String text) {

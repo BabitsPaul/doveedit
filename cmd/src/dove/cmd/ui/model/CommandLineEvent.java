@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.ui.model;
 
 import java.util.EventObject;
 

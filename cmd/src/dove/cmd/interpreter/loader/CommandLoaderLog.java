@@ -1,4 +1,4 @@
-package dove.cmd.loader;
+package dove.cmd.interpreter.loader;
 
 import java.util.ArrayList;
 import java.util.List;

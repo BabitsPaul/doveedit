@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.ui.model;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -192,7 +192,18 @@ public class CharBuffer {
     }
 
     public void putColor(Color c) {
+        colors[cursor.getY()][cursor.getX()] = c;
+    }
 
+    /////////////////////////////////////////////////////////////
+    // moving content
+    /////////////////////////////////////////////////////////////
+
+    public void pushContentUp(int dy) {
+        System.arraycopy(buffer, dy, buffer, 0, height - dy);
+        System.arraycopy(colors, dy, colors, 0, height - dy);
+
+        //TODO create new lines with default foreground and NO_CHAR
     }
 
     /////////////////////////////////////////////////////////////

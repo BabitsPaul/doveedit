@@ -1,4 +1,4 @@
-package dove.cmd.model;
+package dove.cmd.ui.model;
 
 import java.awt.event.KeyListener;
 
@@ -61,7 +61,7 @@ public class CharLayer
      */
     public CharLayer(KeyListener listener, CharBuffer buffer, CommandLineCursor cursor, int xOffSet, int yOffSet
             , int width, int height) {
-        super(listener);
+        super(listener, cursor, buffer);
 
         this.width = width;
         this.height = height;
@@ -104,5 +104,25 @@ public class CharLayer
         cursor.setVisible(false);
 
         buffer.clipBuffer(xOffSet, yOffSet, width, height);
+    }
+
+    /////////////////////////////////////////////////////////
+    // clipping
+    /////////////////////////////////////////////////////////
+
+    public int getxOffSet() {
+        return xOffSet;
+    }
+
+    public int getyOffSet() {
+        return yOffSet;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
     }
 }

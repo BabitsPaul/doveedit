@@ -1,4 +1,4 @@
-package dove.cmd.loader;
+package dove.cmd.interpreter.loader;
 
 public class CommandLoaderLogElement {
     public boolean successfull = true;
