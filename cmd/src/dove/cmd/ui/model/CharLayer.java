@@ -1,5 +1,8 @@
 package dove.cmd.ui.model;
 
+import dove.cmd.ui.paint.AbstractLayerRenderer;
+import dove.cmd.ui.paint.CharLayerRenderer;
+
 import java.awt.event.KeyListener;
 
 /**
@@ -124,5 +127,14 @@ public class CharLayer
 
     public int getWidth() {
         return width;
+    }
+
+    ///////////////////////////////////////////////////////////
+    // painting
+    ///////////////////////////////////////////////////////////
+
+    @Override
+    public AbstractLayerRenderer createRenderer() {
+        return new CharLayerRenderer(this);
     }
 }

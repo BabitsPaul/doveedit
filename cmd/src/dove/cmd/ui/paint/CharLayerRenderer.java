@@ -6,8 +6,8 @@ import java.awt.*;
 
 public class CharLayerRenderer
         extends AbstractLayerRenderer {
-    public CharLayerRenderer(CharLayer layer, LayerRendererMetrics metrics) {
-        super(layer, metrics);
+    public CharLayerRenderer(CharLayer layer) {
+        super(layer);
     }
 
     @Override
@@ -16,18 +16,18 @@ public class CharLayerRenderer
     }
 
     @Override
-    public void renderLayer(Graphics g) {
+    public void renderLayer(Graphics g, LayerRendererMetrics metrics) {
 
     }
 
     @Override
-    public Dimension getSize() {
+    public Dimension getSize(LayerRendererMetrics metrics) {
         int layerWidth = getLayer().getWidth();
         int layerHeight = getLayer().getHeight();
 
-        int width = layerWidth * getMetrics().signWidth + getMetrics().textSpaceLeft + getMetrics().textSpaceRight;
-        int height = layerHeight * getMetrics().lineHeight + (layerHeight - 1) * getMetrics().lineSpace +
-                getMetrics().textSpaceBottom + getMetrics().textSpaceTop;
+        int width = layerWidth * metrics.signWidth + metrics.textSpaceLeft + metrics.textSpaceRight;
+        int height = layerHeight * metrics.lineHeight + (layerHeight - 1) * metrics.lineSpace +
+                metrics.textSpaceBottom + metrics.textSpaceTop;
 
         return new Dimension(width, height);
     }

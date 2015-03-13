@@ -11,6 +11,12 @@ import java.awt.*;
  * to render the specified layer
  * <p>
  * the text will always be rendered monospaced
+ *
+ * NOTE: this renderer is NOT supposed to/will NOT
+ * check the validness of fontmetrics or paint the
+ * background
+ * It will paint the text and cursor with the info
+ * provided by the buffer and cursor
  */
 public abstract class AbstractLayerRenderer {
     /**
@@ -19,19 +25,13 @@ public abstract class AbstractLayerRenderer {
     private AbstractCommandLayer layer;
 
     /**
-     * the metrics for rendering text
-     */
-    private LayerRendererMetrics metrics;
-
-    /**
      * creates a new layerrenderer for the
      * specified layer
      *
      * @param layer the layer to render
      */
-    public AbstractLayerRenderer(AbstractCommandLayer layer, LayerRendererMetrics metrics) {
+    public AbstractLayerRenderer(AbstractCommandLayer layer) {
         this.layer = layer;
-        this.metrics = metrics;
     }
 
     /**
@@ -45,28 +45,20 @@ public abstract class AbstractLayerRenderer {
     }
 
     /**
-     * the metrics used by this renderer
-     * to paint the specified layer
-     *
-     * @return the metrics this renderer uses
-     */
-    protected LayerRendererMetrics getMetrics() {
-        return metrics;
-    }
-
-    /**
      * paints the layer this renderer is
      * supposed to paint with the specified graphics
      *
      * @param g the graphics to paint with
+     * @param metrics
      */
-    public abstract void renderLayer(Graphics g);
+    public abstract void renderLayer(Graphics g, LayerRendererMetrics metrics);
 
     /**
      * the area required to paint the
      * given layer
      *
      * @return the area required by this renderer
+     * @param metrics
      */
-    public abstract Dimension getSize();
+    public abstract Dimension getSize(LayerRendererMetrics metrics);
 }

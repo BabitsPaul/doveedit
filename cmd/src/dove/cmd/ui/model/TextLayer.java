@@ -1,5 +1,8 @@
 package dove.cmd.ui.model;
 
+import dove.cmd.ui.paint.AbstractLayerRenderer;
+import dove.cmd.ui.paint.TextLayerRenderer;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -48,6 +51,15 @@ public class TextLayer
     // keylistener
     /////////////////////////////////////////////////////////////
 
+    @Override
+    public AbstractLayerRenderer createRenderer() {
+        return new TextLayerRenderer(this);
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // painting
+    /////////////////////////////////////////////////////////////////
+
     private class KeyHelper
             implements KeyListener {
         @Override
@@ -81,6 +93,7 @@ public class TextLayer
                     buffer.put(NO_CHAR);
                     cursor.moveCursorLeft();
                     cursor.moveCursorLeft();
+                    //TODO push rest of the buffer left (this line only)
                     break;
 
                 case VK_ENTER:

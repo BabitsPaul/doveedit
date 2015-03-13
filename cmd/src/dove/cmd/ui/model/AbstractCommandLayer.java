@@ -1,5 +1,6 @@
 package dove.cmd.ui.model;
 
+import dove.cmd.ui.paint.AbstractLayerRenderer;
 import dove.util.keyredirect.KeyRedirect;
 
 import java.awt.event.KeyListener;
@@ -42,4 +43,6 @@ public abstract class AbstractCommandLayer
     }
 
     public abstract void enableLayer();
+
+    public abstract AbstractLayerRenderer createRenderer();
 }

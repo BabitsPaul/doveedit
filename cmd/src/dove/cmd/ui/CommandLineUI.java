@@ -2,13 +2,15 @@ package dove.cmd.ui;
 
 import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.ui.model.*;
+import dove.cmd.ui.paint.AbstractLayerRenderer;
+import dove.cmd.ui.paint.LayerRendererMetrics;
 import dove.util.concurrent.Ticker;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CommandLineUI
-        extends JPanel
+        extends JComponent
         implements CommandLineUIListener {
     /**
      * the console font
@@ -28,6 +30,7 @@ public class CommandLineUI
     private Ticker                 cursorTicker;
     private CommandLineInterpreter interpreter;
     private boolean                paintCursor;
+    private AbstractLayerRenderer renderer;
 
     public CommandLineUI(int width, int height) {
         //initialize cursor
@@ -64,7 +67,7 @@ public class CommandLineUI
     //create a basic interpreter
     //will be replaced by a commandrelated
     //initialisation later
-    private final void initInterpreter() {
+    private void initInterpreter() {
         interpreter.put("commandline.cursor.freq", 500L);
         interpreter.put("commandline.color.foreground", Color.BLACK);
         interpreter.put("commandline.color.background", Color.WHITE);
@@ -79,40 +82,49 @@ public class CommandLineUI
         charWidth = g.getFontMetrics().charWidth(' ');
         charHeight = g.getFontMetrics().getHeight();
 
-        g.setColor(getBackground());
-        g.fillRect(0, 0, getWidth(), getHeight());
+        renderer.renderLayer(g, createMetrics());
+    }
 
-        char[][] buffer = this.buffer.getContent();
+    private LayerRendererMetrics createMetrics() {
+        LayerRendererMetrics metrics = new LayerRendererMetrics();
 
-        Color[][] colors = this.buffer.getColors();
+        metrics.signWidth = charWidth;
+        metrics.lineHeight = charHeight;
+        metrics.lineSpace = LINE_SPACE;
+        metrics.signSpace = 0;
+        metrics.textSpaceLeft = PAINT_OFFSET_LEFT;
+        metrics.textSpaceRight = PAINT_OFFSET_RIGHT;
+        metrics.textSpaceTop = PAINT_OFFSET_TOP;
+        metrics.textSpaceBottom = PAINT_OFFSET_BOTTOM;
+        metrics.showCursor = paintCursor;
+        metrics.background = getBackground();
+        metrics.signMaxAscent = getFontMetrics(COMMAND_FONT).getMaxAscent();
 
-        int lineHeight = charHeight + LINE_SPACE;//TODO value correction
+        return metrics;
+    }
 
-        for (int line = 0; line < buffer.length; line++)
-            for (int col = 0; col < buffer[line].length; col++) {
-                if (buffer[line][col] == AbstractCommandLayer.NO_CHAR)
-                    continue;
+    //////////////////////////////////////////////////////////
+    // metrics
+    //////////////////////////////////////////////////////////
 
-                g.setColor(colors[line][col]);
-                g.drawChars(new char[]{buffer[line][col]}, 0, 1,
-                        col * charWidth + PAINT_OFFSET_LEFT, (line + 1) * lineHeight + PAINT_OFFSET_TOP);
-            }
+    public Dimension getSize() {
+        return renderer.getSize(createMetrics());
+    }
 
-        int cursorX = cursor.getX();
-        int cursorY = cursor.getY();
-        Color cursorBackground = colors[cursorY][cursorX];
-        Color cursorForeground = getBackground();
-        char[] cursorContent = new char[]{buffer[cursorY][cursorX]};
+    public void setSize(Dimension size) {
+        throw new IllegalStateException("This component can't be resized");
+    }
 
-        if (paintCursor) {
-            g.setColor(cursorBackground);
-            g.fillRect(cursorX * charWidth + PAINT_OFFSET_LEFT, cursorY * lineHeight + PAINT_OFFSET_TOP,
-                    charWidth, charHeight);
+    public Dimension getMinimumSize() {
+        return renderer.getSize(createMetrics());
+    }
 
-            g.setColor(cursorForeground);
-            g.drawChars(cursorContent, 0, 1,
-                    cursorX * charWidth + PAINT_OFFSET_LEFT, (cursorY + 1) * lineHeight + PAINT_OFFSET_TOP);
-        }
+    public Dimension getPreferredSize() {
+        return renderer.getSize(createMetrics());
+    }
+
+    public void setSize(int width, int height) {
+        throw new IllegalStateException("This component can't be resized");
     }
 
     /////////////////////////////////////////////////////////
@@ -136,6 +148,8 @@ public class CommandLineUI
 
         activeLayer.enableLayer();
         addKeyListener(activeLayer);
+
+        renderer = activeLayer.createRenderer();
 
         this.mode = mode;
 
