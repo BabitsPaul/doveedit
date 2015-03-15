@@ -54,13 +54,13 @@ public class CharLayer
     /**
      * creates a new charlayer with the specified width and height
      *
-     * @param listener
-     * @param buffer
-     * @param cursor
-     * @param xOffSet
-     * @param yOffSet
-     * @param width
-     * @param height
+     * @param listener the keylistener to redirect keyevents to
+     * @param buffer the buffer to write to
+     * @param cursor the cursor used to write to
+     * @param xOffSet the xOffset in the bufferclip
+     * @param yOffSet the yOffset in the bufferclip
+     * @param width the width of the bufferclip
+     * @param height the height of the bufferclip
      */
     public CharLayer(KeyListener listener, CharBuffer buffer, CommandLineCursor cursor, int xOffSet, int yOffSet
             , int width, int height) {
@@ -107,6 +107,8 @@ public class CharLayer
         cursor.setVisible(false);
 
         buffer.clipBuffer(xOffSet, yOffSet, width, height);
+
+        fireCommandLayerEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CHAR_LAYER_TYPE, LAYER_ENABLED));
     }
 
     /////////////////////////////////////////////////////////

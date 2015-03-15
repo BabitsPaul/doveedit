@@ -4,6 +4,7 @@ import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.ui.model.*;
 import dove.cmd.ui.paint.AbstractLayerRenderer;
 import dove.cmd.ui.paint.LayerRendererMetrics;
+import dove.cmd.ui.paint.RendererMetricsFactory;
 import dove.util.concurrent.Ticker;
 
 import javax.swing.*;
@@ -31,22 +32,26 @@ public class CommandLineUI
     private CommandLineInterpreter interpreter;
     private boolean                paintCursor;
     private AbstractLayerRenderer renderer;
+    private RendererMetricsFactory metricsFactory;
 
     public CommandLineUI(int width, int height) {
-        //initialize cursor
-        cursor = new CommandLineCursor(width, height);
-        cursor.addCommandLineListener(this);
-
-        //initialize buffer
-        buffer = new CharBuffer(width, height, cursor, Color.BLUE);
-        buffer.addCommandLineListener(this);
-
-        //initialize layer
-        setMode(UI_MODE.TEXT_MODE);
+        //create renderer metrics factory
+        metricsFactory = new RendererMetricsFactory();
+        metricsFactory.setTextSpaceTop(PAINT_OFFSET_TOP);
+        metricsFactory.setTextSpaceBottom(PAINT_OFFSET_BOTTOM);
+        metricsFactory.setTextSpaceLeft(PAINT_OFFSET_LEFT);
+        metricsFactory.setTextSpaceRight(PAINT_OFFSET_RIGHT);
+        metricsFactory.setLineSpace(LINE_SPACE);
+        metricsFactory.setBackground(getBackground());
+        metricsFactory.setShowCursor(true);
+        metricsFactory.setSignSpace(0);
 
         //initialize interpreter (NOTE: remove initInterpreter later - values are transferred to commands)
         interpreter = new CommandLineInterpreter();
         initInterpreter();
+
+        //initialize cursor
+        cursor = new CommandLineCursor(width, height);
 
         //create a tickerinstance to make the cursor flash
         cursorTicker = new Ticker((Long) interpreter.get("commandline.cursor.freq")) {
@@ -54,10 +59,24 @@ public class CommandLineUI
             protected void nextTick() {
                 paintCursor = !paintCursor;
 
+                metricsFactory.setShowCursor(paintCursor);
+
                 repaint();
             }
         };
+
+        //initialize buffer
+        buffer = new CharBuffer(width, height, cursor, Color.BLUE);
+
+        //initialize layer
+        setMode(UI_MODE.TEXT_MODE);
+
         cursorTicker.start();
+        cursor.addCommandLineListener(this);
+        buffer.addCommandLineListener(this);
+
+        //painting
+        setDoubleBuffered(true);
 
         //react to keyinput
         setFocusable(true);
@@ -69,8 +88,14 @@ public class CommandLineUI
     //initialisation later
     private void initInterpreter() {
         interpreter.put("commandline.cursor.freq", 500L);
-        interpreter.put("commandline.color.foreground", Color.BLACK);
-        interpreter.put("commandline.color.background", Color.WHITE);
+        interpreter.put("commandline.color.foreground", Color.WHITE);
+        interpreter.put("commandline.color.background", Color.BLACK);
+    }
+
+    public void setMetrics(LayerRendererMetrics metrics) {
+        metricsFactory.useMetrics(metrics);
+
+        repaint();
     }
 
     @Override
@@ -86,21 +111,12 @@ public class CommandLineUI
     }
 
     private LayerRendererMetrics createMetrics() {
-        LayerRendererMetrics metrics = new LayerRendererMetrics();
+        metricsFactory.setSignWidth(charWidth);
+        metricsFactory.setLineHeight(charHeight);
+        metricsFactory.setSignMaxAscent(getFontMetrics(COMMAND_FONT).getMaxAscent());
+        metricsFactory.setBackground(getBackground());
 
-        metrics.signWidth = charWidth;
-        metrics.lineHeight = charHeight;
-        metrics.lineSpace = LINE_SPACE;
-        metrics.signSpace = 0;
-        metrics.textSpaceLeft = PAINT_OFFSET_LEFT;
-        metrics.textSpaceRight = PAINT_OFFSET_RIGHT;
-        metrics.textSpaceTop = PAINT_OFFSET_TOP;
-        metrics.textSpaceBottom = PAINT_OFFSET_BOTTOM;
-        metrics.showCursor = paintCursor;
-        metrics.background = getBackground();
-        metrics.signMaxAscent = getFontMetrics(COMMAND_FONT).getMaxAscent();
-
-        return metrics;
+        return metricsFactory.createMetrics();
     }
 
     //////////////////////////////////////////////////////////
@@ -139,11 +155,24 @@ public class CommandLineUI
         if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
             //TODO create valid bounds
             activeLayer = new CharLayer(null, buffer, cursor, 0, 0, 0, 0);
+
+            metricsFactory.setLineSpace(LINE_SPACE);
         }
         else {
-            //TODO move cursor to the end of the previous layer
-            //if the layer was a charlayer
+            AbstractCommandLayer prevLayer = activeLayer;
+
             activeLayer = new TextLayer(cursor, buffer);
+
+            metricsFactory.setLineSpace(0);
+
+            //move cursor to the end of the previous layer
+            //if the previous layer was a charlayer
+            if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
+                int offset = ((CharLayer) prevLayer).getyOffSet();
+                int height = ((CharLayer) prevLayer).getHeight();
+
+                cursor.setY(offset + height);
+            }
         }
 
         activeLayer.enableLayer();
@@ -172,6 +201,12 @@ public class CommandLineUI
 
     @Override
     public void commandLineChanged(CommandLineEvent e) {
+        switch (e.getSourceType()) {
+            case CURSOR_TYPE:
+                cursorTicker.enforceTick();
+                break;
+        }
+
         repaint();
     }
 

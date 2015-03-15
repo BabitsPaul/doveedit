@@ -46,4 +46,8 @@ public abstract class Ticker
             nextTick();
         }
     }
+
+    public void enforceTick() {
+        t.interrupt();
+    }
 }

@@ -47,7 +47,7 @@ public class TextLayerRenderer
         }
 
         //paint the cursor if visible
-        if (metrics.showCursor) {
+        if (metrics.showCursor && getLayer().getCursor().isVisible()) {
             int cursorX = getLayer().getCursor().getX();
             int cursorY = getLayer().getCursor().getY();
             Color cursorBackground = colors[cursorY][cursorX];
@@ -62,7 +62,7 @@ public class TextLayerRenderer
             g.setColor(cursorForeground);
             g.drawChars(cursorContent, 0, 1,
                     cursorX * metrics.signWidth + metrics.textSpaceLeft,
-                    metrics.textSpaceTop + (cursorY + 1) * metrics.lineHeight + Math.max(0, cursorY - 1) * metrics.lineSpace);
+                    ((cursorY + 1) * metrics.lineHeight + Math.max(0, cursorY - 1) * metrics.lineSpace + metrics.textSpaceTop));
         }
     }
 
