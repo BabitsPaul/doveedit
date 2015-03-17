@@ -11,7 +11,7 @@ import java.awt.event.WindowEvent;
 public class CmdTest {
     public static void main(String[] args) {
         CommandLineUI cmd = new CommandLineUI(100, 300);
-        ((TextLayer) cmd.getActiveLayer()).writeln("hello world qwertz WAÖDGKHSI");
+        ((TextLayer) cmd.getActiveLayer()).getModel().writeln("hello world qwertz WAÖDGKHSI");
 
         JFrame test = new JFrame("Commandline");
         test.add(cmd);

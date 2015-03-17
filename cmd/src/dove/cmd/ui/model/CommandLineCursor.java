@@ -5,6 +5,7 @@ import java.util.ArrayList;
 /**
  * models the commandlinecursor
  */
+//TODO cliping
 public class CommandLineCursor
         implements CommandLineUIListener {
     /**
@@ -26,6 +27,16 @@ public class CommandLineCursor
      * the y-position of the cursor
      */
     private int y;
+
+    private boolean isClipped;
+
+    private int offsetX;
+
+    private int offsetY;
+
+    private int clipWidth;
+
+    private int clipHeight;
 
     /**
      * the screenwidth of the screen on which this cursor is placed
@@ -177,6 +188,27 @@ public class CommandLineCursor
 
         fireCommandLineEvent(new CommandLineEvent(this,
                 CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_VISIBILITY_CHANGED));
+    }
+
+    /////////////////////////////////////////////////////
+    // clipping
+    /////////////////////////////////////////////////////
+
+    public boolean isClipped() {
+        return isClipped;
+    }
+
+    public void clip(int x, int y, int width, int height) {
+        offsetX = x;
+        offsetY = y;
+        clipWidth = width;
+        clipHeight = height;
+
+        isClipped = true;
+    }
+
+    public void reverseClipping() {
+        isClipped = false;
     }
 
     /////////////////////////////////////////////////////

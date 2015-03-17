@@ -14,7 +14,9 @@ public class TextLayer
 
     private CommandLineCursor cursor;
 
-    public TextLayer(CommandLineCursor cursor, CharBuffer buffer) {
+    private AbstractTextLayerModel model;
+
+    public TextLayer(CommandLineCursor cursor, CharBuffer buffer, AbstractTextLayerModel model) {
         super(null, cursor, buffer);
 
         //set the keyredirect to redirect event to this instance
@@ -22,6 +24,12 @@ public class TextLayer
 
         this.buffer = buffer;
         this.cursor = cursor;
+
+        this.model = model;
+    }
+
+    public TextLayer(CommandLineCursor cursor, CharBuffer buffer) {
+        this(cursor, buffer, new DefaultTextLayerModel(buffer, cursor));
     }
 
     @Override
@@ -30,74 +38,59 @@ public class TextLayer
         cursor.setVisible(true);
     }
 
-    ////////////////////////////////////////////////////////////
-    // lines
-    ////////////////////////////////////////////////////////////
-
-    public String getLastLine() {
-        return "";
+    public AbstractTextLayerModel getModel() {
+        return model;
     }
 
-    public void write(String text) {
-        for (char c : text.toCharArray())
-            buffer.put(c);
-    }
-
-    public void writeln(String text) {
-        write(text + "\n");
-    }
-
-    /////////////////////////////////////////////////////////////
-    // keylistener
-    /////////////////////////////////////////////////////////////
-
-    @Override
-    public AbstractLayerRenderer createRenderer() {
-        return new TextLayerRenderer(this);
+    public void setModel(AbstractTextLayerModel nModel) {
+        this.model = nModel;
     }
 
     /////////////////////////////////////////////////////////////////
     // painting
     /////////////////////////////////////////////////////////////////
 
+    @Override
+    public AbstractLayerRenderer createRenderer() {
+        return new TextLayerRenderer(this);
+    }
+
+    /////////////////////////////////////////////////////////////
+    // keylistener
+    /////////////////////////////////////////////////////////////
+
     private class KeyHelper
             implements KeyListener {
         @Override
         public void keyTyped(KeyEvent e) {
-            char c = e.getKeyChar();
-
-            if (c != '\n' && c != '\r' && c != '\r')
-                buffer.put(c);
+            model.addChar(e.getKeyChar());
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case VK_UP:
-                    cursor.moveCursorUp();
+                    model.cursorUp();
                     break;
 
                 case VK_DOWN:
-                    cursor.moveCursorDown();
+                    model.cursorDown();
                     break;
 
                 case VK_LEFT:
-                    cursor.moveCursorLeft();
+                    model.cursorLeft();
                     break;
 
                 case VK_RIGHT:
-                    cursor.moveCursorRight();
+                    model.cursorRight();
                     break;
 
                 case VK_BACK_SPACE:
-                    buffer.put(NO_CHAR);
-                    cursor.moveCursorLeft();
-                    cursor.moveCursorLeft();
-                    //TODO push rest of the buffer left (this line only)
+                    model.removeChar();
                     break;
 
                 case VK_ENTER:
-                    //TODO enter new line
+                    model.nextLine();
                     break;
             }
         }

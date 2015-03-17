@@ -11,6 +11,9 @@ import java.util.Arrays;
  * currently available for display on the screen
  */
 public class CharBuffer {
+    /**
+     * the
+     */
     public static final int BUFFER_UPDATED = 0;
 
     public static final int BUFFER_CLIPPED = 1;
@@ -37,6 +40,8 @@ public class CharBuffer {
 
     private Color[][] colors;
 
+    private Color defaultColor;
+
     public CharBuffer(int width, int height, CommandLineCursor cursor, Color defaultColor) {
         this.buffer = new char[height][width];
         this.colors = new Color[height][width];
@@ -45,6 +50,8 @@ public class CharBuffer {
         this.height = height;
 
         this.cursor = cursor;
+
+        this.defaultColor = defaultColor;
 
         listeners = new ArrayList<>();
 
@@ -199,11 +206,26 @@ public class CharBuffer {
     // moving content
     /////////////////////////////////////////////////////////////
 
+    /**
+     * moves the content of the buffer up for dy
+     * all emptied lines will be filled with NO_CHAR and
+     * the default color
+     *
+     * @param dy the number of lines to move the buffer up
+     */
     public void pushContentUp(int dy) {
+        if (dy < 0)
+            throw new IllegalArgumentException("Invalid move-argument - must be positive");
+        if (dy >= height)
+            throw new ArrayIndexOutOfBoundsException("Invalid argument - must be < " + height);
+
         System.arraycopy(buffer, dy, buffer, 0, height - dy);
         System.arraycopy(colors, dy, colors, 0, height - dy);
 
-        //TODO create new lines with default foreground and NO_CHAR
+        for (int i = height - dy; i < height; i++) {
+            Arrays.fill(buffer[i], AbstractCommandLayer.NO_CHAR);
+            Arrays.fill(colors[i], defaultColor);
+        }
     }
 
     /////////////////////////////////////////////////////////////
