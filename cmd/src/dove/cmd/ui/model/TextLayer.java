@@ -10,13 +10,13 @@ import static java.awt.event.KeyEvent.*;
 
 public class TextLayer
         extends AbstractCommandLayer {
-    private CharBuffer buffer;
+    private InternalCharBuffer buffer;
 
-    private CommandLineCursor cursor;
+    private InternalCursor cursor;
 
     private AbstractTextLayerModel model;
 
-    public TextLayer(CommandLineCursor cursor, CharBuffer buffer, AbstractTextLayerModel model) {
+    public TextLayer(InternalCursor cursor, InternalCharBuffer buffer, AbstractTextLayerModel model) {
         super(null, cursor, buffer);
 
         //set the keyredirect to redirect event to this instance
@@ -28,7 +28,7 @@ public class TextLayer
         this.model = model;
     }
 
-    public TextLayer(CommandLineCursor cursor, CharBuffer buffer) {
+    public TextLayer(InternalCursor cursor, InternalCharBuffer buffer) {
         this(cursor, buffer, new DefaultTextLayerModel(buffer, cursor));
     }
 

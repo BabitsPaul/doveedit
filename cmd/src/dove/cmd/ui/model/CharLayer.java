@@ -24,7 +24,7 @@ public class CharLayer
      * <p>
      * the inner arrays represent the lines
      */
-    private CharBuffer buffer;
+    private InternalCharBuffer buffer;
 
     /**
      * the xoffset of this layer in the buffer
@@ -49,7 +49,7 @@ public class CharLayer
     /**
      * the cursor of the commandlineui related to this layer
      */
-    private CommandLineCursor cursor;
+    private InternalCursor cursor;
 
     /**
      * creates a new charlayer with the specified width and height
@@ -62,7 +62,7 @@ public class CharLayer
      * @param width the width of the bufferclip
      * @param height the height of the bufferclip
      */
-    public CharLayer(KeyListener listener, CharBuffer buffer, CommandLineCursor cursor, int xOffSet, int yOffSet
+    public CharLayer(KeyListener listener, InternalCharBuffer buffer, InternalCursor cursor, int xOffSet, int yOffSet
             , int width, int height) {
         super(listener, cursor, buffer);
 

@@ -12,21 +12,21 @@ public abstract class AbstractCommandLayer
 
     private ArrayList<CommandLineUIListener> listeners = new ArrayList<>();
 
-    private CommandLineCursor cursor;
+    private InternalCursor cursor;
 
-    private CharBuffer buffer;
+    private InternalCharBuffer buffer;
 
-    public AbstractCommandLayer(KeyListener redirectEvents, CommandLineCursor cursor, CharBuffer buffer) {
+    public AbstractCommandLayer(KeyListener redirectEvents, InternalCursor cursor, InternalCharBuffer buffer) {
         redirectTo(redirectEvents);
         this.cursor = cursor;
         this.buffer = buffer;
     }
 
-    public CommandLineCursor getCursor() {
+    public InternalCursor getCursor() {
         return cursor;
     }
 
-    public CharBuffer getBuffer() {
+    public InternalCharBuffer getBuffer() {
         return buffer;
     }
 

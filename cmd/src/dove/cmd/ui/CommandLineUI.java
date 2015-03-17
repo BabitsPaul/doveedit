@@ -22,8 +22,8 @@ public class CommandLineUI
     private static final int  PAINT_OFFSET_RIGHT  = 3;
     private static final int  PAINT_OFFSET_BOTTOM = 3;
     private static final int  LINE_SPACE          = 2;
-    private CommandLineCursor      cursor;
-    private CharBuffer             buffer;
+    private InternalCursor     cursor;
+    private InternalCharBuffer buffer;
     private UI_MODE                mode;
     private AbstractCommandLayer   activeLayer;
     private int                    charWidth;
@@ -51,7 +51,7 @@ public class CommandLineUI
         initInterpreter();
 
         //initialize cursor
-        cursor = new CommandLineCursor(width, height);
+        cursor = new InternalCursor(width, height);
 
         //create a tickerinstance to make the cursor flash
         cursorTicker = new Ticker((Long) interpreter.get("commandline.cursor.freq")) {
@@ -66,7 +66,7 @@ public class CommandLineUI
         };
 
         //initialize buffer
-        buffer = new CharBuffer(width, height, cursor, Color.BLUE);
+        buffer = new InternalCharBuffer(width, height, cursor, Color.BLUE);
 
         //initialize layer
         setMode(UI_MODE.TEXT_MODE);
