@@ -12,21 +12,21 @@ public abstract class AbstractCommandLayer
 
     private ArrayList<CommandLineUIListener> listeners = new ArrayList<>();
 
-    private InternalCursor cursor;
+    private Cursor cursor;
 
-    private InternalCharBuffer buffer;
+    private CharBuffer buffer;
 
-    public AbstractCommandLayer(KeyListener redirectEvents, InternalCursor cursor, InternalCharBuffer buffer) {
+    public AbstractCommandLayer(KeyListener redirectEvents, Cursor cursor, CharBuffer buffer) {
         redirectTo(redirectEvents);
         this.cursor = cursor;
         this.buffer = buffer;
     }
 
-    public InternalCursor getCursor() {
+    public Cursor getCursor() {
         return cursor;
     }
 
-    public InternalCharBuffer getBuffer() {
+    public CharBuffer getBuffer() {
         return buffer;
     }
 
@@ -41,8 +41,6 @@ public abstract class AbstractCommandLayer
     protected void fireCommandLayerEvent(CommandLineEvent e) {
         listeners.forEach(l -> l.commandLineChanged(e));
     }
-
-    public abstract void enableLayer();
 
     public abstract AbstractLayerRenderer createRenderer();
 }

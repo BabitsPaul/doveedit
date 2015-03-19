@@ -4,20 +4,20 @@ import java.util.List;
 
 public abstract class AbstractTextLayerModel
         extends AbstractLayerModel {
-    private InternalCharBuffer buffer;
+    private CharBuffer buffer;
 
-    private InternalCursor cursor;
+    private Cursor cursor;
 
-    public AbstractTextLayerModel(InternalCharBuffer buffer, InternalCursor cursor) {
+    public AbstractTextLayerModel(CharBuffer buffer, Cursor cursor) {
         this.buffer = buffer;
         this.cursor = cursor;
     }
 
-    protected InternalCursor getCursor() {
+    protected Cursor getCursor() {
         return cursor;
     }
 
-    protected InternalCharBuffer getBuffer() {
+    protected CharBuffer getBuffer() {
         return buffer;
     }
 

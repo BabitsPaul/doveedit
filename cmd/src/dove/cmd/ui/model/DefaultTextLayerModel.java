@@ -7,13 +7,13 @@ public class DefaultTextLayerModel
         extends AbstractTextLayerModel {
     private ArrayList<String> lines;
 
-    public DefaultTextLayerModel(InternalCharBuffer buffer, InternalCursor cursor) {
+    public DefaultTextLayerModel(CharBuffer buffer, Cursor cursor) {
         super(buffer, cursor);
     }
 
     @Override
     public void removeChar() {
-        InternalCursor cursor = getCursor();
+        Cursor cursor = getCursor();
 
         int x = cursor.getX();
         int y = cursor.getY();
@@ -86,7 +86,7 @@ public class DefaultTextLayerModel
     protected String searchLastLine() {
         StringBuilder builder = new StringBuilder("");
 
-        InternalCharBuffer buffer = getBuffer();
+        CharBuffer buffer = getBuffer();
 
         int x = getCursor().getX();
         int y = getCursor().getY();

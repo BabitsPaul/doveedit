@@ -5,7 +5,7 @@ import dove.util.concurrent.Ticker;
 import dove.util.misc.ColorUtil;
 import dove.util.treelib.Tree;
 import dove.util.treelib.TreeMap;
-import dove.util.ui.Dialogs;
+import dove.util.ui.dialogs.Dialogs;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicArrowButton;

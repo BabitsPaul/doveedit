@@ -7,5 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="concurrent" />
+    <orderEntry type="module" module-name="treelib" />
+    <orderEntry type="module" module-name="misc" />
+    <orderEntry type="module" module-name="clipboard" />
+    <orderEntry type="module" module-name="dialogs" />
   </component>
 </module>

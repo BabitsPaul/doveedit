@@ -27,6 +27,7 @@ public class CommandLineEvent
         BUFFER_TYPE,
         CURSOR_TYPE,
         CHAR_LAYER_TYPE,
-        TEXT_LAYER_TYPE
+        TEXT_LAYER_TYPE,
+        CLIPPING
     }
 }

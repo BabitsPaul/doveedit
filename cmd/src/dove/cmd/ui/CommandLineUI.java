@@ -2,6 +2,7 @@ package dove.cmd.ui;
 
 import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.ui.model.*;
+import dove.cmd.ui.model.Cursor;
 import dove.cmd.ui.paint.AbstractLayerRenderer;
 import dove.cmd.ui.paint.LayerRendererMetrics;
 import dove.cmd.ui.paint.RendererMetricsFactory;
@@ -22,8 +23,8 @@ public class CommandLineUI
     private static final int  PAINT_OFFSET_RIGHT  = 3;
     private static final int  PAINT_OFFSET_BOTTOM = 3;
     private static final int  LINE_SPACE          = 2;
-    private InternalCursor     cursor;
-    private InternalCharBuffer buffer;
+    private Cursor                cursor;
+    private CharBuffer            buffer;
     private UI_MODE                mode;
     private AbstractCommandLayer   activeLayer;
     private int                    charWidth;
@@ -33,6 +34,7 @@ public class CommandLineUI
     private boolean                paintCursor;
     private AbstractLayerRenderer renderer;
     private RendererMetricsFactory metricsFactory;
+    private ClipObject            clip;
 
     public CommandLineUI(int width, int height) {
         //create renderer metrics factory
@@ -50,8 +52,23 @@ public class CommandLineUI
         interpreter = new CommandLineInterpreter();
         initInterpreter();
 
+        //initialize the clipping object
+        clip = new ClipObject(width, height);
+        clip.addCommandLineListener(this);
+
         //initialize cursor
-        cursor = new InternalCursor(width, height);
+        cursor = new Cursor(width, height, clip);
+        cursor.addCommandLineListener(this);
+
+        //initialize buffer
+        buffer = new CharBuffer(width, height, cursor, Color.BLUE, clip);
+        buffer.addCommandLineListener(this);
+
+        //initialize layer
+        activeLayer = new TextLayer(cursor, buffer);
+        addKeyListener(activeLayer);
+        renderer = activeLayer.createRenderer();
+        mode = UI_MODE.TEXT_MODE;
 
         //create a tickerinstance to make the cursor flash
         cursorTicker = new Ticker((Long) interpreter.get("commandline.cursor.freq")) {
@@ -64,16 +81,7 @@ public class CommandLineUI
                 repaint();
             }
         };
-
-        //initialize buffer
-        buffer = new InternalCharBuffer(width, height, cursor, Color.BLUE);
-
-        //initialize layer
-        setMode(UI_MODE.TEXT_MODE);
-
         cursorTicker.start();
-        cursor.addCommandLineListener(this);
-        buffer.addCommandLineListener(this);
 
         //painting
         setDoubleBuffered(true);
@@ -152,11 +160,18 @@ public class CommandLineUI
     }
 
     public void setMode(UI_MODE mode) {
+        removeKeyListener(activeLayer);
+
         if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
             //TODO create valid bounds
             activeLayer = new CharLayer(null, buffer, cursor, 0, 0, 0, 0);
 
             metricsFactory.setLineSpace(LINE_SPACE);
+
+            //TODO valid clipping
+            clip.enableClipping(0, 0, 0, 0);
+
+            cursor.setVisible(false);
         }
         else {
             AbstractCommandLayer prevLayer = activeLayer;
@@ -173,9 +188,11 @@ public class CommandLineUI
 
                 cursor.setY(offset + height);
             }
+
+            clip.reverseClipping();
+            cursor.setVisible(true);
         }
 
-        activeLayer.enableLayer();
         addKeyListener(activeLayer);
 
         renderer = activeLayer.createRenderer();
@@ -198,6 +215,7 @@ public class CommandLineUI
     // commandlineuilistener
     ///////////////////////////////////////////////////////////
 
+    //TODO add option to suppress repainting in the eventqueue
 
     @Override
     public void commandLineChanged(CommandLineEvent e) {
