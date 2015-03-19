@@ -117,14 +117,14 @@ public class Cursor
      */
     public void moveCursorLeft() {
         int tempX = clip.convertToRelativeX(x);
-        int tempY = clip.convertToRelativeX(x);
+        int tempY = clip.convertToRelativeX(y);
 
         if (tempX <= 0 && tempY <= 0)
             return;
 
         tempX -= 1;
 
-        if (tempX == -1) {
+        if (tempX <= -1) {
             tempX = screenWidth - 1;
             tempY -= 1;
         }

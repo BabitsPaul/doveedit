@@ -58,6 +58,7 @@ public class CommandLineUI
 
         //initialize cursor
         cursor = new Cursor(width, height, clip);
+        cursor.setVisible(true);
         cursor.addCommandLineListener(this);
 
         //initialize buffer

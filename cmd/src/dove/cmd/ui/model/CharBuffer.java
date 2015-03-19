@@ -99,7 +99,7 @@ public class CharBuffer
      * @return an array containing the currently active
      */
     public char[][] getContent() {
-        if (clip.isEnabled())
+        if (!clip.isEnabled())
             return buffer;
 
         int clipWidth = clip.getClipWidth();
