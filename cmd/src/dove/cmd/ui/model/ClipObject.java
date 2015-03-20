@@ -51,12 +51,20 @@ public class ClipObject
         return (isEnabled ? relativeY + offSetY : relativeY);
     }
 
-    public boolean inClipX(int absolutex) {
-        return (!isEnabled || absolutex >= offSetX && absolutex < offSetX + clipWidth);
+    public boolean inBoundsX(int absolutex) {
+        if (isEnabled) {
+            return absolutex >= offSetX && absolutex < offSetX + clipWidth;
+        }
+        else {
+            return absolutex >= 0 && absolutex < width;
+        }
     }
 
-    public boolean inClipY(int absolutey) {
-        return (!isEnabled || absolutey >= offSetY && absolutey < offSetY + clipHeight);
+    public boolean inBoundsY(int absolutey) {
+        if (isEnabled)
+            return absolutey >= offSetY && absolutey < offSetY + clipHeight;
+        else
+            return absolutey >= 0 && absolutey < height;
     }
 
     public int getOffSetX() {
