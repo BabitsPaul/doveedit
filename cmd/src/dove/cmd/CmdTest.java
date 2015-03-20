@@ -13,7 +13,7 @@ public class CmdTest {
         CommandLineUI cmd = new CommandLineUI(100, 300);
         ((TextLayer) cmd.getActiveLayer()).getModel().writeln("hello world qwertz WAÖDGKHSI");
 
-        JFrame test = new JFrame("Commandline");
+        JFrame test = new JFrame();
         test.add(cmd);
         test.setExtendedState(Frame.MAXIMIZED_BOTH);
         test.setExtendedState(JFrame.EXIT_ON_CLOSE);
@@ -26,3 +26,4 @@ public class CmdTest {
         });
     }
 }
+

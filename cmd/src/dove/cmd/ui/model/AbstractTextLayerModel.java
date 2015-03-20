@@ -4,6 +4,9 @@ import java.util.List;
 
 public abstract class AbstractTextLayerModel
         extends AbstractLayerModel {
+    public static final int TEXT_ADDED   = 0;
+    public static final int TEXT_REMOVED = 1;
+
     private CharBuffer buffer;
 
     private Cursor cursor;

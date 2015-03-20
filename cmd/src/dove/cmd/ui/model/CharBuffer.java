@@ -115,8 +115,12 @@ public class CharBuffer
     }
 
     public void put(char c) {
-        int x = clip.convertToAbsoluteX(cursor.getX());
-        int y = clip.convertToAbsoluteY(cursor.getY());
+        put(c, cursor.getX(), cursor.getY());
+    }
+
+    public void put(char c, int x, int y) {
+        x = clip.convertToAbsoluteX(x);
+        y = clip.convertToAbsoluteY(y);
 
         buffer[y][x] = c;
 

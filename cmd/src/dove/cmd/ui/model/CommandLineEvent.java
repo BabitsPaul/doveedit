@@ -4,6 +4,11 @@ import java.util.EventObject;
 
 public class CommandLineEvent
         extends EventObject {
+    public static final int SUPPRESS_EVENT_RELATED_REPAINT = 0;
+    public static final int ENABLE_EVENT_RELATED_REPAINT   = 1;
+
+    public static final Object PAINTING_DUMMY = new Object();
+
     private SOURCE_TYPE source_type;
     private int         modifier;
 
@@ -28,6 +33,7 @@ public class CommandLineEvent
         CURSOR_TYPE,
         CHAR_LAYER_TYPE,
         TEXT_LAYER_TYPE,
-        CLIPPING
+        CLIPPING,
+        PAINTING
     }
 }

@@ -35,8 +35,11 @@ public class CommandLineUI
     private AbstractLayerRenderer renderer;
     private RendererMetricsFactory metricsFactory;
     private ClipObject            clip;
+    private boolean repaintOnEvent;
 
     public CommandLineUI(int width, int height) {
+        repaintOnEvent = true;
+
         //create renderer metrics factory
         metricsFactory = new RendererMetricsFactory();
         metricsFactory.setTextSpaceTop(PAINT_OFFSET_TOP);
@@ -224,9 +227,23 @@ public class CommandLineUI
             case CURSOR_TYPE:
                 cursorTicker.enforceTick();
                 break;
-        }
 
-        repaint();
+            case PAINTING:
+                switch (e.getModifier()) {
+                    case CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT:
+                        repaintOnEvent = true;
+                        break;
+
+                    case CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT:
+                        repaintOnEvent = false;
+                        break;
+                }
+                break;
+
+            default:
+                if (repaintOnEvent)
+                    repaint();
+        }
     }
 
     /**

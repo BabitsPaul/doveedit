@@ -9,22 +9,31 @@ public class DefaultTextLayerModel
 
     public DefaultTextLayerModel(CharBuffer buffer, Cursor cursor) {
         super(buffer, cursor);
+
+        lines = new ArrayList<>();
     }
 
     @Override
     public void removeChar() {
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
         Cursor cursor = getCursor();
-
-        int x = cursor.getX();
-        int y = cursor.getY();
-
-        getCursor().moveCursorLeft();
+        CharBuffer buffer = getBuffer();
 
         char c;
+        int x = cursor.getX();
+        int y = cursor.getY();
         do {
-            getBuffer().put(c = getBuffer().get(x, y));
+            c = buffer.get(x, y);
+            buffer.put(c, x - 1, y);
         }
-        while (c != '\n');
+        while (c != AbstractCommandLayer.NO_CHAR);
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_REMOVED));
     }
 
     @Override
@@ -92,7 +101,7 @@ public class DefaultTextLayerModel
         int y = getCursor().getY();
 
         char c;
-        while (x != 0 && y != 0 && (c = buffer.get(x, y)) != '\n')
+        while (x != 0 && y != 0 && (c = buffer.get(x, y)) != '\n' && c != AbstractCommandLayer.NO_CHAR)
             builder.append(c);
 
         builder.reverse();
