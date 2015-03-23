@@ -7,8 +7,8 @@ public class DefaultTextLayerModel
         extends AbstractTextLayerModel {
     private ArrayList<String> lines;
 
-    public DefaultTextLayerModel(CharBuffer buffer, Cursor cursor) {
-        super(buffer, cursor);
+    public DefaultTextLayerModel(CharBuffer buffer, Cursor cursor, ClipObject clip) {
+        super(buffer, cursor, clip);
 
         lines = new ArrayList<>();
     }

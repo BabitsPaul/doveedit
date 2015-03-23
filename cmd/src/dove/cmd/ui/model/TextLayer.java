@@ -21,10 +21,6 @@ public class TextLayer
         this.model = model;
     }
 
-    public TextLayer(Cursor cursor, CharBuffer buffer) {
-        this(cursor, buffer, new DefaultTextLayerModel(buffer, cursor));
-    }
-
     public AbstractTextLayerModel getModel() {
         return model;
     }

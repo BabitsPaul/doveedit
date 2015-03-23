@@ -10,6 +10,7 @@ import dove.util.concurrent.Ticker;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class CommandLineUI
         extends JComponent
@@ -69,7 +70,7 @@ public class CommandLineUI
         buffer.addCommandLineListener(this);
 
         //initialize layer
-        activeLayer = new TextLayer(cursor, buffer);
+        activeLayer = new TextLayer(cursor, buffer, new DefaultTextLayerModel(buffer, cursor, clip));
         addKeyListener(activeLayer);
         renderer = activeLayer.createRenderer();
         mode = UI_MODE.TEXT_MODE;
@@ -166,6 +167,8 @@ public class CommandLineUI
     public void setMode(UI_MODE mode) {
         removeKeyListener(activeLayer);
 
+        new ArrayList<>().stream().filter(o -> o.hashCode() == mode.hashCode());
+
         if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
             //TODO create valid bounds
             activeLayer = new CharLayer(null, buffer, cursor, 0, 0, 0, 0);
@@ -180,7 +183,7 @@ public class CommandLineUI
         else {
             AbstractCommandLayer prevLayer = activeLayer;
 
-            activeLayer = new TextLayer(cursor, buffer);
+            activeLayer = new TextLayer(cursor, buffer, new DefaultTextLayerModel(buffer, cursor, clip));
 
             metricsFactory.setLineSpace(0);
 

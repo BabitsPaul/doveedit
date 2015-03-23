@@ -42,6 +42,8 @@ public class Cursor
 
     private ClipObject clip;
 
+    private PositionHelper helper;
+
     /**
      * creates a new commandlinecursor with position 0,0
      * and the specified buffersize
@@ -54,6 +56,8 @@ public class Cursor
         this.screenHeight = screenHeight;
 
         this.clip = clip;
+
+        helper = new PositionHelper(clip);
 
         x = 0;
         y = 0;
@@ -116,65 +120,41 @@ public class Cursor
      * at x == 0 and y == 0
      */
     public void moveCursorLeft() {
-        int tempX = clip.convertToRelativeX(x);
-        int tempY = clip.convertToRelativeX(y);
+        PositionHelper.Position position = new PositionHelper.Position(x, y, false);
 
-        if (tempX <= 0 && tempY <= 0)
-            return;
+        position = helper.left(position);
 
-        tempX -= 1;
-
-        if (tempX <= -1) {
-            tempX = screenWidth - 1;
-            tempY -= 1;
-        }
-
-        x = clip.convertToAbsoluteX(tempX);
-        y = clip.convertToAbsoluteY(tempY);
+        x = position.getX();
+        y = position.getY();
 
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
     public void moveCursorRight() {
-        int tempX = clip.convertToRelativeX(x);
-        int tempY = clip.convertToRelativeY(y);
+        PositionHelper.Position position = new PositionHelper.Position(x, y, false);
 
-        if (tempX >= clip.getWidth() - 1 && tempY >= clip.getHeight() - 1)
-            return;
+        position = helper.right(position);
 
-        tempX = (tempX + 1) % clip.getWidth();
-
-        if (tempX == 0)
-            tempY += 1;
-
-        x = clip.convertToAbsoluteX(tempX);
-        y = clip.convertToAbsoluteY(tempY);
+        x = position.getX();
+        y = position.getY();
 
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
     public void moveCursorUp() {
-        int tempY = clip.convertToRelativeY(y);
+        PositionHelper.Position position = helper.up(new PositionHelper.Position(x, y, false));
 
-        if (tempY <= 0)
-            return;
-
-        tempY -= 1;
-
-        y = clip.convertToAbsoluteY(tempY);
+        x = position.getX();
+        y = position.getY();
 
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
     public void moveCursorDown() {
-        int tempY = clip.convertToRelativeY(y);
+        PositionHelper.Position position = helper.down(new PositionHelper.Position(x, y, false));
 
-        if (tempY >= clip.getHeight() - 1)
-            return;
-
-        tempY += 1;
-
-        y = clip.convertToAbsoluteY(tempY);
+        x = position.getX();
+        y = position.getY();
 
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
