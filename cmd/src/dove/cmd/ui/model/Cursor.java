@@ -107,20 +107,6 @@ public class Cursor
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
-    public void setPosition(PositionHelper.Position position) {
-        if (position.isRelative())
-            position = helper.toAbsolute(position);
-
-        x = position.getX();
-        y = position.getY();
-
-        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
-    }
-
-    /////////////////////////////////////////////////////
-    // move cursor
-    /////////////////////////////////////////////////////
-
     /**
      * moves the cursor one cell to the left, or one up and
      * to the end of the previous line, if the cursor is at
@@ -139,6 +125,10 @@ public class Cursor
 
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
+
+    /////////////////////////////////////////////////////
+    // move cursor
+    /////////////////////////////////////////////////////
 
     public void moveCursorRight() {
         PositionHelper.Position position = new PositionHelper.Position(x, y, false);
@@ -169,18 +159,32 @@ public class Cursor
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
-    /////////////////////////////////////////////////////
-    // visibility
-    /////////////////////////////////////////////////////
-
     public boolean isVisible() {
         return isVisible;
     }
+
+    /////////////////////////////////////////////////////
+    // visibility
+    /////////////////////////////////////////////////////
 
     public void setVisible(boolean visible) {
         isVisible = visible;
 
         fireCommandLineEvent(new CommandLineEvent(this,
                 CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_VISIBILITY_CHANGED));
+    }
+
+    public PositionHelper.Position getPosition() {
+        return new PositionHelper.Position(x, y, clip.isEnabled());
+    }
+
+    public void setPosition(PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        x = position.getX();
+        y = position.getY();
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 }

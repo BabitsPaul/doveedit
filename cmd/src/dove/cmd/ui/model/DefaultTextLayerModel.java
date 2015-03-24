@@ -37,6 +37,8 @@ public class DefaultTextLayerModel
         }
         while (c != AbstractCommandLayer.NO_CHAR);
 
+        cursor.setPosition(helper.left(new PositionHelper.Position(x, y, clip.isEnabled())));
+
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
 
@@ -48,9 +50,33 @@ public class DefaultTextLayerModel
         if (c == '\n' || c == '\r' || c == '\b')
             return;
 
-        getBuffer().put(c);
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
-        //TODO push to the right
+        Cursor cursor = getCursor();
+        CharBuffer buffer = getBuffer();
+        PositionHelper helper = getHelper();
+
+        PositionHelper.Position cursorPosition = cursor.getPosition();
+
+        char prev = c;
+        char swap;
+        PositionHelper.Position currentPos = new PositionHelper.Position(cursor.getX(), cursor.getY(), getClip().isEnabled());
+        while (prev != AbstractCommandLayer.NO_CHAR) {
+            swap = buffer.get(currentPos);
+            buffer.put(prev, currentPos);
+
+            currentPos = helper.right(currentPos);
+
+            prev = swap;
+        }
+
+        cursor.setPosition(helper.right(cursorPosition));
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_ADDED));
     }
 
     @Override
