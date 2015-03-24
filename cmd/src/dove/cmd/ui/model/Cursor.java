@@ -107,6 +107,16 @@ public class Cursor
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
     }
 
+    public void setPosition(PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        x = position.getX();
+        y = position.getY();
+
+        fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.CURSOR_TYPE, CURSOR_MOVED));
+    }
+
     /////////////////////////////////////////////////////
     // move cursor
     /////////////////////////////////////////////////////

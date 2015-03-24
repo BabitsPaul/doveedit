@@ -13,9 +13,13 @@ public abstract class AbstractTextLayerModel
 
     private PositionHelper helper;
 
+    private ClipObject clip;
+
     public AbstractTextLayerModel(CharBuffer buffer, Cursor cursor, ClipObject clip) {
         this.buffer = buffer;
         this.cursor = cursor;
+
+        this.clip = clip;
 
         this.helper = new PositionHelper(clip);
     }
@@ -30,6 +34,10 @@ public abstract class AbstractTextLayerModel
 
     protected PositionHelper getHelper() {
         return helper;
+    }
+
+    protected ClipObject getClip() {
+        return clip;
     }
 
     public abstract void removeChar();

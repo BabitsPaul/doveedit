@@ -171,6 +171,30 @@ public class PositionHelper {
         return new Position(x, y, isRelative);
     }
 
+    public Position toAbsolute(Position p) {
+        int x = p.x;
+        int y = p.y;
+
+        if (p.isRelative) {
+            x = clip.convertToAbsoluteX(x);
+            y = clip.convertToAbsoluteY(y);
+        }
+
+        return new Position(x, y, false);
+    }
+
+    public Position toRelative(Position p) {
+        int x = p.x;
+        int y = p.y;
+
+        if (!p.isRelative) {
+            x = clip.convertToRelativeX(x);
+            y = clip.convertToRelativeY(y);
+        }
+
+        return new Position(x, y, true);
+    }
+
     public static class Position {
         private int x;
 

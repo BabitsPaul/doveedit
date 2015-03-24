@@ -20,13 +20,20 @@ public class DefaultTextLayerModel
 
         Cursor cursor = getCursor();
         CharBuffer buffer = getBuffer();
+        PositionHelper helper = getHelper();
+        ClipObject clip = getClip();
 
         char c;
         int x = cursor.getX();
         int y = cursor.getY();
+        PositionHelper.Position toReplace = new PositionHelper.Position(x, y, clip.isEnabled());
+        PositionHelper.Position swapToLeft = helper.right(new PositionHelper.Position(x, y, clip.isEnabled()));
         do {
-            c = buffer.get(x, y);
-            buffer.put(c, x - 1, y);
+            c = buffer.get(swapToLeft);
+            buffer.put(c, toReplace);
+
+            toReplace = swapToLeft;
+            swapToLeft = helper.right(swapToLeft);
         }
         while (c != AbstractCommandLayer.NO_CHAR);
 
@@ -42,6 +49,8 @@ public class DefaultTextLayerModel
             return;
 
         getBuffer().put(c);
+
+        //TODO push to the right
     }
 
     @Override

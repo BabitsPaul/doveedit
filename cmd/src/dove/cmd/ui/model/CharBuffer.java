@@ -27,6 +27,8 @@ public class CharBuffer
 
     private Color defaultColor;
 
+    private PositionHelper helper;
+
     public CharBuffer(int width, int height, Cursor cursor, Color defaultColor, ClipObject clip) {
         this.buffer = new char[height][width];
         this.colors = new Color[height][width];
@@ -39,6 +41,8 @@ public class CharBuffer
         this.defaultColor = defaultColor;
 
         this.clip = clip;
+
+        helper = new PositionHelper(clip);
 
         for (Color[] colors : this.colors)
             Arrays.fill(colors, defaultColor);
@@ -129,6 +133,13 @@ public class CharBuffer
         fireCommandLineEvent(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.BUFFER_TYPE, BUFFER_UPDATED));
     }
 
+    public void put(char c, PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        put(c, position.getX(), position.getY());
+    }
+
     public char get(int x, int y) {
         x = clip.convertToAbsoluteX(x);
         y = clip.convertToAbsoluteY(y);
@@ -139,6 +150,13 @@ public class CharBuffer
                     ") requested: (" + x + "/" + y + ")");
 
         return buffer[y][x];
+    }
+
+    public char get(PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        return get(position.getX(), position.getY());
     }
 
     /////////////////////////////////////////////////////////////
@@ -157,6 +175,13 @@ public class CharBuffer
         return colors[x][y];
     }
 
+    public Color getColor(PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        return getColor(position.getX(), position.getY());
+    }
+
     public Color[][] getColors() {
         if (clip.isEnabled()) {
             Color[][] colorTemp = new Color[clip.getClipHeight()][clip.getClipWidth()];
@@ -172,6 +197,22 @@ public class CharBuffer
 
     public void putColor(Color c) {
         colors[clip.convertToAbsoluteY(cursor.getY())][clip.convertToAbsoluteX(cursor.getX())] = c;
+    }
+
+    public void putColor(Color c, int x, int y) {
+        if (clip.isEnabled()) {
+            x = clip.convertToAbsoluteX(x);
+            y = clip.convertToAbsoluteY(y);
+        }
+
+        colors[x][y] = c;
+    }
+
+    public void putColor(Color c, PositionHelper.Position position) {
+        if (position.isRelative())
+            position = helper.toAbsolute(position);
+
+        putColor(c, position.getX(), position.getY());
     }
 
     /////////////////////////////////////////////////////////////
