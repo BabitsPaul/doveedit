@@ -18,6 +18,7 @@ public class DefaultTextLayerModel
 
     @Override
     public void removeChar() {
+        //TODO doesn't work properly when after linebreak
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
@@ -106,15 +107,17 @@ public class DefaultTextLayerModel
 
     @Override
     public void nextLine() {
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
         lines.add(searchLastLine());
 
         Cursor cursor = getCursor();
         CharBuffer buffer = getBuffer();
         ClipObject clip = getClip();
 
+        //push the buffer up, if the cursor is in the last line
         if (!clip.inBoundsY(cursor.getY() + 1)) {
-            buffer.put('\n');
-
             buffer.pushContentUp(10);
 
             cursor.setY(getClip().convertToAbsoluteY(cursor.getY()) - 10);
@@ -136,8 +139,11 @@ public class DefaultTextLayerModel
         char[] lineAfterCursor = new char[buffer.getWidth()];
         int j = 0;
         int i = cursor.getX();
-        for (; i < buffer.getWidth(); i++, j++)
-            lineAfterCursor[j] = buf[cursor.getY()][i];
+        int cursorY = cursor.getY();
+        for (; i < buffer.getWidth(); i++, j++) {
+            lineAfterCursor[j] = buf[cursorY][i];
+            buf[cursorY][i] = AbstractCommandLayer.NO_CHAR;
+        }
         for (; j < buffer.getWidth(); j++)
             lineAfterCursor[j] = AbstractCommandLayer.NO_CHAR;
 
@@ -145,12 +151,26 @@ public class DefaultTextLayerModel
         char[] currentLine;
         char[] replaceWith = lineAfterCursor;
 
-        for (i = cursor.getY() + 1; i < line; i++) {
+        for (i = cursor.getY() + 1; i <= line; i++) {
             currentLine = buf[i];
             buf[i] = replaceWith;
 
             replaceWith = currentLine;
         }
+
+        //insert \n
+        buffer.put('\n');
+
+        //set cursor to new position
+        int y = cursor.getY() + 1;
+        cursor.setX(0);
+        cursor.setY(y);
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE,
+                TEXT_ADDED));
     }
 
     private int firstEmptyLineAfterCursor() {
