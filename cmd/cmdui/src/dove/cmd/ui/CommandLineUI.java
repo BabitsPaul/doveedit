@@ -1,6 +1,5 @@
 package dove.cmd.ui;
 
-import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.ui.model.*;
 import dove.cmd.ui.model.Cursor;
 import dove.cmd.ui.paint.AbstractLayerRenderer;
@@ -31,15 +30,19 @@ public class CommandLineUI
     private int                    charWidth;
     private int                    charHeight;
     private Ticker                 cursorTicker;
-    private CommandLineInterpreter interpreter;
     private boolean                paintCursor;
     private AbstractLayerRenderer renderer;
     private RendererMetricsFactory metricsFactory;
     private ClipObject            clip;
-    private boolean repaintOnEvent;
+    private boolean               repaintOnEvent;
+    private CmdUIConfiguration    configuration;
 
     public CommandLineUI(int width, int height) {
         repaintOnEvent = true;
+
+        //create configuration
+        configuration = new CmdUIConfiguration();
+        initCfg();
 
         //create renderer metrics factory
         metricsFactory = new RendererMetricsFactory();
@@ -51,10 +54,6 @@ public class CommandLineUI
         metricsFactory.setBackground(getBackground());
         metricsFactory.setShowCursor(true);
         metricsFactory.setSignSpace(0);
-
-        //initialize interpreter (NOTE: remove initInterpreter later - values are transferred to commands)
-        interpreter = new CommandLineInterpreter();
-        initInterpreter();
 
         //initialize the clipping object
         clip = new ClipObject(width, height);
@@ -76,7 +75,7 @@ public class CommandLineUI
         mode = UI_MODE.TEXT_MODE;
 
         //create a tickerinstance to make the cursor flash
-        cursorTicker = new Ticker((Long) interpreter.get("commandline.cursor.freq")) {
+        cursorTicker = new Ticker((Long) configuration.get("commandline.cursor.freq")) {
             @Override
             protected void nextTick() {
                 paintCursor = !paintCursor;
@@ -99,10 +98,10 @@ public class CommandLineUI
     //create a basic interpreter
     //will be replaced by a commandrelated
     //initialisation later
-    private void initInterpreter() {
-        interpreter.put("commandline.cursor.freq", 500L);
-        interpreter.put("commandline.color.foreground", Color.WHITE);
-        interpreter.put("commandline.color.background", Color.BLACK);
+    private void initCfg() {
+        configuration.put("commandline.cursor.freq", 500L);
+        configuration.put("commandline.color.foreground", Color.WHITE);
+        configuration.put("commandline.color.background", Color.BLACK);
     }
 
     public void setMetrics(LayerRendererMetrics metrics) {
@@ -210,19 +209,9 @@ public class CommandLineUI
         repaint();
     }
 
-    //////////////////////////////////////////////////////////
-    // interpreter
-    //////////////////////////////////////////////////////////
-
-    public CommandLineInterpreter getInterpreter() {
-        return interpreter;
-    }
-
     ///////////////////////////////////////////////////////////
     // commandlineuilistener
     ///////////////////////////////////////////////////////////
-
-    //TODO add option to suppress repainting in the eventqueue
 
     @Override
     public void commandLineChanged(CommandLineEvent e) {

@@ -1,0 +1,27 @@
+<project name="cmdui" default="jar">
+    <property name="src" value="${basedir}/src"/>
+    <property name="build" value="${basedir}/build"/>
+    <property name="class" value="${build}/cls"/>
+    <property name="jar" value="../cmdui.jar"/>
+
+    <target name="precompile">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${class}"/>
+    </target>
+
+    <target name="build" depends="precompile">
+        <javac srcdir="${src}" target="${class}"/>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar basedir="${class}" destfile="${jar}">
+            <manifest/>
+        </jar>
+
+        <antcall target="postcompile"/>
+    </target>
+
+    <target name="postcompile">
+        <delete dir="${build}"/>
+    </target>
+</project>

@@ -5,10 +5,11 @@ import dove.util.collections.MultiMap;
 import dove.util.concurrent.access.AccessTask;
 import dove.util.misc.StringHelper;
 import dove.util.treelib.StringMap;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import dove.util.treelib.TreeMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class Configuration
         extends StringMap<Object> {
@@ -46,11 +47,16 @@ public abstract class Configuration
         //this method must always be overriden
         //since it is used to register this class
         //as a configurationclass
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
+
+        return "";
     }
 
     protected void fireConfigChanged(String key) {
-        listeners.get(key).forEach(l -> l.valueChanged(new ConfigChangedEvent(this, key)));
+        List<ConfigListener> listeners = this.listeners.get(key);
+
+        if (listeners != null)
+            listeners.forEach(l -> l.valueChanged(new ConfigChangedEvent(this, key)));
 
         notifyAlways.forEach(l -> l.valueChanged(new ConfigChangedEvent(this, key)));
     }
@@ -70,7 +76,7 @@ public abstract class Configuration
     }
 
     protected void _put(String key, Object val) {
-        _put(key, val);
+        super._put(key, val);
 
         fireConfigChanged(key);
     }
@@ -92,7 +98,7 @@ public abstract class Configuration
     }
 
     protected Object _get(String key) {
-        return ((StringMap) getNodeForPath(StringHelper.castToChar(key.toCharArray()))).getVal();
+        return ((TreeMap<Character, Object>) getNodeForPath(StringHelper.castToChar(key.toCharArray()))).getVal();
     }
 
     public boolean userEditable(String key) {

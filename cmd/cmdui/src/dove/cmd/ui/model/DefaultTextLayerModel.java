@@ -3,6 +3,9 @@ package dove.cmd.ui.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * NOTE: this model is always used with unclipped buffer
+ */
 public class DefaultTextLayerModel
         extends AbstractTextLayerModel {
     private ArrayList<String> lines;
@@ -21,13 +24,12 @@ public class DefaultTextLayerModel
         Cursor cursor = getCursor();
         CharBuffer buffer = getBuffer();
         PositionHelper helper = getHelper();
-        ClipObject clip = getClip();
 
         char c;
         int x = cursor.getX();
         int y = cursor.getY();
-        PositionHelper.Position toReplace = new PositionHelper.Position(x, y, clip.isEnabled());
-        PositionHelper.Position swapToLeft = helper.right(new PositionHelper.Position(x, y, clip.isEnabled()));
+        PositionHelper.Position toReplace = new PositionHelper.Position(x, y, false);
+        PositionHelper.Position swapToLeft = helper.right(new PositionHelper.Position(x, y, false));
         do {
             c = buffer.get(swapToLeft);
             buffer.put(c, toReplace);
@@ -37,7 +39,7 @@ public class DefaultTextLayerModel
         }
         while (c != AbstractCommandLayer.NO_CHAR);
 
-        cursor.setPosition(helper.left(new PositionHelper.Position(x, y, clip.isEnabled())));
+        cursor.setPosition(helper.left(new PositionHelper.Position(x, y, false)));
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
@@ -61,7 +63,7 @@ public class DefaultTextLayerModel
 
         char prev = c;
         char swap;
-        PositionHelper.Position currentPos = new PositionHelper.Position(cursor.getX(), cursor.getY(), getClip().isEnabled());
+        PositionHelper.Position currentPos = new PositionHelper.Position(cursor.getX(), cursor.getY(), false);
         while (prev != AbstractCommandLayer.NO_CHAR) {
             swap = buffer.get(currentPos);
             buffer.put(prev, currentPos);
@@ -69,6 +71,9 @@ public class DefaultTextLayerModel
             currentPos = helper.right(currentPos);
 
             prev = swap;
+
+            if (currentPos.getY() == buffer.getHeight() - 1 && currentPos.getX() == buffer.getWidth() - 1)
+                buffer.pushContentUp(10);
         }
 
         cursor.setPosition(helper.right(cursorPosition));
@@ -103,7 +108,71 @@ public class DefaultTextLayerModel
     public void nextLine() {
         lines.add(searchLastLine());
 
-        getBuffer().put('\n');
+        Cursor cursor = getCursor();
+        CharBuffer buffer = getBuffer();
+        ClipObject clip = getClip();
+
+        if (!clip.inBoundsY(cursor.getY() + 1)) {
+            buffer.put('\n');
+
+            buffer.pushContentUp(10);
+
+            cursor.setY(getClip().convertToAbsoluteY(cursor.getY()) - 10);
+        }
+
+        //get first empty line, or push content up, if no empty lines are found
+        int line = firstEmptyLineAfterCursor();
+        if (line == -1) {
+            buffer.pushContentUp(10);
+
+            //first empty line is the first one that was freed by pushing the buffer
+            line = buffer.getHeight() - 10;
+        }
+
+        char[][] buf = buffer.getContent();
+
+        //create content of line the cursor is currently at
+        //after the cursor
+        char[] lineAfterCursor = new char[buffer.getWidth()];
+        int j = 0;
+        int i = cursor.getX();
+        for (; i < buffer.getWidth(); i++, j++)
+            lineAfterCursor[j] = buf[cursor.getY()][i];
+        for (; j < buffer.getWidth(); j++)
+            lineAfterCursor[j] = AbstractCommandLayer.NO_CHAR;
+
+        //push lines down
+        char[] currentLine;
+        char[] replaceWith = lineAfterCursor;
+
+        for (i = cursor.getY() + 1; i < line; i++) {
+            currentLine = buf[i];
+            buf[i] = replaceWith;
+
+            replaceWith = currentLine;
+        }
+    }
+
+    private int firstEmptyLineAfterCursor() {
+        char[][] buffer = getBuffer().getContent();
+        PositionHelper.Position cursorPos = getCursor().getPosition();
+
+        int line = cursorPos.getY();
+        for (; line < buffer.length; line++) {
+            boolean allNoChar = true;
+
+            for (char c : buffer[line]) {
+                allNoChar = (c == AbstractCommandLayer.NO_CHAR);
+
+                if (!allNoChar)
+                    break;
+            }
+
+            if (allNoChar)
+                return line;
+        }
+
+        return -1;
     }
 
     @Override
