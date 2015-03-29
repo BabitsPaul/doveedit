@@ -171,6 +171,13 @@ public class PositionHelper {
         return new Position(x, y, isRelative);
     }
 
+    /**
+     * creates a new position with the absolute position in the
+     * screen, if the given position is relative
+     *
+     * @param p the position to convert
+     * @return the absolute position related to p
+     */
     public Position toAbsolute(Position p) {
         int x = p.x;
         int y = p.y;
@@ -183,6 +190,13 @@ public class PositionHelper {
         return new Position(x, y, false);
     }
 
+    /**
+     * creates a new relative position from p, if p is absolute
+     * and clipping is enabled
+     *
+     * @param p the position to convert
+     * @return the relative position related to p
+     */
     public Position toRelative(Position p) {
         int x = p.x;
         int y = p.y;
@@ -195,6 +209,13 @@ public class PositionHelper {
         return new Position(x, y, true);
     }
 
+    /**
+     * represents a position in the commandline
+     * <p>
+     * this class holds the information about a position in the commandline
+     * (buffer, cursor, etc.). this position might be relative (0/0 is the offset of
+     * the clip) or absolute (0/0 is 0/0 in the screen).
+     */
     public static class Position {
         private int x;
 

@@ -4,11 +4,14 @@ import dove.cmd.ui.model.AbstractTextLayerModel;
 import dove.cmd.ui.model.CharBuffer;
 import dove.cmd.ui.model.ClipObject;
 import dove.cmd.ui.model.Cursor;
-
-import java.util.List;
+import dove.util.collections.FixedSizeRAStack;
 
 public class CommandLineLayerModel
         extends AbstractTextLayerModel {
+    private int currentLineStartY;
+
+    private FixedSizeRAStack<String> prevCmds;
+
     public CommandLineLayerModel(CharBuffer buffer, Cursor cursor, ClipObject clip) {
         super(buffer, cursor, clip);
     }
@@ -48,23 +51,11 @@ public class CommandLineLayerModel
 
     }
 
-    @Override
-    public String getLastLine() {
-        return null;
-    }
-
-    @Override
-    public List<String> listLines() {
-        return null;
-    }
-
-    @Override
-    public void write(String text) {
+    public void write(String txt) {
 
     }
 
-    @Override
-    public void writeln(String text) {
+    public void writeLine(String txt) {
 
     }
 }

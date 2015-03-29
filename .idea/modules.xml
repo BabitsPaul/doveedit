@@ -32,6 +32,7 @@
       <module fileurl="file://$PROJECT_DIR$/codec/sha1/sha1.iml" filepath="$PROJECT_DIR$/codec/sha1/sha1.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/treelib/treelib.iml" filepath="$PROJECT_DIR$/util/treelib/treelib.iml" />
       <module fileurl="file://$PROJECT_DIR$/undo/undo.iml" filepath="$PROJECT_DIR$/undo/undo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wlan/wlan.iml" filepath="$PROJECT_DIR$/wlan/wlan.iml" />
     </modules>
   </component>
 </project>

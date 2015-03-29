@@ -1,7 +1,7 @@
 package dove.cmd;
 
 import dove.cmd.ui.CommandLineUI;
-import dove.cmd.ui.model.TextLayer;
+import dove.cmd.ui.model.DefaultTextLayerModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ import java.awt.event.WindowEvent;
 public class CmdTest {
     public static void main(String[] args) {
         CommandLineUI cmd = new CommandLineUI(100, 300);
-        ((TextLayer) cmd.getActiveLayer()).getModel().writeln("hello world qwertz WAÖDGKHSI");
+        ((DefaultTextLayerModel) cmd.getActiveLayer().getModel()).writeln("hello world qwertz WAÖDGKHSI");
 
         JFrame test = new JFrame();
         test.add(cmd);
@@ -26,4 +26,3 @@ public class CmdTest {
         });
     }
 }
-

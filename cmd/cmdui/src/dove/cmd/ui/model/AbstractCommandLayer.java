@@ -43,4 +43,6 @@ public abstract class AbstractCommandLayer
     }
 
     public abstract AbstractLayerRenderer createRenderer();
+
+    public abstract Object getModel();
 }

@@ -1,7 +1,5 @@
 package dove.cmd.ui.model;
 
-import java.util.List;
-
 public abstract class AbstractTextLayerModel
         extends AbstractLayerModel {
     public static final int TEXT_ADDED   = 0;
@@ -53,12 +51,4 @@ public abstract class AbstractTextLayerModel
     public abstract void cursorLeft();
 
     public abstract void nextLine();
-
-    public abstract String getLastLine();
-
-    public abstract List<String> listLines();
-
-    public abstract void write(String text);
-
-    public abstract void writeln(String text);
 }

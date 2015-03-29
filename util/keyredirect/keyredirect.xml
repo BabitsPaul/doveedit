@@ -1,7 +1,7 @@
-<project name="keyredirect" basedir="../..//" default="jar">
-    <property name="build" value="//build"/>
-    <property name="jar" value="${basedir}/keyredirect.jar"/>
-    <property name="src" value="//src"/>
+<project name="keyredirect" default="jar">
+    <property name="build" value="build"/>
+    <property name="jar" value="../keyredirect.jar"/>
+    <property name="src" value="src"/>
 
     <target name="precompile">
         <mkdir dir="${build}"/>

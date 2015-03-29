@@ -9,15 +9,16 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="dove" exported="" />
     <orderEntry type="module" module-name="treelib" />
+    <orderEntry type="module" module-name="cmdui" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../keyredirect.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../util/keyredirect.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="cmdui" />
+    <orderEntry type="module" module-name="collections" />
   </component>
 </module>

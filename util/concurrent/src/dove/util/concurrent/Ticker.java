@@ -18,7 +18,7 @@ public abstract class Ticker
 
         running = true;
 
-        t = new Thread(() -> run());
+        t = new Thread(this::run);
         t.setName("tickerthread");
         t.setDaemon(true);
         t.start();

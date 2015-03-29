@@ -158,9 +158,6 @@ public class DefaultTextLayerModel
             replaceWith = currentLine;
         }
 
-        //insert \n
-        buffer.put('\n');
-
         //set cursor to new position
         int y = cursor.getY() + 1;
         cursor.setX(0);
@@ -195,23 +192,19 @@ public class DefaultTextLayerModel
         return -1;
     }
 
-    @Override
     public String getLastLine() {
         return searchLastLine();
     }
 
-    @Override
     public List<String> listLines() {
         return lines;
     }
 
-    @Override
     public void write(String text) {
         for (char c : text.toCharArray())
             getBuffer().put(c);
     }
 
-    @Override
     public void writeln(String text) {
         write(text + "\n");
     }
@@ -221,12 +214,15 @@ public class DefaultTextLayerModel
 
         CharBuffer buffer = getBuffer();
 
-        int x = getCursor().getX();
-        int y = getCursor().getY();
+        PositionHelper.Position position = new PositionHelper.Position(getCursor().getX(), getCursor().getY(), false);
+        PositionHelper helper = getHelper();
 
         char c;
-        while (x != 0 && y != 0 && (c = buffer.get(x, y)) != '\n' && c != AbstractCommandLayer.NO_CHAR)
+        while (position.getX() != 0 && position.getY() != 0 && (c = buffer.get(position)) != '\n' && c != AbstractCommandLayer.NO_CHAR) {
             builder.append(c);
+
+            position = helper.left(position);
+        }
 
         builder.reverse();
 
