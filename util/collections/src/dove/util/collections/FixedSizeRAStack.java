@@ -34,32 +34,18 @@ public class FixedSizeRAStack<T> {
     }
 
     public T push(T t) {
-        int temp = (--currentStart) % maxSize;
+        int temp = (currentStart - 1) % maxSize;
 
         T rem = content[temp];
 
         content[temp] = t;
 
-        if (rem == null)
+        if (currentSize < maxSize)
             ++currentSize;
+
+        currentStart = temp;
 
         return rem;
-    }
-
-    public T add(T t, int i) {
-        if (i >= currentSize)
-            throw new ArrayIndexOutOfBoundsException("Current Size: " + currentSize + "requested index: " + i);
-
-        int index = (currentStart + i) % maxSize;
-
-        T temp = content[index];
-
-        content[index] = t;
-
-        if (t == null)
-            ++currentSize;
-
-        return temp;
     }
 
     public T get(int i) {
@@ -69,11 +55,14 @@ public class FixedSizeRAStack<T> {
         return content[(currentStart + i) % maxSize];
     }
 
-    public T remove(int i) {
-        T temp = content[(currentStart + i) % maxSize];
+    public T pop() {
+        if (currentSize < 1)
+            throw new NoSuchElementException("Stack is empty");
 
-        for (; i < currentSize - 1; i++) ;
-        content[(i + currentStart) % maxSize] = content[(currentStart + i + 1) % maxSize];
+        T temp = content[currentStart];
+
+        currentStart += 1;
+        currentStart %= maxSize;
 
         currentSize -= 1;
 

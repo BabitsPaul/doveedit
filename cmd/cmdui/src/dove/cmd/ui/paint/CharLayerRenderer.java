@@ -68,8 +68,8 @@ public class CharLayerRenderer
 
     @Override
     public Dimension getSize(LayerRendererMetrics metrics) {
-        int layerWidth = getLayer().getWidth();
-        int layerHeight = getLayer().getHeight();
+        int layerWidth = getLayer().getBuffer().getWidth();
+        int layerHeight = getLayer().getBuffer().getHeight();
 
         int width = layerWidth * metrics.signWidth + metrics.textSpaceLeft + metrics.textSpaceRight;
         int height = layerHeight * metrics.lineHeight + (layerHeight - 1) * metrics.lineSpace +

@@ -3,32 +3,26 @@ package dove.cmd.command.color;
 import dove.cmd.interpreter.Command;
 import dove.cmd.interpreter.CommandArg;
 import dove.cmd.interpreter.CommandLineInterpreter;
-import dove.cmd.interpreter.CommandLineVar;
 
 import java.awt.*;
 
 public class ColorCmd
         implements Command {
-    private static final String MODEL_FOREGROUND = "commandline.color.foreground";
-
-    private static final String MODEL_BACKGROUND = "commandline.color.background";
 
     private static final String COMMAND_NAME = "color";
 
-    private static final String SHORT_DESCRIPTION = "Changes the foreground and backgroundcolor of the console";
+    private static final String SHORT_DESCRIPTION = "creates a color";
 
     private static final String LONG_DESCRIPTION =
             SHORT_DESCRIPTION + "\n" +
-                    "f - changes the foregroundcolor\n" +
-                    "b - changes the backgroundcolor\n" +
                     "Colors can be created in one of the following ways:\n" +
                     "either one of the following predefined: \n" +
                     "yellow, red, green, blue, black, white \n" +
                     "or defined by an rgb-value - either hex or dec\n" +
                     "examples: \n" +
-                    "color /f white /b blue - set background to blue and foreground to white\n" +
-                    "color /f 0xFF 0x00 0xFF - sets the foreground to purple\n" +
-                    "color /f 255 0 255 - sets the foreground to purple\n";
+                    "color white - creates a new representation of the color white\n" +
+                    "color 0xFF 0x00 0xFF - creates a purple color\n" +
+                    "color 255 0 255 - createse a purple color\n";
 
     @Override
     public String getCommandName() {
@@ -51,7 +45,7 @@ public class ColorCmd
                 new CommandArg() {
                     @Override
                     public String commandArg() {
-                        return "f";
+                        return "";
                     }
 
                     @Override
@@ -130,13 +124,5 @@ public class ColorCmd
 
     @Override
     public void firstSetup(CommandLineInterpreter model) {
-        CommandLineVar f = new CommandLineVar(Color.white);
-        f.makeTypesafe(true, Color.class);
-
-        CommandLineVar b = new CommandLineVar(Color.blue);
-        b.makeTypesafe(true, Color.class);
-
-        model.addCommandLineVar(MODEL_FOREGROUND, f);
-        model.addCommandLineVar(MODEL_BACKGROUND, b);
     }
 }

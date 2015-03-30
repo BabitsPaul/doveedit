@@ -163,6 +163,16 @@ public class CommandLineUI
         return activeLayer;
     }
 
+    public void setModel(AbstractCharLayerModel model) {
+        AbstractCommandLayer newLayer = new CharLayer(model, buffer, cursor);
+    }
+
+    public void setModel(AbstractTextLayerModel model) {
+        AbstractCommandLayer newLayer = new TextLayer(cursor, buffer, model);
+
+
+    }
+
     public void setMode(UI_MODE mode) {
         removeKeyListener(activeLayer);
 
@@ -189,10 +199,7 @@ public class CommandLineUI
             //move cursor to the end of the previous layer
             //if the previous layer was a charlayer
             if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
-                int offset = ((CharLayer) prevLayer).getyOffSet();
-                int height = ((CharLayer) prevLayer).getHeight();
 
-                cursor.setY(offset + height);
             }
 
             clip.reverseClipping();

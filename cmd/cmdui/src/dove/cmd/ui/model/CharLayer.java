@@ -27,26 +27,6 @@ public class CharLayer
     private CharBuffer buffer;
 
     /**
-     * the xoffset of this layer in the buffer
-     */
-    private int xOffSet;
-
-    /**
-     * the yoffsett of this layer in the buffer
-     */
-    private int yOffSet;
-
-    /**
-     * the widht of the layer in chars
-     */
-    private int width;
-
-    /**
-     * the height of the layer in chars
-     */
-    private int height;
-
-    /**
      * the cursor of the commandlineui related to this layer
      */
     private Cursor cursor;
@@ -57,23 +37,17 @@ public class CharLayer
      * @param listener the keylistener to redirect keyevents to
      * @param buffer the buffer to write to
      * @param cursor the cursor used to write to
-     * @param xOffSet the xOffset in the bufferclip
-     * @param yOffSet the yOffset in the bufferclip
-     * @param width the width of the bufferclip
-     * @param height the height of the bufferclip
      */
-    public CharLayer(KeyListener listener, CharBuffer buffer, Cursor cursor, int xOffSet, int yOffSet
-            , int width, int height) {
+    public CharLayer(KeyListener listener, CharBuffer buffer, Cursor cursor) {
         super(listener, cursor, buffer);
-
-        this.width = width;
-        this.height = height;
-        this.buffer = buffer;
-        this.xOffSet = xOffSet;
-        this.yOffSet = yOffSet;
 
         this.buffer = buffer;
         this.cursor = cursor;
+    }
+
+    public CharLayer(AbstractCharLayerModel model, CharBuffer buffer, Cursor cursor, int xOffSet, int yOffSet,
+                     int width, int height) {
+        super(model, cursor, buffer);
     }
 
     /**
@@ -100,26 +74,6 @@ public class CharLayer
      */
     public void put(char c) {
         buffer.put(c);
-    }
-
-    /////////////////////////////////////////////////////////
-    // clipping
-    /////////////////////////////////////////////////////////
-
-    public int getxOffSet() {
-        return xOffSet;
-    }
-
-    public int getyOffSet() {
-        return yOffSet;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getWidth() {
-        return width;
     }
 
     //////////////////////////////////////////////////////////
