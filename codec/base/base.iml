@@ -7,8 +7,5 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="cmdinter" exported="" />
-    <orderEntry type="module" module-name="concurrent" />
-    <orderEntry type="module" module-name="cmdapi" />
   </component>
 </module>

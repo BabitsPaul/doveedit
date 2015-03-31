@@ -3,9 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/util/ui/autocomplete/autocomplete.iml" filepath="$PROJECT_DIR$/util/ui/autocomplete/autocomplete.iml" />
+      <module fileurl="file://$PROJECT_DIR$/codec/base/base.iml" filepath="$PROJECT_DIR$/codec/base/base.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/bitop/bitop.iml" filepath="$PROJECT_DIR$/util/bitop/bitop.iml" />
       <module fileurl="file://$PROJECT_DIR$/cfg/cfg.iml" filepath="$PROJECT_DIR$/cfg/cfg.iml" />
       <module fileurl="file://$PROJECT_DIR$/clipboard/clipboard.iml" filepath="$PROJECT_DIR$/clipboard/clipboard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cmd/cmdapi/cmdapi.iml" filepath="$PROJECT_DIR$/cmd/cmdapi/cmdapi.iml" />
       <module fileurl="file://$PROJECT_DIR$/cmd/cmdinter/cmdinter.iml" filepath="$PROJECT_DIR$/cmd/cmdinter/cmdinter.iml" />
       <module fileurl="file://$PROJECT_DIR$/cmd/cmdui/cmdui.iml" filepath="$PROJECT_DIR$/cmd/cmdui/cmdui.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/codeclib/codeclib.iml" filepath="$PROJECT_DIR$/codec/codeclib/codeclib.iml" />

@@ -1,4 +1,6 @@
-package dove.cmd.interpreter;
+package dove.cmd.api;
+
+import dove.cmd.interpreter.CommandLineInterpreter;
 
 public abstract class CommandArg {
     public abstract String commandArg();

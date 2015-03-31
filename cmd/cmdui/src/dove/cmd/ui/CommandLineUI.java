@@ -9,7 +9,6 @@ import dove.util.concurrent.Ticker;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class CommandLineUI
         extends JComponent
@@ -17,26 +16,100 @@ public class CommandLineUI
     /**
      * the console font
      */
-    private static final Font COMMAND_FONT        = new Font("Monospaced", Font.PLAIN, 12);
-    private static final int  PAINT_OFFSET_TOP    = 3;
-    private static final int  PAINT_OFFSET_LEFT   = 3;
-    private static final int  PAINT_OFFSET_RIGHT  = 3;
-    private static final int  PAINT_OFFSET_BOTTOM = 3;
-    private static final int  LINE_SPACE          = 2;
-    private Cursor                cursor;
-    private CharBuffer            buffer;
-    private UI_MODE                mode;
-    private AbstractCommandLayer   activeLayer;
-    private int                    charWidth;
-    private int                    charHeight;
-    private Ticker                 cursorTicker;
-    private boolean                paintCursor;
-    private AbstractLayerRenderer renderer;
-    private RendererMetricsFactory metricsFactory;
-    private ClipObject            clip;
-    private boolean               repaintOnEvent;
-    private CmdUIConfiguration    configuration;
+    private static final Font COMMAND_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
+    /**
+     * the default topspace for painting text
+     */
+    private static final int PAINT_OFFSET_TOP = 3;
+
+    /**
+     * the default space on the left for painting text
+     */
+    private static final int PAINT_OFFSET_LEFT = 3;
+
+    /**
+     * the default space on the right for painting text
+     */
+    private static final int PAINT_OFFSET_RIGHT = 3;
+
+    /**
+     * the default space on the bottom for painting text
+     */
+    private static final int PAINT_OFFSET_BOTTOM = 3;
+
+    /**
+     * the space between lines
+     */
+    private static final int LINE_SPACE = 2;
+
+    /**
+     * the cursor for this ui
+     */
+    private Cursor cursor;
+
+    /**
+     * the buffer used by this ui and its model
+     */
+    private CharBuffer buffer;
+
+    /**
+     * the currently active layer
+     */
+    private AbstractCommandLayer activeLayer;
+
+    /**
+     * the width of a char
+     */
+    private int charWidth;
+
+    /**
+     * the height of a char
+     */
+    private int charHeight;
+
+    /**
+     * the ticker for making the cursor blink
+     */
+    private Ticker cursorTicker;
+
+    /**
+     * true, if the cursor should be painted (used by cursorTicker)
+     */
+    private boolean paintCursor;
+
+    /**
+     * the renderer related to the current active layer
+     */
+    private AbstractLayerRenderer renderer;
+
+    /**
+     * the metricsfactory related to this ui
+     */
+    private RendererMetricsFactory metricsFactory;
+
+    /**
+     * the clipobject that handles clipping for this ui
+     */
+    private ClipObject clip;
+
+    /**
+     * false, if repaint due to events is blocked by a component
+     */
+    private boolean repaintOnEvent;
+
+    /**
+     * the configuration related to this ui
+     */
+    private CmdUIConfiguration configuration;
+
+    /**
+     * creates a new commandline terminal with the specified width
+     * and height
+     *
+     * @param width  the width of the buffer
+     * @param height the height of the buffer
+     */
     public CommandLineUI(int width, int height) {
         repaintOnEvent = true;
 
@@ -72,7 +145,6 @@ public class CommandLineUI
         activeLayer = new TextLayer(cursor, buffer, new DefaultTextLayerModel(buffer, cursor, clip));
         addKeyListener(activeLayer);
         renderer = activeLayer.createRenderer();
-        mode = UI_MODE.TEXT_MODE;
 
         //create a tickerinstance to make the cursor flash
         cursorTicker = new Ticker((Long) configuration.get("commandline.cursor.freq")) {
@@ -104,12 +176,23 @@ public class CommandLineUI
         configuration.put("commandline.color.background", Color.BLACK);
     }
 
+    /**
+     * changes the defaultmetrics, from which the
+     * metrics used to render the ui are derived
+     *
+     * @param metrics the new metrics for rendering this ui
+     */
     public void setMetrics(LayerRendererMetrics metrics) {
         metricsFactory.useMetrics(metrics);
 
         repaint();
     }
 
+    /**
+     * paints this component
+     *
+     * @param g a graphics object
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -122,6 +205,12 @@ public class CommandLineUI
         renderer.renderLayer(g, createMetrics());
     }
 
+    /**
+     * creates a new metrics object using the
+     * metricsfactory
+     *
+     * @return a metricsobject
+     */
     private LayerRendererMetrics createMetrics() {
         metricsFactory.setSignWidth(charWidth);
         metricsFactory.setLineHeight(charHeight);
@@ -152,7 +241,7 @@ public class CommandLineUI
     }
 
     public void setSize(int width, int height) {
-        throw new IllegalStateException("This component can't be resized");
+        //throw new IllegalStateException("This component can't be resized");
     }
 
     /////////////////////////////////////////////////////////
@@ -165,55 +254,69 @@ public class CommandLineUI
 
     public void setModel(AbstractCharLayerModel model) {
         AbstractCommandLayer newLayer = new CharLayer(model, buffer, cursor);
+
+        int freeLine = lastUsedLine();
+
+        addKeyListener(newLayer);
+        removeKeyListener(activeLayer);
+
+        activeLayer = newLayer;
+
+        renderer = activeLayer.createRenderer();
+
+        revalidate();
+        repaint();
     }
 
     public void setModel(AbstractTextLayerModel model) {
         AbstractCommandLayer newLayer = new TextLayer(cursor, buffer, model);
 
+        metricsFactory.setLineSpace(0);
 
-    }
+        int freeLine = lastUsedLine();
+        if (freeLine == -1) {
+            buffer.pushContentUp(20);
 
-    public void setMode(UI_MODE mode) {
+            freeLine = buffer.getHeight() - 20;
+        }
+
+        clip.reverseClipping();
+        cursor.setVisible(true);
+
+        cursor.setY(freeLine);
+
+        addKeyListener(newLayer);
         removeKeyListener(activeLayer);
 
-        new ArrayList<>().stream().filter(o -> o.hashCode() == mode.hashCode());
-
-        if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
-            //TODO create valid bounds
-            activeLayer = new CharLayer(null, buffer, cursor, 0, 0, 0, 0);
-
-            metricsFactory.setLineSpace(LINE_SPACE);
-
-            //TODO valid clipping
-            clip.enableClipping(0, 0, 0, 0);
-
-            cursor.setVisible(false);
-        }
-        else {
-            AbstractCommandLayer prevLayer = activeLayer;
-
-            activeLayer = new TextLayer(cursor, buffer, new DefaultTextLayerModel(buffer, cursor, clip));
-
-            metricsFactory.setLineSpace(0);
-
-            //move cursor to the end of the previous layer
-            //if the previous layer was a charlayer
-            if (mode.equals(UI_MODE.SINGLE_SIGN_MODE)) {
-
-            }
-
-            clip.reverseClipping();
-            cursor.setVisible(true);
-        }
-
-        addKeyListener(activeLayer);
+        activeLayer = newLayer;
 
         renderer = activeLayer.createRenderer();
 
-        this.mode = mode;
-
         revalidate();
         repaint();
+    }
+
+    private int lastUsedLine() {
+        if (clip.isEnabled()) {
+            return clip.getOffSetX() + clip.getHeight();
+        }
+        else {
+            int line = buffer.getHeight();
+            char[][] buffer = this.buffer.getContent();
+
+            for (; line > -1; line--) {
+                boolean isEmpty = true;
+
+                for (char c : buffer[line])
+                    if (isEmpty = (c != AbstractCommandLayer.NO_CHAR))
+                        break;
+
+                if (isEmpty)
+                    return line;
+            }
+
+            return -1;
+        }
     }
 
     ///////////////////////////////////////////////////////////
@@ -243,14 +346,5 @@ public class CommandLineUI
                 if (repaintOnEvent)
                     repaint();
         }
-    }
-
-    /**
-     * the mode of the ui
-     * these modes are related to abstractcommandlayers
-     */
-    public enum UI_MODE {
-        SINGLE_SIGN_MODE,
-        TEXT_MODE
     }
 }

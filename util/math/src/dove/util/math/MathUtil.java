@@ -2,33 +2,6 @@ package dove.util.math;
 
 public class MathUtil {
     /**
-     * adds all bytes up to a new byte[]
-     * (byte is treated as unsigned value)
-     *
-     * @param bytes the bytearrays to add
-     * @return a byte[] containing all values
-     */
-    public static byte[] add(byte[]... bytes) {
-        byte[] result;
-
-        //evaluate the length of the longest bytesarray
-        int resultLen = 0;
-
-        for (byte[] b : bytes)
-            if (b.length > resultLen)
-                resultLen = b.length;
-
-        //increase resultlength by 1, to ensure no overflow occures during
-        //the adding process
-        resultLen += 1;
-
-        result = new byte[resultLen];
-
-        //TODO
-        return null;
-    }
-
-    /**
      * returns the sign of val
      * <p>
      * 0 if val == 0

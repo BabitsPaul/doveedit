@@ -1,0 +1,30 @@
+<project name="base">
+    <property name="csrc" value="csrc\base"/>
+    <property name="jsrc" value="src"/>
+    <property name="build" value="build"/>
+    <property name="jar" value="../base.jar"/>
+
+    <target name="precompile">
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="postcompile">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="build" depends="precompile">
+        <javac srcdir="${jsrc}" destdir="${build}"/>
+    </target>
+
+    <target name="jni" depends="build">
+        <javah classpath="${build}" destdir="${csrc}" class="dove.codec.base.Base"/>
+
+        <antcall target="postcompile"/>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar basedir="${build}" destfile="${jar}"/>
+
+        <antcall target="postcompile"/>
+    </target>
+</project>

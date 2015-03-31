@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 public abstract class AbstractCharLayerModel
         extends AbstractLayerModel
         implements KeyListener {
-        private CharBuffer buffer;
+        public abstract int getWidth();
 
-        private Cursor cursor;
+        public abstract int getHeight();
 }

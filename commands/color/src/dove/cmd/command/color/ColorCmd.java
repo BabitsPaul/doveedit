@@ -1,7 +1,8 @@
 package dove.cmd.command.color;
 
-import dove.cmd.interpreter.Command;
-import dove.cmd.interpreter.CommandArg;
+import dove.cmd.api.Command;
+import dove.cmd.api.CommandArg;
+import dove.cmd.api.CommandError;
 import dove.cmd.interpreter.CommandLineInterpreter;
 
 import java.awt.*;
@@ -66,12 +67,7 @@ public class ColorCmd
                     public Object performCommand(Object[] args, CommandLineInterpreter model) {
                         Object o = parseColor(args);
 
-                        if (o instanceof String)
-                            return o;
-
-                        model.put(MODEL_FOREGROUND, o);
-
-                        return "";
+                        return o;
                     }
                 }
         };
@@ -106,9 +102,10 @@ public class ColorCmd
 
                 case "yellow":
                     color = Color.yellow;
+                    break;
 
                 default:
-                    return "unknown colorname: " + args[0].toString();
+                    return new CommandError("unknown colorname: " + args[0].toString());
             }
 
             return color;
