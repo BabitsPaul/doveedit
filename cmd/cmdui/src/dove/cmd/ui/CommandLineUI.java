@@ -229,7 +229,7 @@ public class CommandLineUI
     }
 
     public void setSize(Dimension size) {
-        throw new IllegalStateException("This component can't be resized");
+        //throw new IllegalStateException("This component can't be resized");
     }
 
     public Dimension getMinimumSize() {

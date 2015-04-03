@@ -40,8 +40,10 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="main.cpp" />
-		<Unit filename="main.h" />
+		<Unit filename="base_impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="dove_codec_base_Base.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

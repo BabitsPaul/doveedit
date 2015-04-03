@@ -46,7 +46,7 @@ public class ColorCmd
                 new CommandArg() {
                     @Override
                     public String commandArg() {
-                        return "";
+                        return null;
                     }
 
                     @Override

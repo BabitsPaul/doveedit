@@ -14,6 +14,10 @@ public class CommandLineLayerModel
 
     public CommandLineLayerModel(CharBuffer buffer, Cursor cursor, ClipObject clip) {
         super(buffer, cursor, clip);
+
+        currentLineStartY = cursor.getY();
+
+        prevCmds = new FixedSizeRAStack<>(50, String.class);
     }
 
     @Override
