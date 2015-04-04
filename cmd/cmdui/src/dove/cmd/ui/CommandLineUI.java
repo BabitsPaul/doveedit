@@ -168,8 +168,7 @@ public class CommandLineUI
     }
 
     //create a basic interpreter
-    //will be replaced by a commandrelated
-    //initialisation later
+    //will be replaced by a .cfg file later
     private void initCfg() {
         configuration.put("commandline.cursor.freq", 500L);
         configuration.put("commandline.color.foreground", Color.WHITE);
@@ -218,6 +217,22 @@ public class CommandLineUI
         metricsFactory.setBackground(getBackground());
 
         return metricsFactory.createMetrics();
+    }
+
+    //////////////////////////////////////////////////////////
+    // getters
+    //////////////////////////////////////////////////////////
+
+    public CharBuffer getBuffer() {
+        return buffer;
+    }
+
+    public Cursor getCmdCursor() {
+        return cursor;
+    }
+
+    public ClipObject getClip() {
+        return clip;
     }
 
     //////////////////////////////////////////////////////////

@@ -1,7 +1,3 @@
-#ifndef _DOVE_CODEC_BASE_BASE_H_
-#define _DOVE_CODEC_BASE_BASE_H_
-#endif // _DOVE_CODEC_BASE_BASE_H_
-
 #include <jni.h>
 
 #include "dove_codec_base_Base.h"

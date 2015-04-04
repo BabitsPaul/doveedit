@@ -209,6 +209,25 @@ public class PositionHelper {
         return new Position(x, y, true);
     }
 
+    public boolean before(Position p, Position to) {
+        return (p.getY() < to.getY() || (p.getY() == to.getY() && p.getX() < to.getX()));
+    }
+
+    /**
+     * checks whether p is after to
+     * <p>
+     * p is after to, if it's in a lower line, or
+     * if p and to are in the same line, but p is to
+     * the right of to
+     *
+     * @param p  the point to compare to "to"
+     * @param to p should be relative after this point
+     * @return true, if p is after to
+     */
+    public boolean after(Position p, Position to) {
+        return (p.getY() > to.getX() || (p.getY() == to.getY() && p.getX() > to.getX()));
+    }
+
     /**
      * represents a position in the commandline
      * <p>
