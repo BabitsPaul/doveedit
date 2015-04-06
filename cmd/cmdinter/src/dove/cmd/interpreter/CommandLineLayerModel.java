@@ -1,8 +1,12 @@
 package dove.cmd.interpreter;
 
+import dove.cmd.CommandLineConfiguration;
 import dove.cmd.ui.model.*;
 import dove.util.collections.FixedSizeRAStack;
 
+import java.io.File;
+
+//TODO store currentLine as last Command, if going to older command
 public class CommandLineLayerModel
         extends AbstractTextLayerModel {
     private int cmdStartX;
@@ -19,26 +23,100 @@ public class CommandLineLayerModel
 
     private FixedSizeRAStack<String> prevCmds;
 
+    private String lastCmd;
+
     private CommandLineInterpreter interpreter;
+
+    private CommandLineConfiguration cfg;
 
     public CommandLineLayerModel(CharBuffer buffer, Cursor cursor, ClipObject clip, CommandLineInterpreter interpreter) {
         super(buffer, cursor, clip);
 
+        cfg = new CommandLineConfiguration();
+        initCfg();
+
         cmdStartY = cursor.getY();
 
-        prevCmds = new FixedSizeRAStack<>(50, String.class);
+        prevCmds = new FixedSizeRAStack<>((Integer) cfg.get("cmd.memory.cmds"), String.class);
 
         this.interpreter = interpreter;
+        initInterpreter();
+    }
+
+    public void initCfg() {
+        cfg.put("cmd.memory.cmds", 50);
+    }
+
+    public void initInterpreter() {
+        interpreter.put("cmd.workingdirectory", new File("C:/"));
     }
 
     @Override
     public void removeChar() {
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
+        Cursor cursor = getCursor();
+        CharBuffer buffer = getBuffer();
+        PositionHelper helper = getHelper();
+
+        char c;
+        int x = cursor.getX();
+        int y = cursor.getY();
+        PositionHelper.Position toReplace = new PositionHelper.Position(x, y, false);
+        PositionHelper.Position swapToLeft = helper.right(new PositionHelper.Position(x, y, false));
+        do {
+            c = buffer.get(swapToLeft);
+            buffer.put(c, toReplace);
+
+            toReplace = swapToLeft;
+            swapToLeft = helper.right(swapToLeft);
+        }
+        while (c != AbstractCommandLayer.NO_CHAR);
+
+        cursor.setPosition(helper.left(new PositionHelper.Position(x, y, false)));
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_REMOVED));
     }
 
     @Override
     public void addChar(char c) {
+        if (c == '\n' || c == '\r' || c == '\b')
+            return;
 
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
+        Cursor cursor = getCursor();
+        CharBuffer buffer = getBuffer();
+        PositionHelper helper = getHelper();
+
+        PositionHelper.Position cursorPosition = cursor.getPosition();
+
+        char prev = c;
+        char swap;
+        PositionHelper.Position currentPos = new PositionHelper.Position(cursor.getX(), cursor.getY(), false);
+        while (prev != AbstractCommandLayer.NO_CHAR) {
+            swap = buffer.get(currentPos);
+            buffer.put(prev, currentPos);
+
+            currentPos = helper.right(currentPos);
+
+            prev = swap;
+
+            if (currentPos.getY() == buffer.getHeight() - 1 && currentPos.getX() == buffer.getWidth() - 1)
+                buffer.pushContentUp(10);
+        }
+
+        cursor.setPosition(helper.right(cursorPosition));
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_ADDED));
     }
 
     @Override
@@ -53,17 +131,31 @@ public class CommandLineLayerModel
 
     @Override
     public void cursorRight() {
+        PositionHelper.Position p = getCursor().getPosition();
+        p = getHelper().right(p);
 
+        if (inLineBounds(p))
+            getCursor().setPosition(p);
     }
 
     @Override
     public void cursorLeft() {
+        PositionHelper.Position p = getCursor().getPosition();
+        p = getHelper().right(p);
 
+        if (inLineBounds(p))
+            getCursor().setPosition(p);
     }
 
     @Override
     public void nextLine() {
         interpreter.doCommand(currentCommand());
+
+        CharBuffer buffer = getBuffer();
+        String dir = (String) interpreter.get("cmd.workingdirectory");
+
+        for (int i = 0; i < dir.length(); i++)
+            buffer.put(dir.charAt(i));
     }
 
     public void write(String txt) {
@@ -72,14 +164,6 @@ public class CommandLineLayerModel
 
     public void writeLine(String txt) {
 
-    }
-
-    private String prevCommand() {
-        return null;
-    }
-
-    private String nextCommand() {
-        return null;
     }
 
     private boolean inLineBounds(PositionHelper.Position position) {
