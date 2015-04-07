@@ -1,0 +1,23 @@
+<project name="SHA1">
+    <property name="src" value="src"/>
+    <property name="build" value="build"/>
+    <property name="chout" value="csrc"/>
+    <property name="jar" value="../sha1.jar"/>
+    <property name="jnidest" value="csrc"/>
+
+    <target name="precompile">
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="postcompile">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="build" depends="precompile">
+        <javac srcdir="${src}" destdir="${build}"/>
+    </target>
+
+    <target name="jni" depends="build">
+        <javah classpath="${build}" class="dove.codec.sha1.SHA1" destdir="${jnidest}"/>
+    </target>
+</project>

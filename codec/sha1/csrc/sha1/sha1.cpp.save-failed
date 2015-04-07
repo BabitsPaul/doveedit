@@ -1,0 +1,11 @@
+#include "dove_codec_sha1_SHA1.h"
+
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+JNIEXPORT jbyteArray JNICALL Java_dove_codec_sha1_SHA1_sha1
+  (JNIEnv * env , jobject sha1 , jstring src)
+{
+
+}

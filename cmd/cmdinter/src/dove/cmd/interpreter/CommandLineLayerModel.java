@@ -17,9 +17,9 @@ public class CommandLineLayerModel
 
     private int cmdEndX;
 
-    private int currentCmd = 0;
+    private int currentCmd;
 
-    private boolean blockInput = false;
+    private boolean blockInput;
 
     private FixedSizeRAStack<String> prevCmds;
 
@@ -41,6 +41,15 @@ public class CommandLineLayerModel
 
         this.interpreter = interpreter;
         initInterpreter();
+
+        cmdStartX = 0;
+        cmdStartY = 0;
+        cmdEndX = 0;
+        cmdEndY = 0;
+
+        lastCmd = "";
+        blockInput = false;
+        currentCmd = -1;
     }
 
     public void initCfg() {
@@ -80,6 +89,8 @@ public class CommandLineLayerModel
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
 
         fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_REMOVED));
+
+        //TODO update cmdbounds
     }
 
     @Override
@@ -117,6 +128,8 @@ public class CommandLineLayerModel
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
 
         fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_ADDED));
+
+        //TODO update cmdbounds
     }
 
     @Override
