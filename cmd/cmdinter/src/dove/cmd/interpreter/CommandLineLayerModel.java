@@ -62,6 +62,8 @@ public class CommandLineLayerModel
 
     @Override
     public void removeChar() {
+        if (blockInput || (cmdStartX == cmdEndX && cmdStartY == cmdEndY)) return;
+
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
@@ -85,16 +87,22 @@ public class CommandLineLayerModel
 
         cursor.setPosition(helper.left(new PositionHelper.Position(x, y, false)));
 
+        //update bounds of current command
+        PositionHelper.Position cmdEnd = new PositionHelper.Position(cmdEndX, cmdEndY, false);
+        cmdEnd = helper.left(cmdEnd);
+        cmdEndX = cmdEnd.getX();
+        cmdEndY = cmdEnd.getY();
+
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
 
         fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_REMOVED));
-
-        //TODO update cmdbounds
     }
 
     @Override
     public void addChar(char c) {
+        if (blockInput) return;
+
         if (c == '\n' || c == '\r' || c == '\b')
             return;
 
@@ -124,26 +132,31 @@ public class CommandLineLayerModel
 
         cursor.setPosition(helper.right(cursorPosition));
 
+        PositionHelper.Position cmdEnd = new PositionHelper.Position(cmdEndX, cmdEndY, false);
+        cmdEnd = helper.right(cmdEnd);
+        cmdEndX = cmdEnd.getX();
+        cmdEndY = cmdEnd.getY();
+
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
 
         fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_ADDED));
-
-        //TODO update cmdbounds
     }
 
     @Override
     public void cursorUp() {
-
+        if (blockInput) return;
     }
 
     @Override
     public void cursorDown() {
-
+        if (blockInput) return;
     }
 
     @Override
     public void cursorRight() {
+        if (blockInput) return;
+
         PositionHelper.Position p = getCursor().getPosition();
         p = getHelper().right(p);
 
@@ -153,6 +166,8 @@ public class CommandLineLayerModel
 
     @Override
     public void cursorLeft() {
+        if (blockInput) return;
+
         PositionHelper.Position p = getCursor().getPosition();
         p = getHelper().right(p);
 
@@ -162,6 +177,10 @@ public class CommandLineLayerModel
 
     @Override
     public void nextLine() {
+        if (blockInput) return;
+
+        blockInput = true;
+
         interpreter.doCommand(currentCommand());
 
         CharBuffer buffer = getBuffer();
@@ -169,6 +188,8 @@ public class CommandLineLayerModel
 
         for (int i = 0; i < dir.length(); i++)
             buffer.put(dir.charAt(i));
+
+        blockInput = false;
     }
 
     public void write(String txt) {

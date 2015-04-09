@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="magnifiercmd">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/commands/magnifiercmd.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

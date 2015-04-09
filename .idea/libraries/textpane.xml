@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="textpane">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/textpane_jar/textpane.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

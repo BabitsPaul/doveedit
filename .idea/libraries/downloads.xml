@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="downloads">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/web/downloads/source.zip!/" />
+      <root url="jar://$PROJECT_DIR$/web/downloads/doc.zip!/" />
+      <root url="jar://$PROJECT_DIR$/web/downloads/dove_edit.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
