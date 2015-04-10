@@ -5,8 +5,9 @@ class BlockLoader
 {
     public:
         static const int BLOCKS_AVAILABLE = 0;
-        static const int FILE_END = 1;
-        static const int NO_BLOCKS_AVAILABLE = 2;
+        static const int LAST_DATA_BLOCK = 1;
+        static const int PADDING_BLOCK = 2;
+        static const int NO_BLOCKS_AVAILABLE = 3;
 
         BlockLoader(const char* file);
         ~BlockLoader();
@@ -19,6 +20,7 @@ class BlockLoader
         const char* file;
 
         long fPos;
+        long fSize;
 
         char* buffer;
         int blockPos;
@@ -27,7 +29,7 @@ class BlockLoader
         int state;
 
         void nextChunk();
-        void createPadding();
+        char* createPadding();
 };
 
 #endif // BLOCKLOADER_H

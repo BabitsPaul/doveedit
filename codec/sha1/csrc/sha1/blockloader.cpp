@@ -14,6 +14,12 @@ BlockLoader::BlockLoader(const char* file)
     bufSize = 0;
 
     fPos = 0L;
+
+    ifstream is;
+    is.open(file , ios::in | ios::binary);
+    is.seekg(0 , ios::end);
+    fSize = is.tellg();
+    is.close();
 }
 
 BlockLoader::~BlockLoader()
@@ -23,17 +29,34 @@ BlockLoader::~BlockLoader()
 
 char* BlockLoader::nextBlock()
 {
-    if(blockPos >= bufSize)     //last block out of buffer read
-        if(state & FILE_END)    //eof is reached -> padding
-            createPadding();
-        else                    //further chunks can be loaded from file
-            nextChunk();        //load next chunk
+    bool lastBlock = false;
 
-    char* result = buffer + blockPos;
+    if(blockPos > bufSize && fPos == fSize - 1 - BUFFERSIZE && blockPos == BUFFERSIZE - BLOCKSIZE)
+        //only one block of data remaining
+        lastBlock = true;
 
-    blockPos += bufSize;
+    if(!lastBlock && blockPos > bufSize)
+        //current chunk is read and further chunks are available
+        nextChunk();
 
-    return result;
+    if(!lastBlock)
+    {
+        //block in the current buffer available
+        //return next block
+        char* tmp = buffer + blockPos;
+        blockPos += BLOCKSIZE;
+
+        return tmp;
+    }else
+    {
+        //last block of data reached
+        if(bufSize == 0)//TODO correct value
+            //padding and remaining data fit in one block
+        else
+            //padding must be inserted in the next block
+    }
+
+    return NULL;
 }
 
 void BlockLoader::nextChunk()
@@ -54,7 +77,7 @@ void BlockLoader::nextChunk()
         state |= FILE_END;
 }
 
-void BlockLoader::createPadding()
+char* BlockLoader::createPadding()
 {
-
+    return NULL;
 }
