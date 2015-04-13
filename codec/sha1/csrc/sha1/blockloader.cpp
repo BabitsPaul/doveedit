@@ -29,34 +29,23 @@ BlockLoader::~BlockLoader()
 
 char* BlockLoader::nextBlock()
 {
-    bool lastBlock = false;
+    char* currentBlock;
+    if(blockAInUse)
+        currentBlock = blockA;
+    else
+        currentBlock = blockB;
 
-    if(blockPos > bufSize && fPos == fSize - 1 - BUFFERSIZE && blockPos == BUFFERSIZE - BLOCKSIZE)
-        //only one block of data remaining
-        lastBlock = true;
+    if(currentBlock - chunk > CHUNKSIZE)
+        if(lastChunk){
 
-    if(!lastBlock && blockPos > bufSize)
-        //current chunk is read and further chunks are available
-        nextChunk();
+        }else{
+            nextChunk();
 
-    if(!lastBlock)
-    {
-        //block in the current buffer available
-        //return next block
-        char* tmp = buffer + blockPos;
-        blockPos += BLOCKSIZE;
+            return getNextBlock();
+        }
+    else{
 
-        return tmp;
-    }else
-    {
-        //last block of data reached
-        if(bufSize == 0)//TODO correct value
-            //padding and remaining data fit in one block
-        else
-            //padding must be inserted in the next block
     }
-
-    return NULL;
 }
 
 void BlockLoader::nextChunk()
@@ -74,10 +63,15 @@ void BlockLoader::nextChunk()
     is.close();
 
     if(bufSize != BUFFERSIZE)
-        state |= FILE_END;
+        lastChunk = true;
 }
 
 char* BlockLoader::createPadding()
 {
     return NULL;
+}
+
+char* BlockLoader::getNextBlock()
+{
+
 }

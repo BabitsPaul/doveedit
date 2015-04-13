@@ -3,7 +3,7 @@
     <property name="build" value="build"/>
     <property name="chout" value="csrc"/>
     <property name="jar" value="../sha1.jar"/>
-    <property name="jnidest" value="csrc"/>
+    <property name="jnidest" value="csrc/sha1"/>
 
     <target name="precompile">
         <mkdir dir="${build}"/>
