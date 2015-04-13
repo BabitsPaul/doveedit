@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/util/ui/autocomplete/autocomplete.iml" filepath="$PROJECT_DIR$/util/ui/autocomplete/autocomplete.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/base/base.iml" filepath="$PROJECT_DIR$/codec/base/base.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/bitop/bitop.iml" filepath="$PROJECT_DIR$/util/bitop/bitop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/calc/calc.iml" filepath="$PROJECT_DIR$/calc/calc.iml" />
       <module fileurl="file://$PROJECT_DIR$/cfg/cfg.iml" filepath="$PROJECT_DIR$/cfg/cfg.iml" />
       <module fileurl="file://$PROJECT_DIR$/clipboard/clipboard.iml" filepath="$PROJECT_DIR$/clipboard/clipboard.iml" />
       <module fileurl="file://$PROJECT_DIR$/cmd/cmdapi/cmdapi.iml" filepath="$PROJECT_DIR$/cmd/cmdapi/cmdapi.iml" />
@@ -19,10 +20,12 @@
       <module fileurl="file://$PROJECT_DIR$/dove/dove.iml" filepath="$PROJECT_DIR$/dove/dove.iml" />
       <module fileurl="file://$PROJECT_DIR$/doveedit.iml" filepath="$PROJECT_DIR$/doveedit.iml" />
       <module fileurl="file://$PROJECT_DIR$/dovelf/dovelf.iml" filepath="$PROJECT_DIR$/dovelf/dovelf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dovemodule/dovemodule.iml" filepath="$PROJECT_DIR$/dovemodule/dovemodule.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" filepath="$PROJECT_DIR$/util/ui/extensibletable/extensibletable.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/gif/gif.iml" filepath="$PROJECT_DIR$/codec/gif/gif.iml" />
       <module fileurl="file://$PROJECT_DIR$/installer/installer.iml" filepath="$PROJECT_DIR$/installer/installer.iml" />
       <module fileurl="file://$PROJECT_DIR$/lang/lang.iml" filepath="$PROJECT_DIR$/lang/lang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/main/main.iml" filepath="$PROJECT_DIR$/main/main.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/manifesthelper/manifesthelper.iml" filepath="$PROJECT_DIR$/util/manifesthelper/manifesthelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/math/math.iml" filepath="$PROJECT_DIR$/util/math/math.iml" />
       <module fileurl="file://$PROJECT_DIR$/codec/md5/md5.iml" filepath="$PROJECT_DIR$/codec/md5/md5.iml" />

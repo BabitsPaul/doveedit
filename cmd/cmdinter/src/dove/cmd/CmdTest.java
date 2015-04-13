@@ -9,7 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class CmdTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         CommandLineUI cmd = new CommandLineUI(100, 300);
         ((DefaultTextLayerModel) cmd.getActiveLayer().getModel()).writeln("hello world qwertz WAÖDGKHSI");
 
