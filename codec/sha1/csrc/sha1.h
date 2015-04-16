@@ -8,6 +8,8 @@ void readNextBlock();
 void cleanUp();
 void generateSHA1();
 
+void sn(uint32_t , int);
+
 uint32_t (*fptr[4])(uint32_t , uint32_t , uint32_t);
 
 uint32_t f0(uint32_t,uint32_t,uint32_t);

@@ -73,12 +73,17 @@ void cleanUp()
 
 void generateSHA1()
 {
-    while((block = loader->nextBlock()) != null)
+    while((block = loader->nextBlock()) != NULL)
     {
         int32_t* wordPtr = (int32_t*) block;
 
 
     }
+}
+
+void sn(int32_t& word , int n)
+{
+    word = (word << n | word >> (n - 32));
 }
 
 uint32_t f3(uint32_t b, uint32_t c, uint32_t d)
