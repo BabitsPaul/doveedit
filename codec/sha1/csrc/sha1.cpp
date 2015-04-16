@@ -13,6 +13,12 @@ using namespace std;
 #define K40_59 0x8F1BBCDC
 #define K60_79 0xCA62C1D6
 
+#define H0 67452301
+#define H1 EFCDAB89
+#define H2 98BADCFE
+#define H3 10325476
+#define H4 C3D2E1F0
+
 #define HASHSIZE 20			//size of the resulting hashcode (bytes)
 
 BlockLoader* loader = NULL;
@@ -60,11 +66,6 @@ void setup()
 	loader = new BlockLoader(file);
 }
 
-void readNextBlock()
-{
-    block = loader->nextBlock();
-}
-
 void cleanUp()
 {
     delete loader;
@@ -72,7 +73,12 @@ void cleanUp()
 
 void generateSHA1()
 {
+    while((block = loader->nextBlock()) != null)
+    {
+        int32_t* wordPtr = (int32_t*) block;
 
+
+    }
 }
 
 uint32_t f3(uint32_t b, uint32_t c, uint32_t d)
