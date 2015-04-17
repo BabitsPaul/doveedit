@@ -1,7 +1,7 @@
 package dove.desktop.sphere;
 
+import dove.desktop.event.EventRedirect;
 import dove.desktop.io.SphereLoader;
-import dove.desktop.ui.EventRedirect;
 
 import java.io.IOException;
 import java.util.HashMap;

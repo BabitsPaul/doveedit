@@ -1,8 +1,8 @@
 package dove.desktop.io;
 
+import dove.desktop.event.EventRedirect;
 import dove.desktop.sphere.FileSphere;
 import dove.desktop.sphere.SphereFile;
-import dove.desktop.ui.EventRedirect;
 
 import java.io.File;
 import java.io.FileInputStream;

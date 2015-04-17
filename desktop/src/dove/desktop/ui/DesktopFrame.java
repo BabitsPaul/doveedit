@@ -1,5 +1,7 @@
 package dove.desktop.ui;
 
+import dove.desktop.event.EventRedirect;
+
 import javax.swing.*;
 
 /**
@@ -15,7 +17,7 @@ public class DesktopFrame
         addWindowListener(redirect);
 
         setContentPane(new DesktopPane(redirect));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(true);
         setExtendedState(MAXIMIZED_BOTH);
         setResizable(false);
