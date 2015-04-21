@@ -37,6 +37,90 @@ public class EventRedirect
         redirectTo.get(eventtype).remove(target);
     }
 
+    public void fireEvent(Object o) {
+        if (o instanceof MouseEvent) {
+            MouseEvent e = (MouseEvent) o;
+
+            switch (e.getID()) {
+                case MouseEvent.MOUSE_PRESSED:
+                    mousePressed(e);
+                    break;
+                case MouseEvent.MOUSE_CLICKED:
+                    mouseClicked(e);
+                    break;
+                case MouseEvent.MOUSE_RELEASED:
+                    mouseReleased(e);
+                    break;
+
+                case MouseEvent.MOUSE_MOVED:
+                    mouseMoved(e);
+                    break;
+                case MouseEvent.MOUSE_DRAGGED:
+                    mouseDragged(e);
+                    break;
+                case MouseEvent.MOUSE_ENTERED:
+                    mouseEntered(e);
+                    break;
+                case MouseEvent.MOUSE_EXITED:
+                    mouseExited(e);
+                    break;
+            }
+        }
+        else if (o instanceof KeyEvent) {
+            KeyEvent e = (KeyEvent) o;
+
+            switch (e.getID()) {
+                case KeyEvent.KEY_PRESSED:
+                    keyPressed(e);
+                    break;
+                case KeyEvent.KEY_TYPED:
+                    keyTyped(e);
+                    break;
+                case KeyEvent.KEY_RELEASED:
+                    keyReleased(e);
+                    break;
+            }
+        }
+        else if (o instanceof MouseWheelEvent) {
+            mouseWheelMoved((MouseWheelEvent) o);
+        }
+        else if (o instanceof DesktopEvent) {
+            desktopChanged((DesktopEvent) o);
+        }
+        else if (o instanceof DesktopEvent) {
+            desktopChanged((DesktopEvent) o);
+        }
+        else if (o instanceof WindowEvent) {
+            WindowEvent e = (WindowEvent) o;
+
+            switch (e.getID()) {
+                case WindowEvent.WINDOW_CLOSED:
+                    windowClosed(e);
+                    break;
+                case WindowEvent.WINDOW_CLOSING:
+                    windowClosing(e);
+                    break;
+                case WindowEvent.WINDOW_ACTIVATED:
+                    windowActivated(e);
+                    break;
+                case WindowEvent.WINDOW_DEACTIVATED:
+                    windowDeactivated(e);
+                    break;
+                case WindowEvent.WINDOW_ICONIFIED:
+                    windowIconified(e);
+                    break;
+                case WindowEvent.WINDOW_DEICONIFIED:
+                    windowDeiconified(e);
+                    break;
+                case WindowEvent.WINDOW_OPENED:
+                    windowOpened(e);
+                    break;
+            }
+        }
+        else
+            throw new IllegalArgumentException("Invalid input");
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         redirectEvent(e, MOUSEEVENT);

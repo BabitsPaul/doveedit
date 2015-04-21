@@ -2,10 +2,12 @@ package dove.desktop.ui;
 
 import dove.desktop.event.DesktopEvent;
 import dove.desktop.event.EventRedirect;
+import dove.desktop.loader.SphereLoader;
 import dove.desktop.sphere.FileSphere;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * Created by Babits on 16/04/2015.
@@ -14,16 +16,19 @@ public class DesktopPane
         extends JPanel {
     private FileSphere sphere;
 
+    public DesktopPane(EventRedirect redirect, FileSphere sphere) {
+        this.sphere = sphere;
 
-    public DesktopPane(EventRedirect redirect) {
-        try {
-            sphere = FileSphere.createInstance(redirect);
-        }
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Corrupted configurationfile", "ERROR", JOptionPane.ERROR_MESSAGE);
+        redirect.addRedirectTarget((Object o, int id) -> {
+            DesktopEvent e = (DesktopEvent) o;
 
-            sphere = new FileSphere(redirect);
-        }
+            if (e.getCode() == DesktopEvent.DESKTOP_CLOSING)
+                try {
+                    new SphereLoader(redirect).save(sphere);
+                }
+                catch (IOException ex) {
+                }
+        }, EventRedirect.DESKTOPEVENT);
 
         addKeyListener(redirect);
         addMouseListener(redirect);

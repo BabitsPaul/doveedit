@@ -1,26 +1,29 @@
 package dove.desktop.ui;
 
+import dove.desktop.event.DesktopEvent;
 import dove.desktop.event.EventRedirect;
 
 import javax.swing.*;
 
-/**
- * Created by Babits on 16/04/2015.
- */
 public class DesktopFrame
         extends JFrame {
-    public DesktopFrame() {
+    public DesktopFrame(DesktopPane pane, EventRedirect redirect) {
         super("Dove Desktop");
 
-        EventRedirect redirect = new EventRedirect();
-
         addWindowListener(redirect);
+        redirect.addRedirectTarget((o, id) -> {
+            DesktopEvent e = (DesktopEvent) o;
 
-        setContentPane(new DesktopPane(redirect));
+            if (e.getCode() == DesktopEvent.DESKTOP_CLOSING) {
+                setVisible(false);
+                dispose();
+            }
+        }, EventRedirect.DESKTOPEVENT);
+
+        setContentPane(pane);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(true);
         setExtendedState(MAXIMIZED_BOTH);
         setResizable(false);
-        setVisible(true);
     }
 }

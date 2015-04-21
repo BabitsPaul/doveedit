@@ -1,8 +1,9 @@
-package dove.desktop.io;
+package dove.desktop.loader;
 
 import dove.desktop.event.EventRedirect;
 import dove.desktop.sphere.FileSphere;
 import dove.desktop.sphere.SphereFile;
+import dove.desktop.timer.DesktopScheduler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,24 +15,28 @@ import java.nio.ByteBuffer;
  * Created by Babits on 16/04/2015.
  */
 public class SphereLoader {
-    private static final String DESKTOP_FILES = "..resources/desktop.bin";
+    private static final String DESKTOP_FILES = "resources/desktop.bin";
 
     private EventRedirect redirect;
 
-    public SphereLoader(EventRedirect redirect) {
+    private DesktopScheduler scheduler;
+
+    public SphereLoader(EventRedirect redirect, DesktopScheduler scheduler) {
         this.redirect = redirect;
+        this.scheduler = scheduler;
     }
 
     public FileSphere load()
             throws IOException {
-        FileSphere result = new FileSphere(redirect);
+        FileSphere result = new FileSphere(redirect, scheduler);
 
+        System.out.println(new File(DESKTOP_FILES).getAbsolutePath());
         FileInputStream fis = new FileInputStream(DESKTOP_FILES);
 
         byte[] bytes = new byte[8];
         fis.read(bytes);
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        result.setZoom(buffer.getDouble());
+        result.setRadius(buffer.getDouble());
 
         while (fis.available() > 0) {
             int pathSize = 0;
@@ -65,7 +70,7 @@ public class SphereLoader {
         FileOutputStream fos = new FileOutputStream(DESKTOP_FILES);
 
         ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.putDouble(sphere.getZoom());
+        buffer.putDouble(sphere.getRadius());
         fos.write(buffer.array());
 
         for (SphereFile file : sphere)

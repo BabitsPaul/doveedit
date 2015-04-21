@@ -1,26 +1,44 @@
 package dove.desktop.sphere;
 
 import dove.desktop.event.EventRedirect;
-import dove.desktop.io.SphereLoader;
+import dove.desktop.timer.DesktopScheduler;
 
-import java.io.IOException;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Iterator;
 
 public class FileSphere
         implements Iterable<SphereFile> {
     private HashMap<Coordinate, SphereFile> files;
-    private double                          zoom;
+    private double           radius;
+    private double           moveBorder;
+    private DesktopScheduler scheduler;
 
-    public FileSphere(EventRedirect redirect) {
+    public FileSphere(EventRedirect redirect, DesktopScheduler scheduler) {
         files = new HashMap<>();
 
-        zoom = 1.0;
-    }
+        this.scheduler = scheduler;
 
-    public static FileSphere createInstance(EventRedirect redirect)
-            throws IOException {
-        return new SphereLoader(redirect).load();
+        radius = 1.0;
+
+        redirect.addRedirectTarget((o, id) -> {
+            MouseEvent e = (MouseEvent) o;
+
+            switch (e.getID()) {
+                case MouseEvent.MOUSE_CLICKED: {
+                    if (e.getButton() == MouseEvent.BUTTON1)
+                        ;
+                    else if (e.getButton() == MouseEvent.BUTTON2)
+                        ;
+                }
+                break;
+
+                case MouseEvent.MOUSE_MOVED: {
+
+                }
+                break;
+            }
+        }, EventRedirect.MOUSEEVENT);
     }
 
     @Override
@@ -32,29 +50,12 @@ public class FileSphere
         files.put(new Coordinate(file.getLongitue(), file.getLatitude()), file);
     }
 
-    public double getZoom() {
-        return zoom;
+    public double getRadius() {
+        return radius;
     }
 
-    public void setZoom(double zoom) {
-        this.zoom = zoom;
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
-    private class Coordinate {
-        private double longitude, latitude;
-
-        public Coordinate(double longitude, double latitude) {
-            this.longitude = longitude;
-            this.latitude = latitude;
-        }
-
-        public int hashCode() {
-            return Double.hashCode(longitude) ^ Double.hashCode(latitude);
-        }
-
-        public boolean equals(Object o) {
-            return (o != null && o instanceof Coordinate &&
-                    ((Coordinate) o).latitude == latitude && ((Coordinate) o).longitude == longitude);
-        }
-    }
 }
