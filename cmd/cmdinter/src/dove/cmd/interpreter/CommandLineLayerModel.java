@@ -1,3 +1,4 @@
+
 package dove.cmd.interpreter;
 
 import dove.cmd.CommandLineConfiguration;
@@ -146,11 +147,41 @@ public class CommandLineLayerModel
     @Override
     public void cursorUp() {
         if (blockInput) return;
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
+        if (currentCmd == -1)
+            currentCmd = prevCmds.size();
+        else if (currentCmd == 0)
+            currentCmd = -1;
+        else
+            --currentCmd;
+
+
+        PositionHelper.Position tmpPos = getCursor().getPosition();
+        getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
+        write(prevCmds.get(currentCmd));
+        getCursor().setPosition(tmpPos);
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_UPDATED));
     }
 
     @Override
     public void cursorDown() {
         if (blockInput) return;
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_UPDATED));
     }
 
     @Override
@@ -193,11 +224,24 @@ public class CommandLineLayerModel
     }
 
     public void write(String txt) {
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
+        PositionHelper.Position end = end(getCursor().getPosition(), txt);
+        if (end.getY() > getBuffer().getHeight())
+            getBuffer().pushContentUp(Math.max(end.getY() - getBuffer().getHeight(), 20));
+
+        for (char c : txt.toCharArray())
+            getBuffer().put(c);
+
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
+
+        fireLayerModelChanged(new CommandLineEvent(this, CommandLineEvent.SOURCE_TYPE.TEXT_LAYER_TYPE, TEXT_ADDED));
     }
 
     public void writeLine(String txt) {
-
+        write(txt + "\n");
     }
 
     private boolean inLineBounds(PositionHelper.Position position) {
@@ -212,6 +256,43 @@ public class CommandLineLayerModel
         PositionHelper.Position cursor = new PositionHelper.Position(getCursor().getX(), getCursor().getY(), false);
 
         return (helper.after(cursor, start) && helper.before(cursor, end));
+    }
+
+    private PositionHelper.Position end(PositionHelper.Position start, String txt) {
+        int x;
+        int y;
+
+        int width = getBuffer().getWidth();
+
+        if (txt.contains("\n")) {
+            String[] tmp = txt.split("\n");
+
+            int lines = (tmp[0].length() + start.getX()) / width;
+            for (int i = 1; i < tmp.length; i++)
+                lines += (tmp[i].length() / width);
+
+            y = lines + start.getY();
+            x = tmp[tmp.length - 1].length() % width;
+        }
+        else {
+            //one line of text -> fit line into commandline
+            if (txt.length() > width - start.getX()) {
+                //text is longer than one line
+
+                //length after the first line
+                int tmp = txt.length() - width - start.getX();
+
+                x = tmp % width;
+
+                y = tmp / width + 1;
+            }
+            else {
+                x = start.getX() + txt.length();
+                y = start.getY();
+            }
+        }
+
+        return new PositionHelper.Position(x, y, false);
     }
 
     private String currentCommand() {

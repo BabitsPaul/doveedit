@@ -1,3 +1,6 @@
+//parse a string of functions like str
+//into a simpler solution
+
 abstract class HashFunction{
     public abstract String hash(String in);
 }

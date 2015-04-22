@@ -24,7 +24,7 @@ public class DesktopPane
 
             if (e.getCode() == DesktopEvent.DESKTOP_CLOSING)
                 try {
-                    new SphereLoader(redirect).save(sphere);
+                    new SphereLoader().save();
                 }
                 catch (IOException ex) {
                 }

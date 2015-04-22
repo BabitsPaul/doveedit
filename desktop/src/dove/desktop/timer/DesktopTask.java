@@ -7,5 +7,5 @@ import java.util.TimerTask;
  */
 public abstract class DesktopTask
         extends TimerTask {
-
+        public abstract String getID();
 }

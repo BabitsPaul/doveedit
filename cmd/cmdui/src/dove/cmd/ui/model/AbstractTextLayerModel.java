@@ -4,6 +4,7 @@ public abstract class AbstractTextLayerModel
         extends AbstractLayerModel {
     public static final int TEXT_ADDED   = 0;
     public static final int TEXT_REMOVED = 1;
+    public static final int TEXT_UPDATED = 2;
 
     private CharBuffer buffer;
 

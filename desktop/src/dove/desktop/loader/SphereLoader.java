@@ -1,42 +1,33 @@
 package dove.desktop.loader;
 
-import dove.desktop.event.EventRedirect;
-import dove.desktop.sphere.FileSphere;
 import dove.desktop.sphere.SphereFile;
-import dove.desktop.timer.DesktopScheduler;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
-/**
- * Created by Babits on 16/04/2015.
- */
 public class SphereLoader {
     private static final String DESKTOP_FILES = "resources/desktop.bin";
 
-    private EventRedirect redirect;
 
-    private DesktopScheduler scheduler;
+    private double radius;
 
-    public SphereLoader(EventRedirect redirect, DesktopScheduler scheduler) {
-        this.redirect = redirect;
-        this.scheduler = scheduler;
-    }
+    private ArrayList<SphereFile> files;
 
-    public FileSphere load()
+    private double viewLongitude;
+    private double viewLatitude;
+
+    public void load()
             throws IOException {
-        FileSphere result = new FileSphere(redirect, scheduler);
-
-        System.out.println(new File(DESKTOP_FILES).getAbsolutePath());
         FileInputStream fis = new FileInputStream(DESKTOP_FILES);
 
         byte[] bytes = new byte[8];
         fis.read(bytes);
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        result.setRadius(buffer.getDouble());
+        radius = buffer.getDouble();
 
         while (fis.available() > 0) {
             int pathSize = 0;
@@ -56,28 +47,41 @@ public class SphereLoader {
             fis.read(tmp);
             buffer = ByteBuffer.wrap(tmp);
             double latitude = buffer.getDouble();
-
-            result.add(new SphereFile(f, longitude, latitude));
+            files.add(new SphereFile(f, longitude, latitude));
         }
 
         fis.close();
-
-        return result;
     }
 
-    public void save(FileSphere sphere)
+    public void save()
             throws IOException {
         FileOutputStream fos = new FileOutputStream(DESKTOP_FILES);
 
         ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.putDouble(sphere.getRadius());
+        buffer.putDouble(radius);
         fos.write(buffer.array());
 
-        for (SphereFile file : sphere)
+        for (SphereFile file : files)
             fos.write(getBytes(file));
 
         fos.flush();
         fos.close();
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public ArrayList<SphereFile> getFiles() {
+        return files;
+    }
+
+    public double getViewLongitude() {
+        return viewLongitude;
+    }
+
+    public double getViewLatitude() {
+        return viewLatitude;
     }
 
     private byte[] getBytes(SphereFile file) {

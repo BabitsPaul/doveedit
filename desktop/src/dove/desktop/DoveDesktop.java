@@ -1,5 +1,6 @@
 package dove.desktop;
 
+import dove.desktop.controller.DesktopController;
 import dove.desktop.event.EventRedirect;
 import dove.desktop.loader.SphereLoader;
 import dove.desktop.sphere.FileSphere;
@@ -17,9 +18,12 @@ public class DoveDesktop {
             throws IOException {
         EventRedirect redirect = new EventRedirect();
         DesktopScheduler scheduler = new DesktopScheduler();
-        FileSphere sphere = new SphereLoader(redirect, scheduler).load();
+        SphereLoader loader = new SphereLoader();
+        loader.load();
+        FileSphere sphere = new FileSphere(redirect, scheduler);
         DesktopPane pane = new DesktopPane(redirect, sphere);
         DesktopFrame frame = new DesktopFrame(pane, redirect);
+        DesktopController controller = new DesktopController(frame, pane, sphere, redirect, scheduler);
 
         frame.setVisible(true);
     }

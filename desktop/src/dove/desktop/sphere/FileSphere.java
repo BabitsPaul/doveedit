@@ -3,7 +3,6 @@ package dove.desktop.sphere;
 import dove.desktop.event.EventRedirect;
 import dove.desktop.timer.DesktopScheduler;
 
-import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -20,25 +19,6 @@ public class FileSphere
         this.scheduler = scheduler;
 
         radius = 1.0;
-
-        redirect.addRedirectTarget((o, id) -> {
-            MouseEvent e = (MouseEvent) o;
-
-            switch (e.getID()) {
-                case MouseEvent.MOUSE_CLICKED: {
-                    if (e.getButton() == MouseEvent.BUTTON1)
-                        ;
-                    else if (e.getButton() == MouseEvent.BUTTON2)
-                        ;
-                }
-                break;
-
-                case MouseEvent.MOUSE_MOVED: {
-
-                }
-                break;
-            }
-        }, EventRedirect.MOUSEEVENT);
     }
 
     @Override
@@ -57,5 +37,4 @@ public class FileSphere
     public void setRadius(double radius) {
         this.radius = radius;
     }
-
 }
