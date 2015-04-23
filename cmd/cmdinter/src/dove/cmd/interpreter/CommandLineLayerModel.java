@@ -7,7 +7,6 @@ import dove.util.collections.FixedSizeRAStack;
 
 import java.io.File;
 
-//TODO store currentLine as last Command, if going to older command
 public class CommandLineLayerModel
         extends AbstractTextLayerModel {
     private int cmdStartX;
@@ -24,7 +23,7 @@ public class CommandLineLayerModel
 
     private FixedSizeRAStack<String> prevCmds;
 
-    private String lastCmd;
+    private String lastTyped;
 
     private CommandLineInterpreter interpreter;
 
@@ -48,7 +47,7 @@ public class CommandLineLayerModel
         cmdEndX = 0;
         cmdEndY = 0;
 
-        lastCmd = "";
+        lastTyped = "";
         blockInput = false;
         currentCmd = -1;
     }
@@ -64,6 +63,8 @@ public class CommandLineLayerModel
     @Override
     public void removeChar() {
         if (blockInput || (cmdStartX == cmdEndX && cmdStartY == cmdEndY)) return;
+
+        currentCmd = -1;
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
@@ -106,6 +107,8 @@ public class CommandLineLayerModel
 
         if (c == '\n' || c == '\r' || c == '\b')
             return;
+
+        currentCmd = -1;
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
@@ -151,18 +154,26 @@ public class CommandLineLayerModel
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
-        if (currentCmd == -1)
+        if (currentCmd == -1) {
             currentCmd = prevCmds.size();
+
+            lastTyped = currentCommand();
+        }
         else if (currentCmd == 0)
             currentCmd = -1;
         else
             --currentCmd;
 
-
+        //save position of the cursor
         PositionHelper.Position tmpPos = getCursor().getPosition();
+
+        //write the new command
         getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
         write(prevCmds.get(currentCmd));
-        getCursor().setPosition(tmpPos);
+
+        //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
+        PositionHelper.Position cmdEnd = getCursor().getPosition();
+        getCursor().setPosition(getHelper().after(tmpPos, cmdEnd) ? cmdEnd : tmpPos);
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
@@ -177,6 +188,26 @@ public class CommandLineLayerModel
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
+        if (currentCmd == -1) {
+            currentCmd = 0;
+
+            lastTyped = currentCommand();
+        }
+        else if (currentCmd == 0)
+            currentCmd = prevCmds.size() - 1;
+        else
+            ++currentCmd;
+
+        //save position of the cursor
+        PositionHelper.Position tmpPos = getCursor().getPosition();
+
+        //write the new command
+        getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
+        write(prevCmds.get(currentCmd));
+
+        //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
+        PositionHelper.Position cmdEnd = getCursor().getPosition();
+        getCursor().setPosition(getHelper().after(tmpPos, cmdEnd) ? cmdEnd : tmpPos);
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
@@ -188,6 +219,8 @@ public class CommandLineLayerModel
     public void cursorRight() {
         if (blockInput) return;
 
+        currentCmd = -1;
+
         PositionHelper.Position p = getCursor().getPosition();
         p = getHelper().right(p);
 
@@ -198,6 +231,8 @@ public class CommandLineLayerModel
     @Override
     public void cursorLeft() {
         if (blockInput) return;
+
+        currentCmd = -1;
 
         PositionHelper.Position p = getCursor().getPosition();
         p = getHelper().right(p);

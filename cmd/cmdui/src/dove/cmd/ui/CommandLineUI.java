@@ -316,7 +316,7 @@ public class CommandLineUI
             return clip.getOffSetX() + clip.getHeight();
         }
         else {
-            int line = buffer.getHeight();
+            int line = buffer.getHeight() - 1;
             char[][] buffer = this.buffer.getContent();
 
             for (; line > -1; line--) {
