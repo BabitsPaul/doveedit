@@ -3,7 +3,7 @@ package dove.cmd.interpreter;
 
 import dove.cmd.CommandLineConfiguration;
 import dove.cmd.ui.model.*;
-import dove.util.collections.FixedSizeRAStack;
+import dove.util.collections.FSRRStack;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ public class CommandLineLayerModel
 
     private boolean blockInput;
 
-    private FixedSizeRAStack<String> prevCmds;
+    private FSRRStack<String> prevCmds;
 
     private String lastTyped;
 
@@ -37,7 +37,7 @@ public class CommandLineLayerModel
 
         cmdStartY = cursor.getY();
 
-        prevCmds = new FixedSizeRAStack<>((Integer) cfg.get("cmd.memory.cmds"), String.class);
+        prevCmds = new FSRRStack<>((Integer) cfg.get("cmd.memory.cmds"), String.class);
 
         this.interpreter = interpreter;
         initInterpreter();
@@ -50,6 +50,8 @@ public class CommandLineLayerModel
         lastTyped = "";
         blockInput = false;
         currentCmd = -1;
+
+        write(((File) interpreter.get("cmd.workingdirectory")).getAbsolutePath() + ">");
     }
 
     public void initCfg() {
@@ -154,22 +156,22 @@ public class CommandLineLayerModel
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
+        String nextCmd;
         if (currentCmd == -1) {
-            currentCmd = prevCmds.size();
-
             lastTyped = currentCommand();
+
+            currentCmd = prevCmds.size() - 1;
         }
-        else if (currentCmd == 0)
-            currentCmd = -1;
         else
-            --currentCmd;
+            --currentCmd
+        nextCmd = (currentCmd == -1 ? lastTyped : prevCmds.get(currentCmd));
 
         //save position of the cursor
         PositionHelper.Position tmpPos = getCursor().getPosition();
 
         //write the new command
         getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
-        write(prevCmds.get(currentCmd));
+        write(nextCmd);
 
         //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
         PositionHelper.Position cmdEnd = getCursor().getPosition();
@@ -188,22 +190,26 @@ public class CommandLineLayerModel
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
 
-        if (currentCmd == -1) {
-            currentCmd = 0;
-
+        String nextCmd;
+        if (currentCmd == -1)
             lastTyped = currentCommand();
-        }
-        else if (currentCmd == 0)
-            currentCmd = prevCmds.size() - 1;
-        else
+
+        if (!prevCmds.isEmpty())
+            currentCmd = 0;
+        else {
             ++currentCmd;
+
+            if (currentCmd == prevCmds.size())
+                currentCmd = -1;
+        }
+        nextCmd = (currentCmd == -1 ? lastTyped : prevCmds.get(currentCmd));
 
         //save position of the cursor
         PositionHelper.Position tmpPos = getCursor().getPosition();
 
         //write the new command
         getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
-        write(prevCmds.get(currentCmd));
+        write(nextCmd);
 
         //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
         PositionHelper.Position cmdEnd = getCursor().getPosition();
@@ -249,11 +255,12 @@ public class CommandLineLayerModel
 
         interpreter.doCommand(currentCommand());
 
-        CharBuffer buffer = getBuffer();
-        String dir = (String) interpreter.get("cmd.workingdirectory");
+        String dir = ((File) interpreter.get("cmd.workingdirectory")).getAbsolutePath();
 
-        for (int i = 0; i < dir.length(); i++)
-            buffer.put(dir.charAt(i));
+        getCursor().moveCursorDown();
+        getCursor().setX(0);
+
+        write(dir + ">");
 
         blockInput = false;
     }
@@ -337,12 +344,15 @@ public class CommandLineLayerModel
 
         PositionHelper.Position p = new PositionHelper.Position(cmdStartX, cmdStartY, false);
 
+        PositionHelper.Position cmdEnd = new PositionHelper.Position(cmdEndX, cmdEndY, false);
+        PositionHelper helper = getHelper();
+
         do {
             result += buffer.get(p);
 
-            p = getHelper().right(p);
+            p = helper.right(p);
         }
-        while (!(p.getX() == cmdEndX && p.getY() == cmdEndY));
+        while (!helper.after(p, cmdEnd));
 
         return result;
     }

@@ -26,16 +26,6 @@ public class Cursor
     private int y;
 
     /**
-     * the screenwidth of the screen on which this cursor is placed
-     */
-    private int screenWidth;
-
-    /**
-     * the height of the screen this cursor is placed upon
-     */
-    private int screenHeight;
-
-    /**
      * true, if this cursor should be showed in the model
      */
     private boolean isVisible;
@@ -46,15 +36,11 @@ public class Cursor
 
     /**
      * creates a new commandlinecursor with position 0,0
-     * and the specified buffersize
+     * and the specified clip
      *
-     * @param screenWidth  the bufferWidth
-     * @param screenHeight the bufferHeight
+     * @param clip the Clip for the buffer this cursor moves on
      */
-    public Cursor(int screenWidth, int screenHeight, ClipObject clip) {
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-
+    public Cursor(ClipObject clip) {
         this.clip = clip;
 
         helper = new PositionHelper(clip);

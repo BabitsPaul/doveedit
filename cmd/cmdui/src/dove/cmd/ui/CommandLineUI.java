@@ -133,7 +133,7 @@ public class CommandLineUI
         clip.addCommandLineListener(this);
 
         //initialize cursor
-        cursor = new Cursor(width, height, clip);
+        cursor = new Cursor(clip);
         cursor.setVisible(true);
         cursor.addCommandLineListener(this);
 
@@ -284,6 +284,7 @@ public class CommandLineUI
     }
 
     public void setModel(AbstractTextLayerModel model) {
+        //TODO several issues (rendering + input)
         AbstractCommandLayer newLayer = new TextLayer(cursor, buffer, model);
 
         metricsFactory.setLineSpace(0);
@@ -312,6 +313,7 @@ public class CommandLineUI
     }
 
     private int lastUsedLine() {
+        //TODO invalid result
         if (clip.isEnabled()) {
             return clip.getOffSetX() + clip.getHeight();
         }
@@ -323,14 +325,14 @@ public class CommandLineUI
                 boolean isEmpty = true;
 
                 for (char c : buffer[line])
-                    if (isEmpty = (c != AbstractCommandLayer.NO_CHAR))
+                    if (!(isEmpty = (c == AbstractCommandLayer.NO_CHAR)))
                         break;
 
-                if (isEmpty)
-                    return line;
+                if (!isEmpty)
+                    return (line == this.buffer.getHeight() - 1 ? -1 : line);
             }
 
-            return -1;
+            return 0;
         }
     }
 

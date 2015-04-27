@@ -4,7 +4,18 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class FixedSizeRAStack<T> {
+/**
+ * FixedSizeRandomReadStack
+ * <p>
+ * this stack implementation allows the user
+ * to hold a specific number of values.
+ * <p>
+ * If the stack is filled and a new value is added, the oldest value will
+ * be discarded
+ *
+ * @param <T>
+ */
+public class FSRRStack<T> {
     private int maxSize;
 
     private int currentSize;
@@ -13,7 +24,7 @@ public class FixedSizeRAStack<T> {
 
     private int currentStart = 0;
 
-    public FixedSizeRAStack(int size, Class<T> clazz) {
+    public FSRRStack(int size, Class<T> clazz) {
         maxSize = size;
 
         content = (T[]) Array.newInstance(clazz, size);
@@ -21,7 +32,7 @@ public class FixedSizeRAStack<T> {
         currentSize = 0;
     }
 
-    public FixedSizeRAStack(T[] t) {
+    public FSRRStack(T[] t) {
         maxSize = t.length;
 
         content = t;
@@ -49,9 +60,6 @@ public class FixedSizeRAStack<T> {
     }
 
     public T get(int i) {
-        if (i < 0 || i >= currentSize)
-            throw new ArrayIndexOutOfBoundsException("Invalid index: " + i + " Size: " + currentSize);
-
         return content[(currentStart + i) % maxSize];
     }
 

@@ -3,7 +3,6 @@ package dove.cmd;
 import dove.cmd.interpreter.CommandLineInterpreter;
 import dove.cmd.interpreter.CommandLineLayerModel;
 import dove.cmd.ui.CommandLineUI;
-import dove.cmd.ui.model.PositionHelper;
 
 import javax.swing.*;
 
@@ -19,8 +18,6 @@ public class CommandLine {
 
         initConfiguration();
         ui = new CommandLineUI((Integer) config.get("dove.cmd.width"), (Integer) config.get("dove.cmd.height"));
-        ui.getCmdCursor().setPosition(new PositionHelper.Position(0, 0, false));
-        ui.getActiveLayer().getBuffer().put('Q');
 
         interpreter = new CommandLineInterpreter();
 
