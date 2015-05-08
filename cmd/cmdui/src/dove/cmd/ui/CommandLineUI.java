@@ -18,6 +18,12 @@ public class CommandLineUI
      */
     private static final Font COMMAND_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
+    private static final long DEFAULT_CURSOR_FREQ = 500L;
+
+    private static final Color DEFAULT_FOREGROUND = Color.BLUE;
+
+    private static final Color DEFAULT_BACKGROUND = Color.black;
+
     /**
      * the default topspace for painting text
      */
@@ -98,10 +104,7 @@ public class CommandLineUI
      */
     private boolean repaintOnEvent;
 
-    /**
-     * the configuration related to this ui
-     */
-    private CmdUIConfiguration configuration;
+    private Color defaultForeground;
 
     /**
      * creates a new commandline terminal with the specified width
@@ -110,12 +113,8 @@ public class CommandLineUI
      * @param width  the width of the buffer
      * @param height the height of the buffer
      */
-    public CommandLineUI(int width, int height) {
+    public CommandLineUI(int width, int height, int cursorFreq) {
         repaintOnEvent = true;
-
-        //create configuration
-        configuration = new CmdUIConfiguration();
-        initCfg();
 
         //create renderer metrics factory
         metricsFactory = new RendererMetricsFactory();
@@ -138,7 +137,7 @@ public class CommandLineUI
         cursor.addCommandLineListener(this);
 
         //initialize buffer
-        buffer = new CharBuffer(width, height, cursor, Color.BLUE, clip);
+        buffer = new CharBuffer(width, height, cursor, DEFAULT_FOREGROUND, clip);
         buffer.addCommandLineListener(this);
 
         //initialize layer
@@ -147,32 +146,23 @@ public class CommandLineUI
         renderer = activeLayer.createRenderer();
 
         //create a tickerinstance to make the cursor flash
-        cursorTicker = new Ticker((Long) configuration.get("commandline.cursor.freq")) {
+        cursorTicker = new Ticker(DEFAULT_CURSOR_FREQ) {
             @Override
             protected void nextTick() {
-                paintCursor = !paintCursor;
+                SwingUtilities.invokeLater(() -> {
+                    paintCursor = !paintCursor;
 
-                metricsFactory.setShowCursor(paintCursor);
+                    metricsFactory.setShowCursor(paintCursor);
 
-                repaint();
+                    repaint();
+                });
             }
         };
         cursorTicker.start();
 
-        //painting
-        setDoubleBuffered(true);
-
         //react to keyinput
         setFocusable(true);
         requestFocus();
-    }
-
-    //create a basic interpreter
-    //will be replaced by a .cfg file later
-    private void initCfg() {
-        configuration.put("commandline.cursor.freq", 500L);
-        configuration.put("commandline.color.foreground", Color.WHITE);
-        configuration.put("commandline.color.background", Color.BLACK);
     }
 
     /**
@@ -233,6 +223,26 @@ public class CommandLineUI
 
     public ClipObject getClip() {
         return clip;
+    }
+
+    /////////////////////////////////////////////////////////
+    // configure
+    ////////////////////////////////////////////////////////
+
+    public Color getDefaultForeground() {
+        return defaultForeground;
+    }
+
+    public void setDefaultForeground(Color foreground) {
+        defaultForeground = foreground;
+    }
+
+    public long getCursorFrequency() {
+        return cursorTicker.getTickTime();
+    }
+
+    public void setCursorFrequency(long frequency) {
+        cursorTicker.setFrequency(frequency);
     }
 
     //////////////////////////////////////////////////////////
@@ -301,8 +311,10 @@ public class CommandLineUI
 
         cursor.setY(freeLine);
 
-        addKeyListener(newLayer);
         removeKeyListener(activeLayer);
+        addKeyListener(newLayer);
+        setFocusable(true);
+        requestFocus();
 
         activeLayer = newLayer;
 
@@ -344,7 +356,8 @@ public class CommandLineUI
     public void commandLineChanged(CommandLineEvent e) {
         switch (e.getSourceType()) {
             case CURSOR_TYPE:
-                cursorTicker.enforceTick();
+                if (repaintOnEvent)
+                    cursorTicker.enforceTick();
                 break;
 
             case PAINTING:

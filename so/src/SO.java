@@ -1,30 +1,81 @@
-import java.util.Arrays;
-import java.util.Random;
+import javafx.util.Pair;
+
+import java.util.ArrayList;
 
 public class SO {
     public static void main(String[] args) {
-        System.out.println("Max Split Bin Array");
-        System.out.println("Generating bits...");
-        int len = 1000;
-        int[] in = new int[len];
-        Random r = new Random();
-        for (int i = 0; i < len; i++)
-            in[i] = r.nextInt(2);
-        System.out.println("Bits generated");
-        for (int i : in)
-            System.out.print(i);
-        System.out.println();
+        Pair[] p = new Pair[]{new Pair("Hello", 123), new Pair("Hi", 1234)
+                , new Pair("John", 42142), null, new Pair("Chris", null), new Pair("Peter", null), null};
 
-        System.out.println("Generating count...");
-        int tmp = 0;
-        for (int i = 0; i < len; i++)
-            in[i] = tmp += in[i];
-        System.out.println("Count generated");
-        System.out.println(Arrays.toString(in));
+        ArrayList<Pair<String, Float>> list = new ArrayList<>();
+        for (Pair pr : p)
+            list.add(pr);
 
-        //next task: find the biggest possible matching arrays
-        //start, mid, end so that arr[mid] - arr[start] > (mid - start) / 2
-        //arr[end] - arr[end] > (end - mid) / 2 and no bigger value for
-        //start - end exists
+        createTree(list);
+    }
+
+    public static void createTree(ArrayList<Pair<String, Float>> vector) {
+        System.out.println(vector);
+
+        ArrayList<TreeNode> todo = new ArrayList<>();
+        todo.add(new TreeNode(vector.remove(0), null, null));
+        TreeNode root = todo.get(0);
+
+        while (!todo.isEmpty() && !vector.isEmpty()) {
+            TreeNode node = todo.remove(0);
+
+            if (node == null)
+                continue;
+
+            TreeNode left = vector.get(0) == null ? null : new TreeNode(vector.get(0), null, null);
+            TreeNode right = vector.get(1) == null ? null : new TreeNode(vector.get(1), null, null);
+
+            vector.remove(0);
+            vector.remove(0);
+
+            node.leftNode = left;
+            node.rightNode = right;
+
+            todo.add(left);
+            todo.add(right);
+        }
+
+        System.out.print(TreeNode.listNodes(root));
+    }
+
+    private static class TreeNode {
+        private Pair<String, Float> data;
+        private TreeNode leftNode;
+        private TreeNode rightNode;
+
+        private TreeNode(Pair<String, Float> data, TreeNode left, TreeNode right) {
+            this.data = data;
+            this.leftNode = left;
+            this.rightNode = right;
+        }
+
+        private static ArrayList<TreeNode> listNodes(TreeNode root) {
+            ArrayList result = new ArrayList();
+            ArrayList<TreeNode> todo = new ArrayList();
+            todo.add(root);
+
+            while (!todo.isEmpty()) {
+                TreeNode node = todo.remove(0);
+
+                if (node != null) {
+                    todo.add(node.leftNode);
+                    todo.add(node.rightNode);
+                }
+
+                result.add(node);
+            }
+
+
+            return result;
+        }
+
+        public String toString() {
+            return "< " + data.toString() + " >";
+        }
     }
 }

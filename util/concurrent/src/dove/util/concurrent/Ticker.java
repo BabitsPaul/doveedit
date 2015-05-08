@@ -6,7 +6,7 @@ public abstract class Ticker
 
     private boolean running = false;
 
-    private Thread t;
+    private Thread t = null;
 
     public Ticker(long tickTime) {
         this.tickTime = tickTime;
@@ -48,6 +48,17 @@ public abstract class Ticker
     }
 
     public void enforceTick() {
+        if (t == null)
+            throw new IllegalStateException("Ticker hasn't been started");
+
         t.interrupt();
+    }
+
+    public long getTickTime() {
+        return tickTime;
+    }
+
+    public void setFrequency(long frequency) {
+        this.tickTime = frequency;
     }
 }

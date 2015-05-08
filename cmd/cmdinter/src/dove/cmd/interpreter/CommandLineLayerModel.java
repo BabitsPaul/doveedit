@@ -9,6 +9,7 @@ import java.io.File;
 
 public class CommandLineLayerModel
         extends AbstractTextLayerModel {
+    //TODO cursorTicker.enforeTick() deadlock
     private int cmdStartX;
 
     private int cmdStartY;
@@ -51,7 +52,10 @@ public class CommandLineLayerModel
         blockInput = false;
         currentCmd = -1;
 
-        write(((File) interpreter.get("cmd.workingdirectory")).getAbsolutePath() + ">");
+        write0(((File) interpreter.get("cmd.workingdirectory")).getAbsolutePath() + ">");
+        PositionHelper.Position tmp = getCursor().getPosition();
+        cmdStartX = tmp.getX();
+        cmdStartY = tmp.getY();
     }
 
     public void initCfg() {
@@ -163,7 +167,7 @@ public class CommandLineLayerModel
             currentCmd = prevCmds.size() - 1;
         }
         else
-            --currentCmd
+            --currentCmd;
         nextCmd = (currentCmd == -1 ? lastTyped : prevCmds.get(currentCmd));
 
         //save position of the cursor
@@ -171,11 +175,22 @@ public class CommandLineLayerModel
 
         //write the new command
         getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
-        write(nextCmd);
+        write0(nextCmd);
 
         //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
         PositionHelper.Position cmdEnd = getCursor().getPosition();
         getCursor().setPosition(getHelper().after(tmpPos, cmdEnd) ? cmdEnd : tmpPos);
+
+        //clear chars that are left from the previous command
+        if (getHelper().after(tmpPos, cmdEnd)) {
+            CharBuffer buffer = getBuffer();
+            PositionHelper helper = getHelper();
+
+            while (!tmpPos.equals(cmdEnd)) {
+                buffer.put((char) 0, tmpPos);
+                tmpPos = helper.right(tmpPos);
+            }
+        }
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
@@ -209,11 +224,22 @@ public class CommandLineLayerModel
 
         //write the new command
         getCursor().setPosition(new PositionHelper.Position(cmdStartX, cmdStartY, false));
-        write(nextCmd);
+        write0(nextCmd);
 
         //place the cursor at either the end of the new command or tmpPos, if tmpPos is in bounds of the new command
         PositionHelper.Position cmdEnd = getCursor().getPosition();
         getCursor().setPosition(getHelper().after(tmpPos, cmdEnd) ? cmdEnd : tmpPos);
+
+        //clear chars that are left over from the previous command
+        if (getHelper().before(tmpPos, cmdEnd)) {
+            CharBuffer buffer = getBuffer();
+            PositionHelper helper = getHelper();
+
+            while (!tmpPos.equals(cmdEnd)) {
+                buffer.put((char) 0, tmpPos);
+                tmpPos = helper.right(tmpPos);
+            }
+        }
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));
@@ -253,28 +279,43 @@ public class CommandLineLayerModel
 
         blockInput = true;
 
-        interpreter.doCommand(currentCommand());
+        String cmd = currentCommand();
+
+        interpreter.doCommand(cmd);
+        prevCmds.push(cmd);
 
         String dir = ((File) interpreter.get("cmd.workingdirectory")).getAbsolutePath();
 
         getCursor().moveCursorDown();
         getCursor().setX(0);
 
-        write(dir + ">");
+        write0(dir + ">");
+
+        cmdStartX = getCursor().getX();
+        cmdStartY = getCursor().getY();
+        cmdEndX = cmdStartX;
+        cmdEndY = cmdStartY;
 
         blockInput = false;
     }
 
-    public void write(String txt) {
-        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
-                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
-
+    private void write0(String txt) {
         PositionHelper.Position end = end(getCursor().getPosition(), txt);
         if (end.getY() > getBuffer().getHeight())
             getBuffer().pushContentUp(Math.max(end.getY() - getBuffer().getHeight(), 20));
 
         for (char c : txt.toCharArray())
             getBuffer().put(c);
+
+        cmdEndX = getCursor().getX();
+        cmdEndY = getCursor().getY();
+    }
+
+    public void write(String txt) {
+        fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
+                CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.SUPPRESS_EVENT_RELATED_REPAINT));
+
+        write0(txt);
 
         fireLayerModelChanged(new CommandLineEvent(CommandLineEvent.PAINTING_DUMMY,
                 CommandLineEvent.SOURCE_TYPE.PAINTING, CommandLineEvent.ENABLE_EVENT_RELATED_REPAINT));

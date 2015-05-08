@@ -259,5 +259,17 @@ public class PositionHelper {
         public boolean isRelative() {
             return isRelative;
         }
+
+        public boolean equals(Object o) {
+            if (o == null)
+                return false;
+
+            if (!(o instanceof Position))
+                return false;
+
+            Position p = (Position) o;
+
+            return p.isRelative == isRelative && p.x == x && p.y == y;
+        }
     }
 }

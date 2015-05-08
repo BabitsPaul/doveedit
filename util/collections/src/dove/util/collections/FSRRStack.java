@@ -45,7 +45,7 @@ public class FSRRStack<T> {
     }
 
     public T push(T t) {
-        int temp = (currentStart - 1) % maxSize;
+        int temp = (currentStart - 1 + maxSize) % maxSize;
 
         T rem = content[temp];
 
