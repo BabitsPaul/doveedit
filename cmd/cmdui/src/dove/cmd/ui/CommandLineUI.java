@@ -235,6 +235,8 @@ public class CommandLineUI
 
     public void setDefaultForeground(Color foreground) {
         defaultForeground = foreground;
+
+        //TODO update buffer
     }
 
     public long getCursorFrequency() {

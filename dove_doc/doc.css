@@ -1,0 +1,15 @@
+@font-face{
+    font-family: 'consolas';
+    src: url('C:\Users\Babits\Dropbox\doveedit\dove_doc\consolas.ttf');
+}
+
+span.code{
+    color: blue;
+    font: consolas;
+    font-weight:bold;
+}
+
+div.code{
+    color:blue;
+    font-weight:bold;
+}

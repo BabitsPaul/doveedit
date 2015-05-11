@@ -1,5 +1,6 @@
 package dove.cmd.interpreter;
 
+import dove.cmd.CmdOpIF;
 import dove.cmd.api.Command;
 import dove.cmd.interpreter.loader.CommandLoader;
 import dove.util.misc.StringHelper;
@@ -13,12 +14,16 @@ public class CommandLineInterpreter {
 
     private CommandLoader loader;
 
-    public CommandLineInterpreter() {
+    private CmdOpIF cmdOp;
+
+    public CommandLineInterpreter(CmdOpIF cmdOp) {
         loader = new CommandLoader();
         loader.loadCommands();
 
         vars = new StringMap<>(CommandLineVar.class);
         commands = new StringMap<>(Command.class);
+
+        this.cmdOp = cmdOp;
     }
 
     public void doCommand(String cmd) {

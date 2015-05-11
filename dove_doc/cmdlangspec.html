@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<br>
+<head>
+    <title>Commandline Syntax Specification</title>
+    <link rel="stylesheet" type="text/css" href="doc.css"/>
+</head>
+<br>
+<p>
+<h2>Index</h2>
+<ol>
+    <li><a href="#intro">Intro</a></li>
+    <li>
+        <ol>
+            <li><a href="#scripts_intro">List of Operators</a></li>
+        </ol>
+    </li>
+    <li><a href="#datatypes">Datatypes</a></li>
+    <li><a href="#variables">Using Variables</a></li>
+</ol>
+</p>
+<p name="intro">
+<h2>Intro</h2>
+The Commandline is one of the most central features of this Toolcollection. All operations
+including editing the configuration can aswell be executed via the commandline. This section
+of the documentation describes the syntax of Commandline commands.
+</p>
+<p name="scripts_intro">
+<h2>Scripts</h2>
+The CommandLine can also execute scripts (<code class="code">run -s scriptfile</code>)
+</p>
+<p name="datatypes">
+<h2>Values types</h2>
+The commandline provides several datatypes. By default the datatype is specified implicitly
+by the syntax. Nevertheless there are several operations that require specifying the datatype
+aswell as some special cases.
+
+</br>
+<ul>
+    <li>
+        <h3>Text</h3>
+        Text can be created in this way: <span class="code">"some text"</span>
+    </li>
+    <li>
+        <h3>Integer</h3>
+        The syntax for integral numbers is: <span class="code">12415</span>
+    </li>
+    <li>
+        <h3>Double</h3>
+        The syntax for real numbers is: <span class="code">1241.234</span>
+    </li>
+    <li>
+        <h3>Boolean</h3>
+        Truthvalues have several representations: Either, if specified in numbers, 0
+        is <span class="code">false</span> and 1 <span class="code">true</span>, or directly
+        via <span class="code">true</span> and <span class="code">false</span>.
+    </li>
+</ul>
+
+</br>
+There also exist specific operations for each datatypes. These will be discussed later on in
+separate paragraphs.
+</p>
+<p name="variables">
+<h2>Variables</h2>
+This paragraph describes the creation and usage of variables. The variable structure in
+the commandline provides the following options: variables can be made typesafe. And they can
+be secured to not be overwritten by newer values.
+
+Creating a new variable:
+<div class="code">set a="hello world"</div>
+This code generates a new variable <span class="code">a</span> with the text "hello world" as
+value.
+</p>
+</body>
+</html>
