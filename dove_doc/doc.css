@@ -1,6 +1,6 @@
 @font-face{
     font-family: 'consolas';
-    src: url('C:\Users\Babits\Dropbox\doveedit\dove_doc\consolas.ttf');
+    src: url('C:\Users\Babits\Dropbox\doveedit\resources\consolas.ttf');
 }
 
 span.code{
@@ -9,7 +9,7 @@ span.code{
     font-weight:bold;
 }
 
-div.code{
-    color:blue;
-    font-weight:bold;
+pre.code{
+    color: blue;
+    font-weight: bold;
 }
