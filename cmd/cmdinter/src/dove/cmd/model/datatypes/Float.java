@@ -13,7 +13,7 @@ public class Float
         this.val = val;
     }
 
-    public double getVal() {
+    public Double getVal() {
         return val;
     }
 

@@ -13,7 +13,7 @@ public class Bool
         this.val = val;
     }
 
-    public boolean getVal() {
+    public Boolean getVal() {
         return val;
     }
 

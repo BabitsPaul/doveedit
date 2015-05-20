@@ -7,5 +7,6 @@ public enum DataType {
     BOOL,
     STRUCTURE,
     METHOD,
-    FIELD
+    FIELD,
+    VOID
 }

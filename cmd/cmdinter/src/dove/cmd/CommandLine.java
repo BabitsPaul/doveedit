@@ -13,13 +13,18 @@ public class CommandLine {
 
     private CommandLineConfiguration config;
 
+    private CmdOpIF cmdOpIF;
+
     public CommandLine() {
         config = new CommandLineConfiguration();
 
         initConfiguration();
-        ui = new CommandLineUI((Integer) config.get("dove.cmd.width"), (Integer) config.get("dove.cmd.height"));
+        ui = new CommandLineUI((int) config.get("dove.cmd.width"),
+                (Integer) config.get("dove.cmd.height"), (int) config.get("dove.cmd.cursorfreq"));
 
-        interpreter = new CommandLineInterpreter();
+        cmdOpIF = new CmdOpIF();
+
+        interpreter = new CommandLineInterpreter(cmdOpIF);
 
         ui.setModel(new CommandLineLayerModel(ui.getBuffer(), ui.getCmdCursor(), ui.getClip(), interpreter));
     }
@@ -44,5 +49,6 @@ public class CommandLine {
     private void initConfiguration() {
         config.put("dove.cmd.width", 50);
         config.put("dove.cmd.height", 200);
+        config.put("dove.cmd.cursorfreq", 500);
     }
 }

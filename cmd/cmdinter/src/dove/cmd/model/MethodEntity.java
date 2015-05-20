@@ -1,17 +1,41 @@
 package dove.cmd.model;
 
+import dove.cmd.model.datatypes.Data;
+
 /**
  * Created by Babits on 12/05/2015.
  */
 public class MethodEntity
         extends CmdEntity {
+    private String name;
+
+    private DataType[] input;
+
+    private DataType output;
+
+    public MethodEntity(String name, DataType[] input, DataType output) {
+        this.name = name;
+        this.input = input;
+        this.output = output;
+    }
+
+    public Data invoke(Data... input) {
+
+
+        return null;
+    }
+
+    public DataType[] getInputTypes() {
+        return input;
+    }
+
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
     public DataType getType() {
-        return null;
+        return DataType.METHOD;
     }
 }
