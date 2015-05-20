@@ -10,15 +10,7 @@ package dove.cmd.model;
  * referencing the specified entityw
  */
 public abstract class CmdEntity {
-    private int storedAt;
-
-    public CmdEntity(Memory memory) {
-        storedAt = memory.store(this);
-    }
-
-    public int getMemPos() {
-        return storedAt;
-    }
+    public abstract String getName();
 
     public abstract DataType getType();
 }

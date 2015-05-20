@@ -2,6 +2,8 @@
   <dictionary name="Babits">
     <words>
       <w>editability</w>
+      <w>subsequence</w>
+      <w>subsequences</w>
     </words>
   </dictionary>
 </component>

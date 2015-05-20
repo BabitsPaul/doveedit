@@ -4,12 +4,8 @@ public enum DataType {
     TEXT,
     INTEGRAL,
     FLOAT,
-    BOOLEAN,
+    BOOL,
     STRUCTURE,
     METHOD,
-    FIELD;
-
-    public boolean isValid(byte[] bytes) {
-        return false;
-    }
+    FIELD
 }

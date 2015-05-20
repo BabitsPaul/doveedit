@@ -5,5 +5,13 @@ package dove.cmd.model;
  */
 public class MethodEntity
         extends CmdEntity {
+    @Override
+    public String getName() {
+        return null;
+    }
 
+    @Override
+    public DataType getType() {
+        return null;
+    }
 }
