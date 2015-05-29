@@ -8,5 +8,7 @@ public enum DataType {
     STRUCTURE,
     METHOD,
     FIELD,
-    VOID
+    VOID,
+    INSTANCE,
+    ARRAY
 }
