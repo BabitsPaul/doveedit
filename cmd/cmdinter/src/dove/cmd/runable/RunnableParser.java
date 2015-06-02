@@ -5,6 +5,8 @@ import dove.cmd.CommandLineData;
 import java.util.HashMap;
 
 public class RunnableParser {
+    public static String DEFINE = "define";
+
     public void parse(String txt, CommandLineData data) {
 
     }

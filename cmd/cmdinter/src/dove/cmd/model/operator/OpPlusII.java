@@ -1,5 +1,6 @@
 package dove.cmd.model.operator;
 
+import dove.cmd.CommandLineData;
 import dove.cmd.model.DataType;
 import dove.cmd.model.datatypes.Data;
 import dove.cmd.model.datatypes.Integral;
@@ -12,7 +13,7 @@ public class OpPlusII
     }
 
     @Override
-    public Data invoke(Data... input) {
+    public Data invoke(CommandLineData data, Data... input) {
         if (input.length == 2 && InputValidate.validateInput(input, getInputTypes()))
             return new Integral(((Integral) input[0]).getVal() + ((Integral) input[1]).getVal());
         else

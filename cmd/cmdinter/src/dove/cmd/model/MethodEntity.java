@@ -1,12 +1,13 @@
 package dove.cmd.model;
 
+import dove.cmd.CommandLineData;
 import dove.cmd.model.datatypes.Data;
 
 /**
  * Created by Babits on 12/05/2015.
  */
 public class MethodEntity
-        extends CmdEntity {
+        extends SyntaxEntity {
     private String name;
 
     private DataType[] input;
@@ -19,7 +20,7 @@ public class MethodEntity
         this.output = output;
     }
 
-    public Data invoke(Data... input) {
+    public Data invoke(CommandLineData data, Data... input) {
 
 
         return null;
