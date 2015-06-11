@@ -2,25 +2,23 @@ package dove.cmd.model.operator;
 
 import dove.cmd.CommandLineData;
 import dove.cmd.model.DataType;
+import dove.cmd.model.FieldEntity;
 import dove.cmd.model.datatypes.Data;
-import dove.cmd.model.datatypes.Integral;
 import dove.cmd.syntax.InputValidate;
 
 /**
- * addition operator for integer values
+ * Operator for accessing the data held by a given field
  */
-public class OpPlusII
+public class OpAccF
         extends Operator {
-    public OpPlusII() {
-        super("+", false, new DataType[]{DataType.INTEGRAL, DataType.INTEGRAL}, DataType.INTEGRAL);
+    public OpAccF() {
+        super("$", true, new DataType[]{DataType.FIELD}, DataType.ANY);
     }
 
     @Override
     public Data invoke(CommandLineData data, Data... input) {
         InputValidate.validateInput(input, getInputTypes());
 
-        return new Integral(((Integral) input[0]).getVal() + ((Integral) input[1]).getVal());
+        return ((FieldEntity) input[0]).getVal();
     }
-
-
 }

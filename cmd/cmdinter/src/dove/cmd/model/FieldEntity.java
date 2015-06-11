@@ -8,10 +8,22 @@ import dove.cmd.model.datatypes.Data;
 public class FieldEntity
         extends SyntaxEntity {
     private String name;
+
+    private boolean isFinal;
+
     private Data var;
 
-    public Data getData() {
-        return var;
+    private DataType type;
+
+    public FieldEntity(Data data, boolean isFinal, DataType type, String name) {
+        this.var = data;
+        this.isFinal = isFinal;
+        this.type = type;
+        this.name = name;
+    }
+
+    public FieldEntity(DataType type, String name) {
+        this(null, false, type, name);
     }
 
     @Override
@@ -21,6 +33,11 @@ public class FieldEntity
 
     @Override
     public DataType getType() {
-        return null;
+        return DataType.FIELD;
+    }
+
+    @Override
+    public Data getVal() {
+        return var;
     }
 }

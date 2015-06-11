@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Operator
+public abstract class Operator
         extends MethodEntity {
     public static Map<String, Integer> PRIORITY_MAP;
 
@@ -21,5 +21,10 @@ public class Operator
 
     public Operator(String opString, boolean isUnary, DataType[] data, DataType output) {
         super("operator" + opString, data, output);
+    }
+
+    @Override
+    public Object getVal() {
+        return this;
     }
 }
