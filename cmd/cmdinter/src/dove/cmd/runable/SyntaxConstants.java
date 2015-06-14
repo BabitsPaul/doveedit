@@ -10,4 +10,10 @@ public class SyntaxConstants {
 
     public static final String SPACE =
             " \t" + System.getProperty("line.separator");
+
+    public static final String NON_SPACE =
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" + /* alphabet */
+                    "0123456789" + /* numbers */
+                    "+-/*^%|" + /* arithmetic operators */
+                    "_$#[](){}><=\\?!\"§"; /* other signs */
 }

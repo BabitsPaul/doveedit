@@ -1,6 +1,7 @@
 package dove.cmd.runable;
 
 import dove.cmd.CommandLineData;
+import dove.util.treelib.Tree;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
@@ -8,42 +9,107 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class RunnableParser {
-    public static String DEFINE = "define";
+    public static final String DEFINE = "define";
 
-    public void parse(String txt, CommandLineData data) {
+    private String txt;
+    private CommandLineData data;
+    private List<Pair<Integer, Integer>> indentions;
+    private Tree<String> codeStruct;
+    private List<String> lines;
 
+    public void parse(String txt, CommandLineData data)
+            throws ParserException, IOException {
+        this.txt = txt;
+        this.data = data;
+
+        listLines();
+
+        listIndentions();
+
+        codeStruct();
     }
 
-    private HashMap<String, Integer> keywords(String txt) {
-        HashMap<String, Integer> indices = new HashMap<>();
-
-
-
-        return null;
-    }
-
-    private List<Pair<Integer, Integer>> listIndentions(String txt)
+    /**
+     * list all lines in the specified text
+     *
+     * @throws IOException
+     */
+    private void listLines()
             throws IOException {
-        List<Pair<Integer, Integer>> result = new ArrayList<>();
-
-        String currentIndention = "";
-
         BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(txt.getBytes())));
 
+        lines = new ArrayList<>();
+
         String line;
-        while ((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null)
+            lines.add(line);
+
+        br.close();
+    }
+
+    /**
+     * list indention changes in the given input text
+     * the output list contains pairs of (line , indention)
+     * where indention is the number of '\t' characters at the
+     * start of the line
+     */
+    private void listIndentions() {
+        indentions = new ArrayList<>();
+
+        int currentIndention = 0;
+
+        Iterator<String> iter = lines.iterator();
+
+        int atLine = 0;
+        while (iter.hasNext()) {
+            String line = iter.next();
+
             boolean isEmpty = true;
 
             for (char c : line.toCharArray()) {
 
-            }
-        }
+                isEmpty = !SyntaxConstants.NON_SPACE.contains(Character.toString(c));
 
-        return result;
+                if (!isEmpty)
+                    break;
+            }
+
+            if (!isEmpty) {
+                int indention = 0;
+                for (; indention < line.length() && line.charAt(indention) == '\t'; indention++) ;
+
+                if (indention != currentIndention)
+                    indentions.add(new Pair<>(atLine, indention));
+            }
+
+            ++atLine;
+        }
+    }
+
+    private void codeStruct()
+            throws ParserException {
+        codeStruct = new Tree<>(String.class);
+
+        Tree<String> currentNode = codeStruct;
+
+        Pair<Integer, Integer> prevIndention = new Pair<>(0, indentions.get(0).getValue() - 1);
+        for (int i = 0; i < indentions.size(); i++) {
+            Pair<Integer, Integer> ind = indentions.get(i);
+
+            int deltaInd = ind.getValue() - prevIndention.getValue();
+
+            if (deltaInd == 0 || deltaInd > 1) {
+                //valid indentions may only differ by one (to right) and mustn't differ by 0
+                throw new ParserException("Invalid indention", lines.get(ind.getKey()),
+                        0, lines.get(ind.getKey()).length());
+            }
+
+
+        }
     }
 
     public static class ParserException

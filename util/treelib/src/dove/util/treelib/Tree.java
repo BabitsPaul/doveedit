@@ -133,7 +133,8 @@ public class Tree<T>
      * <p>
      * used for all treeoperations throwing treebuildexceptions
      */
-    private static final ExceptionWrapper DEFAULT_WRAPPER = new ExceptionWrapper(new Class[]{TreeBuildException.class}) {
+    private static final ExceptionWrapper DEFAULT_WRAPPER =
+            new ExceptionWrapper(new Class[]{TreeBuildException.class}) {
         @Override
         protected Exception handleExpectedException() {
             return new TreeBuildException(getException().getMessage(), getException());
