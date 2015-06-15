@@ -20,6 +20,6 @@ public class RunableTreeNode {
         for (int i = 0; i < tmp.length; i++)
             tmp[i] = children.get(i).execute();
 
-        return entity.invoke(, tmp);
+        return entity.invoke(null, tmp);
     }
 }

@@ -26,6 +26,11 @@ public class MethodEntity
         return null;
     }
 
+    @Override
+    public Object getVal() {
+        return null;
+    }
+
     public DataType[] getInputTypes() {
         return input;
     }

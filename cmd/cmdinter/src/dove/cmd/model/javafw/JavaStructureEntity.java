@@ -16,6 +16,8 @@ public class JavaStructureEntity
 
     public JavaStructureEntity(String className)
             throws ClassNotFoundException {
+        super(className, null, null);
+
         Class clazz = Class.forName(className);
 
         methods = new MethodEntity[clazz.getDeclaredMethods().length];

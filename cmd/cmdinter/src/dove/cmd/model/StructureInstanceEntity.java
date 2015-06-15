@@ -10,7 +10,7 @@ public class StructureInstanceEntity
     private Map<String, Data> nameToData;
 
     public StructureInstanceEntity(CommandLineData data, StructureEntity structure) {
-        super(data);
+        super();
     }
 
     public Data get(String name) {

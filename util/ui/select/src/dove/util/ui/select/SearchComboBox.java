@@ -550,7 +550,7 @@ public class SearchComboBox<T>
 
         currentOptions = new ArrayList<>();
 
-        for (Character[] p : result.listPaths()) {
+        for (Character[] p : result.listPaths(Character.class)) {
             String opt = "";
 
             for (Character c : p)

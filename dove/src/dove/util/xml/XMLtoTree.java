@@ -12,7 +12,7 @@ public class XMLtoTree {
     public Tree<String> parseStruct(String in) {
         String xml = in.toString();
 
-        Tree<String> result = new Tree<>(String.class, "");
+        Tree<String> result = new Tree<>("");
 
         ArrayList<String> bracketOpenStack = new ArrayList<>();
 

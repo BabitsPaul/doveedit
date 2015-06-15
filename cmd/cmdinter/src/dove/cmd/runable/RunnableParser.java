@@ -21,11 +21,13 @@ public class RunnableParser {
     private Tree<String> codeStruct;
     private List<String> lines;
     private Tree<Tree<Data>> executable;
+    private List<ParserException> exceptions;
 
     public void parse(String txt, CommandLineData data)
             throws ParserException, IOException {
         this.txt = txt;
         this.data = data;
+        exceptions = new ArrayList<>();
 
         listLines();
 
@@ -115,7 +117,7 @@ public class RunnableParser {
     private void codeStruct()
             throws ParserException
     {
-        codeStruct = new Tree<>(String.class);
+        codeStruct = new Tree<>();
 
         Tree<String> currentNode = codeStruct;
 
@@ -152,12 +154,28 @@ public class RunnableParser {
     // statements
     ///////////////////////////////////////////////////////////////
 
-    private void toExec() {
-        executable = codeStruct.transform(s -> toExecTree(s), Tree.class);
+    private void toExec()
+            throws ParserException {
+        try {
+            executable = codeStruct.<Tree<Data>>transform(s ->
+            {
+                try {
+                    return toExecTree(s);
+                } catch (ParserException e) {
+                    exceptions.add(e);
+
+                    return null;
+                }
+            });
+        } catch (TreeBuildException e) {
+            throw new ParserException(e.getMessage(), "unknown", -1, -1);
+        }
     }
 
-    private Tree<Data> toExecTree(String code) {
-        Tree<Data> result = new Tree<>(Data.class);
+    private Tree<Tree<Data>> toExecTree(String code)
+            throws ParserException {
+        Tree<Tree<Data>> result = new Tree<>();
+
 
 
         return result;

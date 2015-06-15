@@ -1,6 +1,5 @@
 package dove.util.treelib;
 
-import com.sun.istack.internal.NotNull;
 import dove.util.concurrent.access.AccessOp;
 import dove.util.concurrent.access.AccessScheduler;
 import dove.util.concurrent.access.AccessTask;
@@ -202,18 +201,13 @@ public class Tree<T>
     private boolean contentSet;
 
     /**
-     * the class of the content
-     */
-    private Class<T> clazz;
-
-    /**
      * creates a new instance of Tree
      * with t as content
      *
      * @param t content of the new Treeelement
      */
-    public Tree(@NotNull Class<T> clazz, T t) {
-        this(clazz);
+    public Tree(T t) {
+        this();
 
         content = t;
 
@@ -225,12 +219,10 @@ public class Tree<T>
     /**
      * creates a new treenode without content
      */
-    public Tree(@NotNull Class<T> clazz) {
+    public Tree() {
         children = new ArrayList<>();
 
         contentSet = false;
-
-        this.clazz = clazz;
 
         globalVar = new TreeGlobalVarHelper();
     }
@@ -262,7 +254,7 @@ public class Tree<T>
         if (!t.isEmpty())
             return t.get(0).runOpExceptionSuppressed(() -> _glue(t, clazz), AccessTask.TaskOpType.WRITE);
         else
-            return new Tree<>(clazz);
+            return new Tree<>();
     }
 
     /**
@@ -285,7 +277,7 @@ public class Tree<T>
     protected static <T> Tree<T> _glue(List<Tree<T>> t, Class<T> clazz)
             throws IllegalArgumentException {
         if (t.isEmpty())
-            return new Tree(clazz);
+            return new Tree();
 
         //create a new list with the specified subtrees to operate on
         //this new list contains the copys of the trees in t, which will
@@ -392,7 +384,7 @@ public class Tree<T>
      */
     protected Tree<T> _add(T child)
             throws TreeBuildException {
-        return _add(new Tree<>(clazz, child));
+        return _add(new Tree<>(child));
     }
 
     /**
@@ -548,7 +540,7 @@ public class Tree<T>
             else {
                 //pathelement doesn't exists
                 //needs to be created and inserted
-                Tree<T> newNode = new Tree<>(clazz, t);
+                Tree<T> newNode = new Tree<>(t);
 
                 curNode._add(newNode);
 
@@ -925,8 +917,8 @@ public class Tree<T>
         return temp;
     }
 
-    public T[] getPath() {
-        return runOpExceptionSuppressed(this::_getPath, AccessTask.TaskOpType.READ);
+    public T[] getPath(Class<T> clazz) {
+        return runOpExceptionSuppressed(() -> _getPath(clazz), AccessTask.TaskOpType.READ);
     }
 
     /**
@@ -935,7 +927,7 @@ public class Tree<T>
      *
      * @return the path to this node
      */
-    protected T[] _getPath() {
+    protected T[] _getPath(Class<T> clazz) {
         T[] result = (T[]) Array.newInstance(clazz, _getLevel());
 
         Tree<T> node = this;
@@ -1414,7 +1406,7 @@ public class Tree<T>
         Collection<Tree<T>> startNodeMatch = listMatching(path[0]);
 
         startNodeMatch.forEach(t -> {
-            Tree<T> helper = new Tree<>(clazz);
+            Tree<T> helper = new Tree<>();
             helper.children.add(t);
 
             if (helper.hasPath(path))
@@ -1558,8 +1550,8 @@ public class Tree<T>
      *
      * @return a list of T[]
      */
-    public List<T[]> listPaths() {
-        return runOpExceptionSuppressed(this::_listPaths, AccessTask.TaskOpType.READ);
+    public List<T[]> listPaths(Class<T> clazz) {
+        return runOpExceptionSuppressed(() -> _listPaths(clazz), AccessTask.TaskOpType.READ);
     }
 
     /**
@@ -1567,13 +1559,13 @@ public class Tree<T>
      *
      * @return a list of T[]
      */
-    protected List<T[]> _listPaths() {
+    protected List<T[]> _listPaths(Class<T> clazz) {
         List<T[]> paths = new ArrayList<>();
 
         List<Tree<T>> leafs = _listLeafs();
 
         for (Tree<T> leaf : leafs)
-            paths.add(leaf._getPath());
+            paths.add(leaf._getPath(clazz));
 
         return paths;
     }
@@ -2256,7 +2248,7 @@ public class Tree<T>
     protected Tree<T> _copy() {
         class CopyMgr
                 extends GoThroughManager<Tree<T>> {
-            private Tree<T> result = new Tree<>(null);
+            private Tree<T> result = new Tree<>();
 
             private Tree<T> currentParent = result;
 
@@ -2311,9 +2303,9 @@ public class Tree<T>
      * @return a transformed copy of this tree
      * @throws TreeBuildException
      */
-    public <V> Tree<V> transform(Function<T, V> f, Class<V> clazz)
+    public <V> Tree<V> transform(Function<T, Tree<V>> f)
             throws TreeBuildException {
-        return runOp(() -> _transform(f, clazz), AccessTask.TaskOpType.READ);
+        return runOp(() -> _transform(f), AccessTask.TaskOpType.READ);
     }
 
     /**
@@ -2326,9 +2318,9 @@ public class Tree<T>
      * @return a transformed copy of this tree
      * @throws TreeBuildException
      */
-    protected <V> Tree<V> _transform(Function<T, V> f, Class<V> clazz)
+    protected <V> Tree<V> _transform(Function<T, Tree<V>> f)
             throws TreeBuildException {
-        Tree<V> result = new Tree<>(clazz, f.apply(content));
+        Tree<V> result = f.apply(content);
 
         List<Iterator<Tree<T>>> internalIter = new ArrayList<>();
         internalIter.add(children.iterator());
@@ -2341,7 +2333,7 @@ public class Tree<T>
             if (iter.hasNext()) {
                 Tree<T> t = iter.next();
 
-                Tree<V> next = new Tree<>(clazz, f.apply(t.content));
+                Tree<V> next = f.apply(t.content);
                 externalStack.get(0).add(next);
 
                 internalIter.add(0, t.children.iterator());
@@ -2366,7 +2358,7 @@ public class Tree<T>
      * @return a copy of this node
      */
     protected Tree<T> nodeCopy() {
-        return (contentSet ? new Tree(clazz, content) : new Tree(clazz));
+        return (contentSet ? new Tree(content) : new Tree());
     }
 
     /**

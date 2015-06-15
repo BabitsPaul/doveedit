@@ -30,7 +30,7 @@ public class TreeMap<Key, Val>
     private Class<Val> valClass;
 
     public TreeMap(Class<Key> key, Class<Val> val) {
-        super(key);
+        super();
 
         this.valClass = val;
         this.keyClass = key;
@@ -41,7 +41,7 @@ public class TreeMap<Key, Val>
     }
 
     public TreeMap(Key key, Class<Key> keyClazz, Class<Val> valClass) {
-        super(keyClazz, key);
+        super(key);
 
         this.keyClass = keyClazz;
         this.valClass = valClass;
@@ -52,7 +52,7 @@ public class TreeMap<Key, Val>
     }
 
     private TreeMap(Key key, Val val, Class<Key> keyClass, Class<Val> valClass) {
-        super(keyClass, key);
+        super(key);
 
         valSet = true;
 
@@ -253,7 +253,7 @@ public class TreeMap<Key, Val>
     }
 
     public Tree<Key> keyTree() {
-        Tree<Key> result = new Tree<>(null);
+        Tree<Key> result = new Tree<>();
 
         ArrayList<Iterator<Tree<Key>>> entryIterStack = new ArrayList<>();
         entryIterStack.add(children.iterator());
@@ -271,7 +271,7 @@ public class TreeMap<Key, Val>
             else {
                 Tree<Key> nextChild = iter.next();
 
-                Tree<Key> nextNode = new Tree<>(keyClass, nextChild.getContent());
+                Tree<Key> nextNode = new Tree<>(nextChild.getContent());
 
                 try {
                     productIterStack.get(0).add(nextNode);
@@ -289,7 +289,7 @@ public class TreeMap<Key, Val>
     }
 
     public Tree<Val> valTree() {
-        Tree<Val> result = new Tree<>(valClass);
+        Tree<Val> result = new Tree<>();
 
         //TODO
 
@@ -313,7 +313,6 @@ public class TreeMap<Key, Val>
         return result;
     }
 
-    @Override
     public List<Key[]> listPaths() {
         ArrayList<Key[]> paths = new ArrayList<>();
 
@@ -322,7 +321,7 @@ public class TreeMap<Key, Val>
             @Override
             public void accept(TreeMap<Key, Val> tTree) {
                 if (tTree.valSet)
-                    paths.add(tTree.getPath());
+                    paths.add(tTree.getPath(keyClass));
             }
         }
 
