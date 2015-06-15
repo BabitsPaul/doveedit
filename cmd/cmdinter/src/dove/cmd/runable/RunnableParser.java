@@ -1,7 +1,9 @@
 package dove.cmd.runable;
 
 import dove.cmd.CommandLineData;
+import dove.cmd.model.datatypes.Data;
 import dove.util.treelib.Tree;
+import dove.util.treelib.TreeBuildException;
 import javafx.util.Pair;
 
 import java.io.BufferedReader;
@@ -13,13 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RunnableParser {
-    public static final String DEFINE = "define";
-
     private String txt;
     private CommandLineData data;
     private List<Pair<Integer, Integer>> indentions;
     private Tree<String> codeStruct;
     private List<String> lines;
+    private Tree<Tree<Data>> executable;
 
     public void parse(String txt, CommandLineData data)
             throws ParserException, IOException {
@@ -31,7 +32,16 @@ public class RunnableParser {
         listIndentions();
 
         codeStruct();
+
+        toExec();
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // code structure
+    //
+    // this block contains method relevant for parsing the basic structure of
+    // the code. this is mainly specified by the indention-structure of the code
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * list all lines in the specified text
@@ -56,9 +66,13 @@ public class RunnableParser {
      * the output list contains pairs of (line , indention)
      * where indention is the number of '\t' characters at the
      * start of the line
+     *
+     * this list aswell contains the first line with indention = 0
+     * and the last line with indention = 0
      */
     private void listIndentions() {
         indentions = new ArrayList<>();
+        indentions.add(new Pair<>(0, 0));
 
         int currentIndention = 0;
 
@@ -88,53 +102,64 @@ public class RunnableParser {
 
             ++atLine;
         }
+
+        indentions.add(new Pair<>(atLine, 0));
     }
 
+    /**
+     * parses the code into a tree-like structure.
+     * This way, the code can be easily traversed by order.
+     *
+     * @throws ParserException
+     */
     private void codeStruct()
-            throws ParserException {
+            throws ParserException
+    {
         codeStruct = new Tree<>(String.class);
 
         Tree<String> currentNode = codeStruct;
 
-        Pair<Integer, Integer> prevIndention = new Pair<>(0, indentions.get(0).getValue() - 1);
-        for (int i = 0; i < indentions.size(); i++) {
+        Pair<Integer, Integer> prevIndention = indentions.get(0);
+        for (int i = 1; i < indentions.size(); i++) {
             Pair<Integer, Integer> ind = indentions.get(i);
 
             int deltaInd = ind.getValue() - prevIndention.getValue();
 
-            if (deltaInd == 0 || deltaInd > 1) {
-                //valid indentions may only differ by one (to right) and mustn't differ by 0
-                throw new ParserException("Invalid indention", lines.get(ind.getKey()),
-                        0, lines.get(ind.getKey()).length());
+            //simplify all lines by removing leading \t
+            for (int l = prevIndention.getKey(); l < ind.getKey(); l++)
+                try {
+                    currentNode.add(lines.get(l).substring(prevIndention.getValue()));
+                } catch (TreeBuildException ignored) {
+                }//never thrown
+
+            if (deltaInd > 0) {
+                Tree[] tmp = currentNode.getChildren().toArray(new Tree[0]);
+                currentNode = (Tree<String>) tmp[tmp.length - 1];
+            } else {
+                for (int l = 0; l < -deltaInd; l++)
+                    currentNode = currentNode.getParent();
             }
 
-
+            prevIndention = ind;
         }
     }
 
-    public static class ParserException
-            extends Exception {
-        private String line;
-        private int startAt, endAt;
+    ///////////////////////////////////////////////////////////////
+    // logical parsing
+    //
+    // this part contains the main-parsing
+    // this includes the parsing of codeblocks into executable
+    // statements
+    ///////////////////////////////////////////////////////////////
 
-        public ParserException(String msg, String line, int startAt, int endAt) {
-            super(msg);
+    private void toExec() {
+        executable = codeStruct.transform(s -> toExecTree(s), Tree.class);
+    }
 
-            this.line = line;
-            this.startAt = startAt;
-            this.endAt = endAt;
-        }
+    private Tree<Data> toExecTree(String code) {
+        Tree<Data> result = new Tree<>(Data.class);
 
-        public String getLine() {
-            return line;
-        }
 
-        public int getStartAt() {
-            return startAt;
-        }
-
-        public int getEndAt() {
-            return endAt;
-        }
+        return result;
     }
 }

@@ -16,4 +16,12 @@ public class SyntaxConstants {
                     "0123456789" + /* numbers */
                     "+-/*^%|" + /* arithmetic operators */
                     "_$#[](){}><=\\?!\"§"; /* other signs */
+
+    public static final String[] KEYWORDS = new String[]{
+            "define",
+            "for",
+            "if",
+            "do",
+            "while"
+    };
 }

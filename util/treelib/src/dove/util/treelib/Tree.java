@@ -1,5 +1,6 @@
 package dove.util.treelib;
 
+import com.sun.istack.internal.NotNull;
 import dove.util.concurrent.access.AccessOp;
 import dove.util.concurrent.access.AccessScheduler;
 import dove.util.concurrent.access.AccessTask;
@@ -8,6 +9,7 @@ import dove.util.concurrent.access.ExceptionWrapper;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -210,7 +212,7 @@ public class Tree<T>
      *
      * @param t content of the new Treeelement
      */
-    public Tree(Class<T> clazz, T t) {
+    public Tree(@NotNull Class<T> clazz, T t) {
         this(clazz);
 
         content = t;
@@ -223,7 +225,7 @@ public class Tree<T>
     /**
      * creates a new treenode without content
      */
-    public Tree(Class<T> clazz) {
+    public Tree(@NotNull Class<T> clazz) {
         children = new ArrayList<>();
 
         contentSet = false;
@@ -2295,6 +2297,60 @@ public class Tree<T>
         //remove the temporary parent created by the copymanager
         Tree<T> result = mgr.result.children.iterator().next();
         result.parent = null;
+
+        return result;
+    }
+
+    /**
+     * generate a new tree with the same structure as the given tree,
+     * but all nodes replaced by their respective pendants specified by f
+     *
+     * @param f     the function for transforming content
+     * @param clazz the clazz of the new type of content
+     * @param <V>   the type of the new content
+     * @return a transformed copy of this tree
+     * @throws TreeBuildException
+     */
+    public <V> Tree<V> transform(Function<T, V> f, Class<V> clazz)
+            throws TreeBuildException {
+        return runOp(() -> _transform(f, clazz), AccessTask.TaskOpType.READ);
+    }
+
+    /**
+     * generate a new tree with the same structure as the given tree,
+     * but all nodes replaced by their respective pendants specified by f
+     *
+     * @param f     the function for transforming content
+     * @param clazz the clazz of the new type of content
+     * @param <V>   the type of the new content
+     * @return a transformed copy of this tree
+     * @throws TreeBuildException
+     */
+    protected <V> Tree<V> _transform(Function<T, V> f, Class<V> clazz)
+            throws TreeBuildException {
+        Tree<V> result = new Tree<>(clazz, f.apply(content));
+
+        List<Iterator<Tree<T>>> internalIter = new ArrayList<>();
+        internalIter.add(children.iterator());
+        List<Tree<V>> externalStack = new ArrayList<>();
+        externalStack.add(result);
+
+        while (!internalIter.isEmpty()) {
+            Iterator<Tree<T>> iter = internalIter.get(0);
+
+            if (iter.hasNext()) {
+                Tree<T> t = iter.next();
+
+                Tree<V> next = new Tree<>(clazz, f.apply(t.content));
+                externalStack.get(0).add(next);
+
+                internalIter.add(0, t.children.iterator());
+                externalStack.add(0, next);
+            } else {
+                internalIter.remove(0);
+                externalStack.remove(0);
+            }
+        }
 
         return result;
     }
