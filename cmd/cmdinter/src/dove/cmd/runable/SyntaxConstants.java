@@ -31,6 +31,10 @@ public class SyntaxConstants {
             "while"
     };
 
+    public static final char[] OPENING_BRACKETS = new char[]{'(', '['};
+
+    public static final char[] CLOSING_BRACKETS = new char[]{')', ']'};
+
     public static final Map<OperatorStub, Integer> PRIORITY_MAP = generatePriorityMap();
 
     private static final Map<OperatorStub, Integer> generatePriorityMap() {

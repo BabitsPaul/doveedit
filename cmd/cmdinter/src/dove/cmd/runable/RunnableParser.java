@@ -2,6 +2,7 @@ package dove.cmd.runable;
 
 import dove.cmd.CommandLineData;
 import dove.cmd.model.datatypes.Data;
+import dove.cmd.model.operator.OperatorStub;
 import dove.util.treelib.Tree;
 import dove.util.treelib.TreeBuildException;
 import javafx.util.Pair;
@@ -10,9 +11,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class RunnableParser {
     private String txt;
@@ -176,6 +175,29 @@ public class RunnableParser {
             throws ParserException {
         Tree<Tree<Data>> result = new Tree<>();
 
+
+
+        return result;
+    }
+
+    private Tree<Tree<String>> parseBrackets(String code) {
+        List<Integer>[] openingIndices = new List[SyntaxConstants.OPENING_BRACKETS.length];
+        List<Integer>[] closingIndices = new List[SyntaxConstants.CLOSING_BRACKETS.length];
+
+        for (int i = 0; i < openingIndices.length; i++) {
+            openingIndices[i] = new ArrayList<>();
+            closingIndices[i] = new ArrayList<>();
+        }
+
+        for (char b : SyntaxConstants.OPENING_BRACKETS) {
+
+        }
+
+        return null;
+    }
+
+    private Map<Integer, OperatorStub> listOperators(String code) {
+        Map<Integer, OperatorStub> result = new HashMap<>();
 
 
         return result;
