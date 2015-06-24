@@ -1,6 +1,6 @@
-package dove.cmd.runable;
+package dove.util.sequence;
 
-public class SequenceElement<T> {
+class SequenceElement<T> {
     private T content;
 
     private int offset;

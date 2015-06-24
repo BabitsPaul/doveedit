@@ -1,9 +1,9 @@
-package dove.cmd.runable;
+package dove.util.sequence;
 
 /**
- * Created by Babits on 18/06/2015.
+ *
  */
-public class StringElement
+class StringElement
         extends SequenceElement<String> {
     public StringElement(String s, int offset, int length) {
         super(s, offset, length);
