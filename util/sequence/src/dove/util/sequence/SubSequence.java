@@ -90,51 +90,6 @@ class SubSequence
     }
 
     /**
-     * generates the subsequence starting at offset with length length.
-     * The resulting subsequence will hold all flags set in the original
-     * sequence.
-     *
-     * @param offset start of the subsequence to copy
-     * @param length length of the copy
-     * @return a copy of the specified subsequence of this sequence
-     */
-    public SubSequence subsequence(int offset, int length) {
-        SubSequence result = new SubSequence(original.substring(offset, offset + length));
-
-        int start = searchPt(0, offset);
-        int end = searchPt(start, offset + length);
-
-        List<SequenceElement> subseq = getContent().subList(start, end + 1);
-        List<Boolean> isStr = isString.subList(start, end + 1);
-
-        //since the sequenceelements at the start and the end of the subsequence
-        //are not necassarily part of the resulting subsequence, we must reduce the
-        //length of these elements to match the required length and offset
-        //this recursively aswell affects elements of elements
-        List<SequenceElement> todo = new ArrayList<>();
-
-        SequenceElement tmp = subseq.remove(0);
-        if (tmp instanceof SubSequence) {
-            SubSequence seq = (SubSequence) tmp;
-
-
-            tmp = seq;
-        } else {
-            StringElement str = (StringElement) tmp;
-
-
-            tmp = str;
-        }
-        subseq.add(0, tmp);
-
-        result.isString = isStr;
-        result.getContent().clear();
-        result.getContent().addAll(subseq);
-
-        return result;
-    }
-
-    /**
      * replaces a given subsequence of this sequence with
      * a new sequence
      *
@@ -144,43 +99,6 @@ class SubSequence
      */
     public void replace(int offset, int length, SubSequence sequence) {
 
-    }
-
-    /**
-     * searches for the subsequence of this sequence that contains
-     * the point pt in the string held by this subsequence. This search is
-     * implemented as binarysearch
-     * <p>
-     * any element before startAt will be ignored in the search. Note that this
-     * means that the subsequence matching the above specified constraints might
-     * not be part of the searchscope!!!
-     *
-     * @param startAt the starting-point of the search
-     * @param pt      the point to search for
-     * @return the index of the subsequence containing pt
-     */
-    protected int searchPt(int startAt, int pt) {
-        List<SequenceElement> content = getContent();
-        int size = content.size();
-
-        boolean found = false;
-        int elem_ind = startAt + (size - startAt) / 2;
-        int span_size = (size - startAt) / 2;
-
-        while (!found) {
-            SequenceElement seq = content.get(elem_ind);
-
-            if (seq.getOffset() <= pt && seq.getOffset() + seq.getLength() >= pt)
-                return elem_ind;
-            else if (seq.getOffset() < pt)
-                elem_ind -= span_size;
-            else
-                elem_ind += span_size;
-
-            span_size /= 2;
-        }
-
-        return -1;
     }
 
     /**
@@ -218,8 +136,15 @@ class SubSequence
             SubSequence seq = todo.remove(0);
 
             seq.getContent().replaceAll(sub -> {
-                if (sub instanceof SubSequence)
-                    return ((SubSequence) sub).shallowClone();
+                if (sub instanceof SubSequence) {
+                    SubSequence cast = seq;
+                    SubSequence tmp = new SubSequence(cast.original.toString(), cast.getOffset(), cast.getLength());
+
+                    tmp.isString.addAll(cast.isString);
+                    tmp.getContent().addAll(cast.getContent());
+
+                    return tmp;
+                }
                 else
                     return new StringElement(((StringElement) sub).getContent(), sub.getOffset(), sub.getOffset());
             });
@@ -230,5 +155,9 @@ class SubSequence
         }
 
         return result;
+    }
+
+    public String getOriginal() {
+        return original;
     }
 }
