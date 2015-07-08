@@ -5,6 +5,8 @@
     <title>Commandline Syntax Specification</title>
     <link rel="stylesheet" type="text/css" href="doc.css"/>
 </head>
+
+<body>
 <p>
 
 <h2>Index</h2>
@@ -17,9 +19,12 @@
     </li>
     <li><a href="#datatypes">Datatypes</a></li>
     <li><a href="#variables">Using Variables</a></li>
+    <li><a href="#methods">Methods</a></li>
+    <li><a href="#struct">Structures</a></li>
     <li><a href="#math">Operators</a></li>
 </ol>
 </p>
+
 <p name="intro">
 
 <h2>Intro</h2>
@@ -29,11 +34,13 @@ of the documentation describes the syntax of Commandline commands. This commandl
 low-level OOP. This means, the user can create structures and methods and use them to solve
 more complex problems.
 </p>
+
 <p name="scripts_intro">
 
 <h2>Scripts</h2>
 The CommandLine can also execute scripts (<code class="code">run -s scriptfile</code>)
 </p>
+
 <p name="datatypes">
 
 <h2>Datatypes</h2>
@@ -67,6 +74,7 @@ aswell as some special cases.
 There also exist specific operations for each datatypes. These will be discussed later on in
 separate paragraphs.
 </p>
+
 <p name="variables">
 
 <h2>Variables</h2>
@@ -75,71 +83,91 @@ the commandline provides the following options: variables can be made typesafe. 
 be secured to not be overwritten by newer values.
 
 Creating a new variable:
-            <pre class="code">
-                set a="hello world"
-            </pre>
+                        <pre class="code">
+                                 set a="hello world"
+                        </pre>
 This code generates a new variable - if it doesn't yet exist - named <span class="code">a</span> and
 overwrites it's content with the text "hello world".
 value.
 
 Reading values:
-            <pre class="code">
-                set -u a="Please enter a value"
-            </pre>
+                        <pre class="code">
+                                 set -u a="Please enter a value"
+                        </pre>
 This code displays the message "Please enter a value" and afterwards sets <span class="code">a</span>
 to the new value entered by the user. The end of the input is specified by pressing ENTER.
 
 Making a variable typesafe:
-            <pre class="code">
-                set -typesafe=true a=<...>
-            </pre>
+                        <pre class="code">
+                                 set -typesafe=true a=<...>
+                        </pre>
 makes the variable <span class="code">a</span>
 typesafe (Note: <span class="code"><...> replaces an optional argument</span> .
 This means: there can't be assigned any other type of value to this variable without updating
 the typesafety. For example:
-            <pre class="code">
-                set -typesafe=true a=123
-                set a="hello world"
-            </pre>
+                        <pre class="code">
+                                 set -typesafe=true a=123
+                                 set a="hello world"
+                        </pre>
 will cause an error, since a is locked to only hold integral values. Due to this assigning the textvalue
 "hello world" is an invalid operation. The lock can be removed by calling
 <span class="code">set -typesafe=false a=<...></span>
 
 Making a variable unwriteable:
-            <pre class="code">
-                set -final=true a=<...>
-            </pre>
+                        <pre class="code">
+                                 set -final=true a=<...>
+                        </pre>
 After this operation, the value can only be read. Writing operations will be quit with an errormessage.
 This can be undone by <span class="code">set -final=false a=<...></span>
 
 So far, this section has only discussed creating variables, assigning values to them and changing
 their state. So last but not least, the most important feature of variables: reading
-            <pre class="code">
-                $a
-            </pre>
+                        <pre class="code">
+                                 a
+                        </pre>
 That's it. Or more extended:
-            <pre class="code">
-                set a="hello world"
-                print $a
-            </pre>
+                        <pre class="code">
+                                 set a="hello world"
+                                 print(a)
+                        </pre>
 will print "hello world" to the console
-(the print command will be discussed in the next paragraph).
+(the print command will be discussed in one of the next paragraph).
 
-The last notes: the attributes of variables can be read in the following way:
-            <pre class="code">
-                set a=
-                print $a.final       //read the final-state of the variable
-                print $a.typesafe    //read typesafetyattribute
-                print $a.val         //just another way to read the value
-            </pre>
+The last notes: the attributes of variables can be read using the meta-operator:
+                        <pre class="code">
+                                 set a=
+                                 print $a.isFinal()       //read the final-state of the variable
+                                 print $a.isTypesafe()    //read typesafetyattribute
+                                 print $a.val()         //just another way to read the value
+                         </pre>
+The meta-operator (
+<pre class="code">$</pre>
+) allows access to some of the
+meta-data of a variable, like type, typesafety, overwritability of the variable,
+etc. This will be discussed in detail later on.
 </p>
+
+<p name="methods">
+
+<h2>Methods</h2>
+
+
+</p>
+
+<p name="struct">
+
+<h2>Structures</h2>
+
+
+</p>
+
 <p name="math">
 
 <h2>Operators</h2>
 This sections is about basic language-features like: basic mathematical operators, comparison,
 loops, if-else-statements,etc.
-
 </br>
+
 <h3>Mathematical operators</h3>
 Operators provided for number-type data are (sorted by priority):
 <table>

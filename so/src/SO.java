@@ -1,21 +1,37 @@
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 public class SO {
+    private Object lockA = new Object(), lockB = new Object();
+
     public static void main(String[] args) {
-        replaceFor(0, i -> i <= 10, i -> System.out.println(i), k -> ++k);
+        final SO so = new SO();
+
+        Thread t1 = new Thread(() -> so.a());
+        Thread t2 = new Thread(() -> so.b());
+
+        t1.start();
+        t2.start();
     }
 
-    public static void replaceFor(int i, Predicate<Integer> p, Consumer<Integer> c, Function<Integer, Integer> f) {
-        //check whether the termination-condition is true
-        if (!p.test(i))
-            return;
+    private void a() {
+        synchronized (lockA) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        //this consumer does what would be in the for-loop
-        c.accept(i);
+            b();
+        }
+    }
 
-        //continue with the next value for i
-        replaceFor(f.apply(i), p, c, f);
+    private synchronized void b() {
+        synchronized (lockB) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            a();
+        }
     }
 }

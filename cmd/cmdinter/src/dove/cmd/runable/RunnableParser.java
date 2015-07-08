@@ -167,7 +167,7 @@ public class RunnableParser {
                 }
             });
         } catch (TreeBuildException e) {
-            throw new ParserException(e.getMessage(), "unknown", -1, -1);
+            throw new ParserException(ParserException.NOT_SPECIFIED, e.getMessage(), "unknown", -1, -1);
         }
     }
 
@@ -175,19 +175,14 @@ public class RunnableParser {
             throws ParserException {
         Tree<Tree<Data>> result = new Tree<>();
 
-
-
         return result;
     }
 
     private Tree<Tree<String>> parseBrackets(String code) {
         List<Integer>[] openingIndices = new List[SyntaxConstants.OPENING_BRACKETS.length];
-        List<Integer>[] closingIndices = new List[SyntaxConstants.CLOSING_BRACKETS.length];
 
-        for (int i = 0; i < openingIndices.length; i++) {
+        for (int i = 0; i < openingIndices.length; i++)
             openingIndices[i] = new ArrayList<>();
-            closingIndices[i] = new ArrayList<>();
-        }
 
         for (char b : SyntaxConstants.OPENING_BRACKETS) {
 
