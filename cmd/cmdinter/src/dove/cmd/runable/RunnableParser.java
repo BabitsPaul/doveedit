@@ -3,6 +3,8 @@ package dove.cmd.runable;
 import dove.cmd.CommandLineData;
 import dove.cmd.model.datatypes.Data;
 import dove.cmd.model.operator.OperatorStub;
+import dove.util.misc.StringHelper;
+import dove.util.sequence.Sequence;
 import dove.util.treelib.Tree;
 import dove.util.treelib.TreeBuildException;
 import javafx.util.Pair;
@@ -17,8 +19,9 @@ public class RunnableParser {
     private String txt;
     private CommandLineData data;
     private List<Pair<Integer, Integer>> indentions;
-    private Tree<String> codeStruct;
+    private Tree<String> indentionStruct;
     private List<String> lines;
+    private Tree<Tree<String>> bracketStruct;
     private Tree<Tree<Data>> executable;
     private List<ParserException> exceptions;
 
@@ -32,7 +35,9 @@ public class RunnableParser {
 
         listIndentions();
 
-        codeStruct();
+        indentionStruct();
+
+        parseBrackets();
 
         toExec();
     }
@@ -49,7 +54,7 @@ public class RunnableParser {
      *
      * @throws IOException
      */
-    private void listLines()
+    public void listLines()
             throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(txt.getBytes())));
 
@@ -71,7 +76,7 @@ public class RunnableParser {
      * this list aswell contains the first line with indention = 0
      * and the last line with indention = 0
      */
-    private void listIndentions() {
+    public void listIndentions() {
         indentions = new ArrayList<>();
         indentions.add(new Pair<>(0, 0));
 
@@ -113,12 +118,12 @@ public class RunnableParser {
      *
      * @throws ParserException
      */
-    private void codeStruct()
+    public void indentionStruct()
             throws ParserException
     {
-        codeStruct = new Tree<>();
+        indentionStruct = new Tree<>();
 
-        Tree<String> currentNode = codeStruct;
+        Tree<String> currentNode = indentionStruct;
 
         Pair<Integer, Integer> prevIndention = indentions.get(0);
         for (int i = 1; i < indentions.size(); i++) {
@@ -145,6 +150,62 @@ public class RunnableParser {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////
+    // bracket parsing
+    //
+    // this part parses the code structure from
+    // the brackets contained in the code
+    ///////////////////////////////////////////////////////////////////////
+
+    public void parseBrackets()
+            throws ParserException {
+        try {
+            bracketStruct = indentionStruct.<Tree<String>>transform(t -> {
+                String code = t;
+
+                Character[] chars = StringHelper.castToChar(code.toCharArray());
+                Sequence<Character> seq = new Sequence<>(chars, code.length());
+
+                //list all opening indices
+                List<Integer>[] openingIndices = new List[SyntaxConstants.OPENING_BRACKETS.length];
+
+                for (int i = 0; i < openingIndices.length; i++) {
+                    openingIndices[i] = new ArrayList<>();
+
+                    char o_b = SyntaxConstants.OPENING_BRACKETS[i];
+                    char c_b = SyntaxConstants.CLOSING_BRACKETS[i];
+
+                    int ind_o = code.indexOf(o_b);
+                    int ind_c = code.indexOf(c_b);
+                    int ci = 0;
+
+                    while (ci < code.length()) {
+                        if (ind_o > ind_c) {
+                            int offset = openingIndices[i].remove(openingIndices[i].size() - 1);
+                            int length = ind_c - offset;
+
+                            Character[] c = new Character[length];
+                            System.arraycopy(chars, offset, c, 0, length);
+                            seq.mark(chars, offset, length);
+
+                            ind_c = code.indexOf(c_b, ind_c);
+                        } else {
+                            openingIndices[i].add(ind_o);
+
+                            ind_o = code.indexOf(o_b, ind_o);
+                        }
+                    }
+                }
+
+                Tree<String> result = new Tree<>();
+
+                return new Tree<>(result);
+            });
+        } catch (TreeBuildException e) {
+            throw new ParserException(ParserException.NOT_SPECIFIED, e.getMessage(), "unknown", -1, -1);
+        }
+    }
+
     ///////////////////////////////////////////////////////////////
     // logical parsing
     //
@@ -153,10 +214,10 @@ public class RunnableParser {
     // statements
     ///////////////////////////////////////////////////////////////
 
-    private void toExec()
+    public void toExec()
             throws ParserException {
         try {
-            executable = codeStruct.<Tree<Data>>transform(s ->
+            executable = indentionStruct.<Tree<Data>>transform(s ->
             {
                 try {
                     return toExecTree(s);
@@ -171,24 +232,12 @@ public class RunnableParser {
         }
     }
 
-    private Tree<Tree<Data>> toExecTree(String code)
+    public Tree<Tree<Data>> toExecTree(String code)
             throws ParserException {
+
         Tree<Tree<Data>> result = new Tree<>();
 
         return result;
-    }
-
-    private Tree<Tree<String>> parseBrackets(String code) {
-        List<Integer>[] openingIndices = new List[SyntaxConstants.OPENING_BRACKETS.length];
-
-        for (int i = 0; i < openingIndices.length; i++)
-            openingIndices[i] = new ArrayList<>();
-
-        for (char b : SyntaxConstants.OPENING_BRACKETS) {
-
-        }
-
-        return null;
     }
 
     private Map<Integer, OperatorStub> listOperators(String code) {

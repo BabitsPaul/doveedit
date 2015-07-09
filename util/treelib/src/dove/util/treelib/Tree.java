@@ -2298,7 +2298,6 @@ public class Tree<T>
      * but all nodes replaced by their respective pendants specified by f
      *
      * @param f     the function for transforming content
-     * @param clazz the clazz of the new type of content
      * @param <V>   the type of the new content
      * @return a transformed copy of this tree
      * @throws TreeBuildException
@@ -2313,7 +2312,6 @@ public class Tree<T>
      * but all nodes replaced by their respective pendants specified by f
      *
      * @param f     the function for transforming content
-     * @param clazz the clazz of the new type of content
      * @param <V>   the type of the new content
      * @return a transformed copy of this tree
      * @throws TreeBuildException

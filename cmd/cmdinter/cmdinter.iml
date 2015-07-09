@@ -22,5 +22,6 @@
     <orderEntry type="module" module-name="collections" />
     <orderEntry type="module" module-name="cmdapi" />
     <orderEntry type="module" module-name="cfg" />
+    <orderEntry type="module" module-name="sequence" />
   </component>
 </module>
