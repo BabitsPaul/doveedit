@@ -1,37 +1,46 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class SO {
-    private Object lockA = new Object(), lockB = new Object();
 
     public static void main(String[] args) {
-        final SO so = new SO();
-
-        Thread t1 = new Thread(() -> so.a());
-        Thread t2 = new Thread(() -> so.b());
-
-        t1.start();
-        t2.start();
+        SO so = new SO();
+        System.out.println(so.split(123));
     }
 
-    private void a() {
-        synchronized (lockA) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public List<List<String>> split(int in) {
+        List<List<String>> result = new ArrayList<>();
+
+        String num = String.valueOf(in);
+
+        //the maximum is to split the number at each possible position
+        int maxSplit = 0;
+        for (int i = 0; i < num.length() - 1; i++)
+            maxSplit |= (1 << i);
+
+        for (int i = 0; i <= maxSplit; i++) {
+            List<Integer> split = new ArrayList<>();
+
+            //translate the representation of the splitting into the respective indices
+            for (int b = 0; b < num.length() - 1; b++)
+                if ((i & (1 << b)) != 0)
+                    split.add(b + 1);
+
+            //last char must be part of the solution aswell
+            split.add(num.length());
+
+            //split the input in the specified way
+            List<String> strings = new ArrayList<>();
+            int lastSplit = 0;
+            for (int s : split) {
+                strings.add(num.substring(lastSplit, s));
+
+                lastSplit = s;
             }
 
-            b();
+            result.add(strings);
         }
-    }
 
-    private synchronized void b() {
-        synchronized (lockB) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            a();
-        }
+        return result;
     }
 }

@@ -2,44 +2,31 @@ package dove.cmd.runable;
 
 import dove.cmd.CommandLineData;
 import dove.cmd.model.datatypes.Data;
-import dove.cmd.model.operator.OperatorStub;
-import dove.util.misc.StringHelper;
-import dove.util.sequence.Sequence;
 import dove.util.treelib.Tree;
 import dove.util.treelib.TreeBuildException;
-import javafx.util.Pair;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
 
 public class RunnableParser {
     private String txt;
     private CommandLineData data;
-    private List<Pair<Integer, Integer>> indentions;
-    private Tree<String> indentionStruct;
-    private List<String> lines;
-    private Tree<Tree<String>> bracketStruct;
-    private Tree<Tree<Data>> executable;
+
+    private TreeSet<Integer> lines;
+
+    private Map<Integer, Integer> bracketPeersCloseToOpen;
+    private Map<Integer, Integer> bracketPeersOpenToClose;
+    private Tree<BracketRep> bracketStruct;
+
+    private Tree<Data> executable;
     private List<ParserException> exceptions;
 
-    public void parse(String txt, CommandLineData data)
-            throws ParserException, IOException {
-        this.txt = txt;
-        this.data = data;
-        exceptions = new ArrayList<>();
-
-        listLines();
-
-        listIndentions();
-
-        indentionStruct();
-
-        parseBrackets();
-
-        toExec();
+    public static void main(String[] args)
+            throws ParserException {
+        RunnableParser parser = new RunnableParser();
+        parser.txt = "ab{dfe[erear(e)]sdf}[] dfsle (efse)";
+        parser.parseBrackets();
+        System.out.println(parser.bracketStruct);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -49,105 +36,19 @@ public class RunnableParser {
     // the code. this is mainly specified by the indention-structure of the code
     ///////////////////////////////////////////////////////////////////////////
 
-    /**
-     * list all lines in the specified text
-     *
-     * @throws IOException
-     */
-    public void listLines()
-            throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(txt.getBytes())));
+    public void parse(String txt, CommandLineData data)
+            throws ParserException {
+        this.txt = txt;
+        this.data = data;
+        exceptions = new ArrayList<>();
 
-        lines = new ArrayList<>();
+        /* generate general data */
+        listLines();
 
-        String line;
-        while ((line = br.readLine()) != null)
-            lines.add(line);
+        /* bracket parsing */
+        checkBrackets();
 
-        br.close();
-    }
-
-    /**
-     * list indention changes in the given input text
-     * the output list contains pairs of (line , indention)
-     * where indention is the number of '\t' characters at the
-     * start of the line
-     *
-     * this list aswell contains the first line with indention = 0
-     * and the last line with indention = 0
-     */
-    public void listIndentions() {
-        indentions = new ArrayList<>();
-        indentions.add(new Pair<>(0, 0));
-
-        int currentIndention = 0;
-
-        Iterator<String> iter = lines.iterator();
-
-        int atLine = 0;
-        while (iter.hasNext()) {
-            String line = iter.next();
-
-            boolean isEmpty = true;
-
-            for (char c : line.toCharArray()) {
-
-                isEmpty = !SyntaxConstants.NON_SPACE.contains(Character.toString(c));
-
-                if (!isEmpty)
-                    break;
-            }
-
-            if (!isEmpty) {
-                int indention = 0;
-                for (; indention < line.length() && line.charAt(indention) == '\t'; indention++) ;
-
-                if (indention != currentIndention)
-                    indentions.add(new Pair<>(atLine, indention));
-            }
-
-            ++atLine;
-        }
-
-        indentions.add(new Pair<>(atLine, 0));
-    }
-
-    /**
-     * parses the code into a tree-like structure.
-     * This way, the code can be easily traversed by order.
-     *
-     * @throws ParserException
-     */
-    public void indentionStruct()
-            throws ParserException
-    {
-        indentionStruct = new Tree<>();
-
-        Tree<String> currentNode = indentionStruct;
-
-        Pair<Integer, Integer> prevIndention = indentions.get(0);
-        for (int i = 1; i < indentions.size(); i++) {
-            Pair<Integer, Integer> ind = indentions.get(i);
-
-            int deltaInd = ind.getValue() - prevIndention.getValue();
-
-            //simplify all lines by removing leading \t
-            for (int l = prevIndention.getKey(); l < ind.getKey(); l++)
-                try {
-                    currentNode.add(lines.get(l).substring(prevIndention.getValue()));
-                } catch (TreeBuildException ignored) {
-                }//never thrown
-
-            if (deltaInd > 0) {
-                Tree[] tmp = currentNode.getChildren().toArray(new Tree[0]);
-                currentNode = (Tree<String>) tmp[tmp.length - 1];
-            } else {
-                for (int l = 0; l < -deltaInd; l++)
-                    currentNode = currentNode.getParent();
-            }
-
-            prevIndention = ind;
-        }
+        parseBrackets();
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -157,52 +58,103 @@ public class RunnableParser {
     // the brackets contained in the code
     ///////////////////////////////////////////////////////////////////////
 
+    /**
+     * list all lines in the specified text
+     *
+     * @throws IOException
+     */
+    public void listLines() {
+        lines = new TreeSet<>();
+
+        int nline = txt.indexOf('\n');
+
+        while (nline != -1) {
+            lines.add(nline + 1);
+
+            nline = txt.indexOf('\n');
+        }
+    }
+
+    /**
+     * transforms the tree built from the indention-structure
+     * into a tree of trees containing the bracket-structure of
+     * the code
+     * <p>
+     * constraints: the code has a valid bracket-structure
+     *
+     * @throws ParserException
+     */
     public void parseBrackets()
             throws ParserException {
-        try {
-            bracketStruct = indentionStruct.<Tree<String>>transform(t -> {
-                String code = t;
+        //the mapping of each bracket to its peer
+        bracketPeersOpenToClose = new HashMap<>();
+        bracketPeersCloseToOpen = new HashMap<>();
 
-                Character[] chars = StringHelper.castToChar(code.toCharArray());
-                Sequence<Character> seq = new Sequence<>(chars, code.length());
+        //the final tree containing the result for this piece of code
+        bracketStruct = new Tree<>();
 
-                //list all opening indices
-                List<Integer>[] openingIndices = new List[SyntaxConstants.OPENING_BRACKETS.length];
+        //all brackettoken compiled into strings (b_o for opening , b_c for closing brackets)
+        String brackets_open = new String(SyntaxConstants.OPENING_BRACKETS);
+        String brackets_close = new String(SyntaxConstants.CLOSING_BRACKETS);
 
-                for (int i = 0; i < openingIndices.length; i++) {
-                    openingIndices[i] = new ArrayList<>();
+        //list of all currently opened brackets with their respective type
+        //(aka index of the char in b_o)
+        ArrayList<Integer> openingIndices = new ArrayList<>();
+        ArrayList<Integer> openingType = new ArrayList<>();
 
-                    char o_b = SyntaxConstants.OPENING_BRACKETS[i];
-                    char c_b = SyntaxConstants.CLOSING_BRACKETS[i];
+        //the parent of the next completed brackets
+        Tree<BracketRep> current_node = bracketStruct;
+        //index of the last bracket
+        int last_bracket = 0;
 
-                    int ind_o = code.indexOf(o_b);
-                    int ind_c = code.indexOf(c_b);
-                    int ci = 0;
+        //loop over all characters
+        for (int i = 0; i < txt.length(); i++) {
+            char c = txt.charAt(i);
 
-                    while (ci < code.length()) {
-                        if (ind_o > ind_c) {
-                            int offset = openingIndices[i].remove(openingIndices[i].size() - 1);
-                            int length = ind_c - offset;
+            //check whether this character is a opening/closing bracket or none
+            int type_open = brackets_open.indexOf(c);
+            int type_close = (type_open == -1 ? brackets_close.indexOf(c) : -1);
 
-                            Character[] c = new Character[length];
-                            System.arraycopy(chars, offset, c, 0, length);
-                            seq.mark(chars, offset, length);
+            if (type_open != -1) {
+                /* opening bracket */
 
-                            ind_c = code.indexOf(c_b, ind_c);
-                        } else {
-                            openingIndices[i].add(ind_o);
+                //store the index and type of the bracket in the stack
+                openingIndices.add(0, i);
+                openingType.add(0, type_open);
 
-                            ind_o = code.indexOf(o_b, ind_o);
-                        }
-                    }
-                }
+                //update the tree to match the structure of the brackets
+                Tree<BracketRep> tmp = new Tree<>(new BracketRep(txt.substring(last_bracket, i), type_open));
+                try {
+                    current_node.add(tmp);
+                } catch (TreeBuildException ignored) {
+                }//guaranteed to never be thrown
+                current_node = tmp;
 
-                Tree<String> result = new Tree<>();
+                //update the index of the last bracket
+                last_bracket = i;
+            } else if (type_close != -1) {
+                /* closing bracket */
 
-                return new Tree<>(result);
-            });
-        } catch (TreeBuildException e) {
-            throw new ParserException(ParserException.NOT_SPECIFIED, e.getMessage(), "unknown", -1, -1);
+                //retrieve the last opening bracket
+                int peer_bracket_type = openingType.remove(0);
+                int peer_bracket_index = openingIndices.remove(0);
+
+                //generate the node and insert it into the tree
+                Tree<BracketRep> n_t = new Tree<>(new BracketRep(txt.substring(last_bracket, i), peer_bracket_type));
+                try {
+                    current_node.add(n_t);
+                } catch (TreeBuildException ignored) {
+                }//never thrown -> ignore
+                //step out
+                current_node = current_node.getParent();
+
+                //store this value and it's peer in the map
+                bracketPeersCloseToOpen.put(i, peer_bracket_index);
+                bracketPeersOpenToClose.put(peer_bracket_index, i);
+
+                //update index of last bracket
+                last_bracket = i + 1;
+            }
         }
     }
 
@@ -214,36 +166,130 @@ public class RunnableParser {
     // statements
     ///////////////////////////////////////////////////////////////
 
-    public void toExec()
+    /**
+     * check whether the bracket-structure of the code is valid
+     * this only affects the general assembly of the brackets, not
+     * whether they are in a valid place respecting keywords/syntax, but
+     * whether for each opening bracket a matching closing bracket exists
+     *
+     * @throws ParserException if the code has an invalid bracket-structure
+     */
+    public void checkBrackets()
             throws ParserException {
-        try {
-            executable = indentionStruct.<Tree<Data>>transform(s ->
-            {
-                try {
-                    return toExecTree(s);
-                } catch (ParserException e) {
-                    exceptions.add(e);
+        final String bracketOpen = new String(SyntaxConstants.OPENING_BRACKETS);
+        final String bracketClose = new String(SyntaxConstants.CLOSING_BRACKETS);
 
-                    return null;
+        ArrayList<Integer> bracketType = new ArrayList<>();
+
+        char c;
+
+        for (int i = 0; i < txt.length(); i++) {
+            c = txt.charAt(i);
+
+            int type_open = bracketOpen.indexOf(c);
+            int type_close = bracketClose.indexOf(c);
+            int merge = type_close ^ type_open;
+
+            if (merge != 0) {
+                if (type_close != -1) {
+                    if (bracketType.isEmpty())
+                        throw new ParserException(ParserException.BRACKET_MISSING, "invalid token: " + c, getLine(i),
+                                translateToInline(i), translateToInline(i));
+                    else {
+                        int type_o = bracketType.remove(0);
+
+                        if (type_o != type_close)
+                            throw new ParserException(ParserException.BRACKET_MISSING,
+                                    "invalid token: " + c + " replace with: " + bracketClose.charAt(type_o), getLine(i),
+                                    translateToInline(i), translateToInline(i));
+                    }
+                } else {
+                    bracketType.add(0, type_open);
                 }
-            });
-        } catch (TreeBuildException e) {
-            throw new ParserException(ParserException.NOT_SPECIFIED, e.getMessage(), "unknown", -1, -1);
+            }
+        }
+
+        if (!bracketType.isEmpty()) {
+            int txtEnd = txt.length() - 1;
+
+            throw new ParserException(ParserException.BRACKET_MISSING,
+                    "bracket missing: " + bracketClose.charAt(bracketType.get(0)), getLine(txtEnd),
+                    translateToInline(txtEnd), translateToInline(txtEnd));
         }
     }
 
-    public Tree<Tree<Data>> toExecTree(String code)
-            throws ParserException {
+    ////////////////////////////////////////////////////////////////
+    // helper methods
+    ////////////////////////////////////////////////////////////////
 
-        Tree<Tree<Data>> result = new Tree<>();
+    public void parseLogic() {
 
-        return result;
     }
 
-    private Map<Integer, OperatorStub> listOperators(String code) {
-        Map<Integer, OperatorStub> result = new HashMap<>();
+    private String getLine(int atChar) {
+        if (atChar < 0 || atChar >= txt.length())
+            throw new IllegalArgumentException("Invalid index - must be in range");
 
+        Integer start = lines.floor(atChar);
+        Integer end = lines.ceiling(atChar);
 
-        return result;
+        if (start == null)
+            start = 0;
+
+        if (end == null)
+            end = txt.length() - 1;
+        else
+            --end;//exclude \n
+
+        return txt.substring(start, end);
+    }
+
+    private int translateToInline(int atChar) {
+        if (atChar < 0 || atChar >= txt.length())
+            throw new IllegalArgumentException("Invalid index - must be in range");
+
+        Integer start = lines.floor(atChar);
+
+        if (start == null)
+            return atChar;
+        else
+            return atChar - start;
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // testing
+    ////////////////////////////////////////////////////////////////
+
+    /**
+     * returns the index of the peer bracket to the char
+     * at atChar, if the char at atChar is a valid bracket
+     *
+     * @param atChar
+     * @return
+     * @throws ParserException
+     */
+    public int getBracketPeer(int atChar)
+            throws ParserException {
+        char c = txt.charAt(atChar);
+
+        int type = (new String(SyntaxConstants.OPENING_BRACKETS).contains("" + c) ? 1 :
+                new String(SyntaxConstants.CLOSING_BRACKETS).contains("" + c) ? 2 : 0);
+
+        if (type == 0)
+            throw new IllegalArgumentException("Invalid character - must be part of SyntaxConstants.OPENING_BRACKETS");
+        else if (type == 1)
+            return bracketPeersOpenToClose.get(atChar);
+        else
+            return bracketPeersCloseToOpen.get(atChar);
+    }
+
+    private static final class BracketRep {
+        public int bracketType;
+        public String content;
+
+        public BracketRep(String s, int type) {
+            this.content = s;
+            bracketType = type;
+        }
     }
 }
