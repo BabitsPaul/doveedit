@@ -13,6 +13,7 @@ public class ParserException
     public static final int INVALID_PARAMETER_TYPE = 5;
     public static final int INVALID_PARAMETER_COUNT = 6;
     public static final int INVALID_TOKEN = 7;
+    public static final int INTERNAL_ERROR = 8;
 
 
     private String line;

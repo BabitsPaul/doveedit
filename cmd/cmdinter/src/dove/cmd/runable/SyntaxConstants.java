@@ -41,6 +41,8 @@ public class SyntaxConstants {
     public static final int ARRAY_BRACKET = 1;
     public static final int ROUND_BRACKET = 2;
 
+    public static final char STRING_DELIMITER = '"';
+
     public static final Map<OperatorStub, Integer> PRIORITY_MAP = generatePriorityMap();
 
     private static final Map<OperatorStub, Integer> generatePriorityMap() {

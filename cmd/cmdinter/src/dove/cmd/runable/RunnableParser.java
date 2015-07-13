@@ -9,6 +9,15 @@ import java.io.IOException;
 import java.util.*;
 
 public class RunnableParser {
+    private static final int STATE_PARSER_UNINITIALIZED = -1;
+    private static final int STATE_PARSER_INIITED = 0;
+    private static final int STATE_STRINGS_RESOLVED = 1;
+    private static final int STATE_PREPROCESSOR_DONE = 2;
+    private static final int STATE_RESOLVED_LINES = 3;
+    private static final int STATE_RESOLVED_BRACKETS = 4;
+
+    private int state = STATE_PARSER_UNINITIALIZED;
+
     private String txt;
     private CommandLineData data;
 
@@ -17,6 +26,10 @@ public class RunnableParser {
     private Map<Integer, Integer> bracketPeersCloseToOpen;
     private Map<Integer, Integer> bracketPeersOpenToClose;
     private Tree<BracketRep> bracketStruct;
+
+    private Map<String, String> preprocessor;
+
+    private Map<String, String> textExtract;
 
     private Tree<Data> executable;
     private List<ParserException> exceptions;
@@ -29,26 +42,36 @@ public class RunnableParser {
         System.out.println(parser.bracketStruct);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // code structure
+    //////////////////////////////////////////////////////////////////////
+    // line parsing
     //
-    // this block contains method relevant for parsing the basic structure of
-    // the code. this is mainly specified by the indention-structure of the code
-    ///////////////////////////////////////////////////////////////////////////
+    // generate data representing the general structure of the
+    // code (lines, etc.)
+    //////////////////////////////////////////////////////////////////////
 
     public void parse(String txt, CommandLineData data)
             throws ParserException {
         this.txt = txt;
         this.data = data;
-        exceptions = new ArrayList<>();
+        state = STATE_PARSER_INIITED;
+
+        /* string extraction */
+        extractStrings();
+        state = STATE_STRINGS_RESOLVED;
+
+        /* preprocessor */
+        parsePreprocessor();
+        state = STATE_PREPROCESSOR_DONE;
 
         /* generate general data */
         listLines();
+        state = STATE_RESOLVED_LINES;
 
         /* bracket parsing */
         checkBrackets();
 
         parseBrackets();
+        state = STATE_RESOLVED_BRACKETS;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -63,7 +86,10 @@ public class RunnableParser {
      *
      * @throws IOException
      */
-    public void listLines() {
+    public void listLines()
+            throws ParserException {
+        checkState(STATE_STRINGS_RESOLVED);
+
         lines = new TreeSet<>();
 
         int nline = txt.indexOf('\n');
@@ -86,6 +112,8 @@ public class RunnableParser {
      */
     public void parseBrackets()
             throws ParserException {
+        checkState(STATE_RESOLVED_LINES);
+
         //the mapping of each bracket to its peer
         bracketPeersOpenToClose = new HashMap<>();
         bracketPeersCloseToOpen = new HashMap<>();
@@ -159,11 +187,10 @@ public class RunnableParser {
     }
 
     ///////////////////////////////////////////////////////////////
-    // logical parsing
+    // preprocessor
     //
-    // this part contains the main-parsing
-    // this includes the parsing of codeblocks into executable
-    // statements
+    // prepare preprocessor macros and defines
+    // to replace them in the resulting code
     ///////////////////////////////////////////////////////////////
 
     /**
@@ -176,6 +203,8 @@ public class RunnableParser {
      */
     public void checkBrackets()
             throws ParserException {
+        checkState(STATE_RESOLVED_LINES);
+
         final String bracketOpen = new String(SyntaxConstants.OPENING_BRACKETS);
         final String bracketClose = new String(SyntaxConstants.CLOSING_BRACKETS);
 
@@ -218,15 +247,41 @@ public class RunnableParser {
         }
     }
 
+    ///////////////////////////////////////////////////////////////
+    // string extractor
+    //
+    // replace all literals with their id
+    // and map the ids to their literals
+    ///////////////////////////////////////////////////////////////
+
+    public void parsePreprocessor()
+            throws ParserException {
+
+    }
+
+    ///////////////////////////////////////////////////////////////
+    // logical parsing
+    //
+    // this part contains the main-parsing
+    // this includes the parsing of codeblocks into executable
+    // statements
+    ///////////////////////////////////////////////////////////////
+
     ////////////////////////////////////////////////////////////////
     // helper methods
     ////////////////////////////////////////////////////////////////
 
-    public void parseLogic() {
+    public void extractStrings()
+            throws ParserException {
+        checkState(STATE_PARSER_INIITED);
 
+        int tmp;
     }
 
-    private String getLine(int atChar) {
+    public String getLine(int atChar)
+            throws ParserException {
+        checkState(STATE_RESOLVED_LINES);
+
         if (atChar < 0 || atChar >= txt.length())
             throw new IllegalArgumentException("Invalid index - must be in range");
 
@@ -244,7 +299,10 @@ public class RunnableParser {
         return txt.substring(start, end);
     }
 
-    private int translateToInline(int atChar) {
+    public int translateToInline(int atChar)
+            throws ParserException {
+        checkState(STATE_RESOLVED_LINES);
+
         if (atChar < 0 || atChar >= txt.length())
             throw new IllegalArgumentException("Invalid index - must be in range");
 
@@ -256,10 +314,6 @@ public class RunnableParser {
             return atChar - start;
     }
 
-    ////////////////////////////////////////////////////////////////
-    // testing
-    ////////////////////////////////////////////////////////////////
-
     /**
      * returns the index of the peer bracket to the char
      * at atChar, if the char at atChar is a valid bracket
@@ -270,6 +324,8 @@ public class RunnableParser {
      */
     public int getBracketPeer(int atChar)
             throws ParserException {
+        checkState(STATE_RESOLVED_BRACKETS);
+
         char c = txt.charAt(atChar);
 
         int type = (new String(SyntaxConstants.OPENING_BRACKETS).contains("" + c) ? 1 :
@@ -281,6 +337,17 @@ public class RunnableParser {
             return bracketPeersOpenToClose.get(atChar);
         else
             return bracketPeersCloseToOpen.get(atChar);
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // testing
+    ////////////////////////////////////////////////////////////////
+
+    public void checkState(int expected)
+            throws ParserException {
+        if (state < expected)
+            throw new ParserException(ParserException.INTERNAL_ERROR, "Invalid state - hasn't loaded required data",
+                    "unknown", -1, -1);
     }
 
     private static final class BracketRep {
