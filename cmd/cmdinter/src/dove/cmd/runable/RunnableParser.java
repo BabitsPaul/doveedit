@@ -34,21 +34,6 @@ public class RunnableParser {
     private Tree<Data> executable;
     private List<ParserException> exceptions;
 
-    public static void main(String[] args)
-            throws ParserException {
-        RunnableParser parser = new RunnableParser();
-        parser.txt = "ab{dfe[erear(e)]sdf}[] dfsle (efse)";
-        parser.parseBrackets();
-        System.out.println(parser.bracketStruct);
-    }
-
-    //////////////////////////////////////////////////////////////////////
-    // line parsing
-    //
-    // generate data representing the general structure of the
-    // code (lines, etc.)
-    //////////////////////////////////////////////////////////////////////
-
     public void parse(String txt, CommandLineData data)
             throws ParserException {
         this.txt = txt;
@@ -74,12 +59,12 @@ public class RunnableParser {
         state = STATE_RESOLVED_BRACKETS;
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    // bracket parsing
+    //////////////////////////////////////////////////////////////////////
+    // line parsing
     //
-    // this part parses the code structure from
-    // the brackets contained in the code
-    ///////////////////////////////////////////////////////////////////////
+    // generate data representing the general structure of the
+    // code (lines, etc.)
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * list all lines in the specified text
@@ -100,6 +85,13 @@ public class RunnableParser {
             nline = txt.indexOf('\n');
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////
+    // bracket parsing
+    //
+    // this part parses the code structure from
+    // the brackets contained in the code
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * transforms the tree built from the indention-structure
@@ -186,13 +178,6 @@ public class RunnableParser {
         }
     }
 
-    ///////////////////////////////////////////////////////////////
-    // preprocessor
-    //
-    // prepare preprocessor macros and defines
-    // to replace them in the resulting code
-    ///////////////////////////////////////////////////////////////
-
     /**
      * check whether the bracket-structure of the code is valid
      * this only affects the general assembly of the brackets, not
@@ -248,15 +233,29 @@ public class RunnableParser {
     }
 
     ///////////////////////////////////////////////////////////////
+    // preprocessor
+    //
+    // prepare preprocessor macros and defines
+    // to replace them in the resulting code
+    ///////////////////////////////////////////////////////////////
+
+    public void parsePreprocessor()
+            throws ParserException {
+
+    }
+
+    ///////////////////////////////////////////////////////////////
     // string extractor
     //
     // replace all literals with their id
     // and map the ids to their literals
     ///////////////////////////////////////////////////////////////
 
-    public void parsePreprocessor()
+    public void extractStrings()
             throws ParserException {
+        checkState(STATE_PARSER_INIITED);
 
+        int tmp;
     }
 
     ///////////////////////////////////////////////////////////////
@@ -270,13 +269,6 @@ public class RunnableParser {
     ////////////////////////////////////////////////////////////////
     // helper methods
     ////////////////////////////////////////////////////////////////
-
-    public void extractStrings()
-            throws ParserException {
-        checkState(STATE_PARSER_INIITED);
-
-        int tmp;
-    }
 
     public String getLine(int atChar)
             throws ParserException {
